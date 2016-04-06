@@ -1,4 +1,4 @@
-from __future__ import division
+
 from collections import OrderedDict
 
 import numpy as np
@@ -70,7 +70,7 @@ class DataFrameSummary(object):
         return '{}%'.format(x)
 
     def _clean_column(self, column):
-        if not isinstance(column, (int, str, unicode)):
+        if not isinstance(column, (int, str)):
             raise ValueError('{} is not a valid column'.format(column))
         return column in self.df.columns
 
@@ -84,7 +84,7 @@ class DataFrameSummary(object):
         # settings types
         stats['types'] = ''
         columns_info = self._get_columns_info(stats)
-        for ctype, columns in columns_info.iteritems():
+        for ctype, columns in columns_info.items():
             stats.ix[columns, 'types'] = ctype
         return stats.transpose()
 
@@ -202,10 +202,10 @@ class DataFrameSummary(object):
     def _get_bool_summary(self, column):
         series = self.df[column]
 
-        for k, v in series.values_count.items():
-            print 'class {}: {{count: {}, percentage: {}}}'.format(k,
+        for k, v in list(series.values_count.items()):
+            print('class {}: {{count: {}, percentage: {}}}'.format(k,
                                                                    v,
-                                                                   self._percent(v / self.length))
+                                                                   self._percent(v / self.length)))
 
         stats = dict(self.df[column].value_counts)
         return pd.concat([pd.Series(stats, name=column), self.columns_stats.ix[:, column]])
