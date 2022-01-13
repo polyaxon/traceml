@@ -1,0 +1,44 @@
+name: TraceML
+
+on:
+  push:
+    branches:
+    - master
+    - testing
+jobs:
+  library:
+    #    if: github.event.comment.body == 'test core'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.5, 3.6, 3.7, 3.8, 3.9, '3.10']
+    steps:
+    - run: |
+        pip install -U traceml
+  tests:
+#    if: github.event.comment.body == 'test core'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.7, 3.8, 3.9] #, '3.10']
+
+    steps:
+    - uses: actions/checkout@v2.4.0
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Upgrade pip
+      run: |
+        which python
+        python -m pip install --upgrade pip
+    - name: Install test dependencies
+      run: pip install -r traceml/requirements/dev.txt
+    - name: Install master dependencies
+      run: pip install -r traceml/requirements/master.txt
+    - name: traceml
+      run: export USE_LOCAL_PACKAGES="true" && pip install --upgrade --editable "traceml[dev]"
+    - name: Test with pytest
+      run: |
+        cd traceml
+        pytest -vv
