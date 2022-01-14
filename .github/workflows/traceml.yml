@@ -33,10 +33,12 @@ jobs:
         which python
         python -m pip install --upgrade pip
     - name: Install test dependencies
+      run: pip install -r traceml/requirements/test.txt
+    - name: Install dev dependencies
       run: pip install -r traceml/requirements/dev.txt
     - name: Install master dependencies
       run: pip install -r traceml/requirements/master.txt
-    - name: traceml
+    - name: Install dev librarie
       run: export USE_LOCAL_PACKAGES="true" && pip install --upgrade --editable "traceml[dev]"
     - name: Test with pytest
       run: |
