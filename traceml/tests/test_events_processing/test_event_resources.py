@@ -16,13 +16,12 @@
 
 import pytest
 
-from unittest import TestCase
-
+from polyaxon.utils.test_utils import BaseTestCase
 from traceml.processors.events_processors import metrics_dict_to_list
 
 
-@pytest.mark.events_mark
-class TestEventWriter(TestCase):
+@pytest.mark.processors_mark
+class TestEventWriter(BaseTestCase):
     def test_gpu_resources_to_metrics(self):
         resources = {
             "gpu_0_memory_free": 1000,

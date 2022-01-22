@@ -17,9 +17,9 @@
 from collections import deque
 from typing import Callable
 
-from polyaxon_schemas.containers.names import is_main_container
-from polyaxon_schemas.utils.formatting import Printer
-from polyaxon_schemas.utils.tz_utils import local_datetime
+from polyaxon.containers.names import MAIN_JOB_CONTAINER
+from polyaxon.utils.formatting import Printer
+from polyaxon.utils.tz_utils import local_datetime
 from traceml.logging.schemas import V1Log, V1Logs
 
 
@@ -47,7 +47,7 @@ def get_logs_streamer(
                 job_to_color[container_info] = color
             return Printer.add_color(container_info, color) + " | "
 
-        if not all_containers and not is_main_container(log.container):
+        if not all_containers and log.container != MAIN_JOB_CONTAINER:
             return log_line
 
         if all_info:

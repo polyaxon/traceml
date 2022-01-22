@@ -22,14 +22,14 @@ from marshmallow import ValidationError, fields, pre_load, validate, validates_s
 
 import polyaxon_sdk
 
-from polyaxon_schemas import parser
-from polyaxon_schemas.base import BaseConfig, BaseSchema
-from polyaxon_schemas.kinds import V1ArtifactKind
-from polyaxon_schemas.utils.csv_utils import validate_csv
-from polyaxon_schemas.utils.date_utils import parse_datetime
-from polyaxon_schemas.utils.np_utils import sanitize_np_types
-from polyaxon_schemas.utils.signal_decorators import check_partial
-from polyaxon_schemas.utils.tz_utils import now
+from polyaxon.parser import parser
+from polyaxon.schemas.base import BaseConfig, BaseSchema
+from polyaxon.utils.csv_utils import validate_csv
+from polyaxon.utils.date_utils import parse_datetime
+from polyaxon.utils.np_utils import sanitize_np_types
+from polyaxon.utils.signal_decorators import check_partial
+from polyaxon.utils.tz_utils import now
+from traceml.artifacts.kinds import V1ArtifactKind
 
 
 class EventImageSchema(BaseSchema):

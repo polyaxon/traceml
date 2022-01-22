@@ -21,10 +21,10 @@ from marshmallow import ValidationError, fields
 
 import polyaxon_sdk
 
-from polyaxon_schemas.base import BaseConfig, BaseSchema
-from polyaxon_schemas.utils.csv_utils import validate_csv
-from polyaxon_schemas.utils.date_utils import parse_datetime
-from polyaxon_schemas.utils.tz_utils import now
+from polyaxon.schemas.base import BaseConfig, BaseSchema
+from polyaxon.utils.csv_utils import validate_csv
+from polyaxon.utils.date_utils import parse_datetime
+from polyaxon.utils.tz_utils import now
 from traceml.logging.parser import (
     DATETIME_REGEX,
     ISO_DATETIME_REGEX,

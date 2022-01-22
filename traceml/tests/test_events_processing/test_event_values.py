@@ -19,13 +19,11 @@ import os
 import pytest
 import tempfile
 
-from unittest import TestCase
-
 from bokeh.plotting import figure
 from PIL import Image
 from plotly import figure_factory
 
-from polyaxon_schemas.utils.tests_utils import tensor_np
+from polyaxon.utils.test_utils import BaseTestCase, tensor_np
 from traceml.processors.events_processors import (
     audio,
     bokeh_chart,
@@ -39,8 +37,8 @@ from traceml.processors.events_processors import (
 )
 
 
-@pytest.mark.events_mark
-class TestEventValues(TestCase):
+@pytest.mark.processors_mark
+class TestEventValues(BaseTestCase):
     def setUp(self):
         self.run_path = tempfile.mkdtemp()
         self.asset_path = self.run_path + "/asset"

@@ -16,10 +16,9 @@
 import os
 import pytest
 
-from unittest import TestCase
-
-from polyaxon_schemas.utils.date_utils import parse_datetime
-from polyaxon_schemas.utils.tz_utils import now
+from polyaxon.utils.date_utils import parse_datetime
+from polyaxon.utils.test_utils import BaseTestCase
+from polyaxon.utils.tz_utils import now
 from traceml.events import (
     V1Event,
     V1EventArtifact,
@@ -40,7 +39,7 @@ from traceml.events.schemas import (
 
 
 @pytest.mark.events_mark
-class TestBaseEvent(TestCase):
+class TestBaseEvent(BaseTestCase):
     def test_has_timestamp(self):
         parsed = V1Event.make(timestamp="2018-12-11 10:24:57 UTC")
         expected = V1Event(timestamp=parse_datetime("2018-12-11 10:24:57 UTC"))
@@ -68,7 +67,7 @@ class TestBaseEvent(TestCase):
 
 
 @pytest.mark.events_mark
-class TestEventsV1(TestCase):
+class TestEventsV1(BaseTestCase):
     def test_metrics(self):
         events = LoggedEventListSpec(
             name="foo",
@@ -109,7 +108,7 @@ class TestEventsV1(TestCase):
         events = V1Events.read(
             name="metric_events",
             kind="metric",
-            data=os.path.abspath("tests/fixtures/metric/metric_events.plx"),
+            data=os.path.abspath("tests/fixtures/events/metric/metric_events.plx"),
         )
         assert events.name == "metric_events"
         assert len(events.df.values) == 3
@@ -162,7 +161,7 @@ class TestEventsV1(TestCase):
         events = V1Events.read(
             name="foo",
             kind="image",
-            data=os.path.abspath("tests/fixtures/image/image_events.plx"),
+            data=os.path.abspath("tests/fixtures/events/image/image_events.plx"),
         )
         assert events.name == "foo"
         assert len(events.df.values) == 3
@@ -217,7 +216,9 @@ class TestEventsV1(TestCase):
         events = V1Events.read(
             name="foo",
             kind="histogram",
-            data=os.path.abspath("tests/fixtures/histogram/histogram_events.plx"),
+            data=os.path.abspath(
+                "tests/fixtures/events/histogram/histogram_events.plx"
+            ),
         )
         assert events.name == "foo"
         assert len(events.df.values) == 3
@@ -270,7 +271,7 @@ class TestEventsV1(TestCase):
         events = V1Events.read(
             name="foo",
             kind="video",
-            data=os.path.abspath("tests/fixtures/video/video_events.plx"),
+            data=os.path.abspath("tests/fixtures/events/video/video_events.plx"),
         )
         assert events.name == "foo"
         assert len(events.df.values) == 3
@@ -337,7 +338,7 @@ class TestEventsV1(TestCase):
         events = V1Events.read(
             name="foo",
             kind="audio",
-            data=os.path.abspath("tests/fixtures/audio/audio_events.plx"),
+            data=os.path.abspath("tests/fixtures/events/audio/audio_events.plx"),
         )
         assert events.name == "foo"
         assert len(events.df.values) == 3
@@ -390,7 +391,7 @@ class TestEventsV1(TestCase):
         events = V1Events.read(
             name="foo",
             kind="html",
-            data=os.path.abspath("tests/fixtures/html/html_events.plx"),
+            data=os.path.abspath("tests/fixtures/events/html/html_events.plx"),
         )
         assert events.name == "foo"
         assert len(events.df.values) == 3
@@ -443,7 +444,7 @@ class TestEventsV1(TestCase):
         events = V1Events.read(
             name="foo",
             kind="chart",
-            data=os.path.abspath("tests/fixtures/chart/chart_events.plx"),
+            data=os.path.abspath("tests/fixtures/events/chart/chart_events.plx"),
         )
         assert events.name == "foo"
         assert len(events.df.values) == 3
@@ -520,7 +521,7 @@ class TestEventsV1(TestCase):
         events = V1Events.read(
             name="foo",
             kind="curve",
-            data=os.path.abspath("tests/fixtures/curve/curve_events.plx"),
+            data=os.path.abspath("tests/fixtures/events/curve/curve_events.plx"),
         )
         assert events.name == "foo"
         assert len(events.df.values) == 3
@@ -627,7 +628,9 @@ class TestEventsV1(TestCase):
         events = V1Events.read(
             name="foo",
             kind="confusion",
-            data=os.path.abspath("tests/fixtures/confusion/confusion_events.plx"),
+            data=os.path.abspath(
+                "tests/fixtures/events/confusion/confusion_events.plx"
+            ),
         )
         assert events.name == "foo"
         assert len(events.df.values) == 3
@@ -680,7 +683,7 @@ class TestEventsV1(TestCase):
         events = V1Events.read(
             name="foo",
             kind="artifact",
-            data=os.path.abspath("tests/fixtures/artifact/artifact_events.plx"),
+            data=os.path.abspath("tests/fixtures/events/artifact/artifact_events.plx"),
         )
         assert events.name == "foo"
         assert len(events.df.values) == 3
@@ -733,7 +736,7 @@ class TestEventsV1(TestCase):
         events = V1Events.read(
             name="foo",
             kind="model",
-            data=os.path.abspath("tests/fixtures/model/model_events.plx"),
+            data=os.path.abspath("tests/fixtures/events/model/model_events.plx"),
         )
         assert events.name == "foo"
         assert len(events.df.values) == 3
@@ -744,7 +747,9 @@ class TestEventsV1(TestCase):
         events = V1Events.read(
             name="foo",
             kind="model",
-            data=os.path.abspath("tests/fixtures/model/model_events_without_step.plx"),
+            data=os.path.abspath(
+                "tests/fixtures/events/model/model_events_without_step.plx"
+            ),
         )
         assert events.name == "foo"
         assert len(events.df.values) == 1
@@ -801,7 +806,9 @@ class TestEventsV1(TestCase):
         events = V1Events.read(
             name="foo",
             kind="dataframe",
-            data=os.path.abspath("tests/fixtures/dataframe/dataframe_events.plx"),
+            data=os.path.abspath(
+                "tests/fixtures/events/dataframe/dataframe_events.plx"
+            ),
         )
         assert events.name == "foo"
         assert len(events.df.values) == 3

@@ -18,22 +18,21 @@ import logging
 import os
 import socket
 
-from polyaxon_schemas.env_vars.keys import (
-    POLYAXON_KEYS_K8S_NODE_NAME,
-    POLYAXON_KEYS_K8S_POD_ID,
-)
-from polyaxon_schemas.utils.date_utils import to_datetime
-from polyaxon_schemas.utils.env import get_user
+from polyaxon import settings
+from polyaxon.env_vars.keys import POLYAXON_KEYS_K8S_NODE_NAME, POLYAXON_KEYS_K8S_POD_ID
+from polyaxon.utils.date_utils import to_datetime
+from polyaxon.utils.env import get_user
 from traceml.logger import logger
 from traceml.logging import V1Log
 
 
-class LoggingHandler(logging.Handler):
-    def __init__(self, add_logs, log_level=None, **kwargs):
+class PolyaxonHandler(logging.Handler):
+    def __init__(self, add_logs, **kwargs):
         self._add_logs = add_logs
         self._container = socket.gethostname()
         self._node = os.environ.get(POLYAXON_KEYS_K8S_NODE_NAME, "local")
         self._pod = os.environ.get(POLYAXON_KEYS_K8S_POD_ID, get_user())
+        log_level = settings.CLIENT_CONFIG.log_level
         if log_level and isinstance(log_level, str):
             log_level = log_level.upper()
         super().__init__(

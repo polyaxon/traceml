@@ -19,10 +19,10 @@ import pytest
 
 from unittest import TestCase
 
-from traceml.processors.importance import calculate_importance
+from traceml.processors.importance_processors import calculate_importance
 
 
-@pytest.mark.importance_mark
+@pytest.mark.processors_mark
 class TestFeatureImportance(TestCase):
     def test_params_empty(self):
         assert calculate_importance(None, None) is None

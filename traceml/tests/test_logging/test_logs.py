@@ -15,15 +15,14 @@
 # limitations under the License.
 import pytest
 
-from unittest import TestCase
-
-from polyaxon_schemas.utils.date_utils import parse_datetime
-from polyaxon_schemas.utils.tz_utils import now
+from polyaxon.utils.date_utils import parse_datetime
+from polyaxon.utils.test_utils import BaseTestCase
+from polyaxon.utils.tz_utils import now
 from traceml.logging.schemas import V1Log, V1Logs
 
 
 @pytest.mark.logging_mark
-class TestLogV1(TestCase):
+class TestLogV1(BaseTestCase):
     def test_has_timestamp(self):
         parsed = V1Log.process_log_line(
             value="foo",
@@ -103,8 +102,7 @@ class TestLogV1(TestCase):
         )
 
 
-@pytest.mark.logging_mark
-class TestLogsV1(TestCase):
+class TestLogsV1(BaseTestCase):
     def test_logs(self):
         logs = V1Logs(
             last_file=1000,

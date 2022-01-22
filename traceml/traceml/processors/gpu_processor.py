@@ -16,7 +16,7 @@
 
 from typing import Dict, List
 
-from traceml import logger
+from traceml.logger import logger
 from traceml.processors.events_processors import metrics_dict_to_list
 from traceml.vendor import pynvml
 

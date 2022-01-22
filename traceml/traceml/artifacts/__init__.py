@@ -14,4 +14,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from traceml.artifacts.kinds import V1ArtifactKind
 from traceml.artifacts.schemas import RunArtifactSchema, V1RunArtifact

@@ -30,19 +30,12 @@ with open(os.path.join("./traceml/pkg.py"), encoding="utf8") as f:
     pkg = {}
     exec(f.read(), pkg)
 
-with open("requirements/requirements.txt") as requirements_file:
-    requirements = requirements_file.read().splitlines()
-
-with open("requirements/prod.txt") as requirements_file:
-    prod_requirements = requirements_file.read().splitlines()
-
-if not os.environ.get("USE_LOCAL_PACKAGES"):
-    requirements += prod_requirements
 
 with open("requirements/dev.txt") as requirements_file:
     dev_requirements = requirements_file.read().splitlines()
 
 extra = {
+    "polyaxon": ["polyaxon"],
     "dev": dev_requirements,
     "all": [
         "scikit-learn",
@@ -98,7 +91,7 @@ setup(
         "visualization",
         "analytics",
     ],
-    install_requires=requirements,
+    install_requires=[],
     extras_require=extra,
     python_requires=">=3.5",
     classifiers=[

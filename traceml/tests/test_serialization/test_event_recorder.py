@@ -17,19 +17,18 @@ import os
 import pytest
 import tempfile
 
-from unittest import TestCase
-
+from polyaxon.utils.test_utils import BaseTestCase
 from traceml.events.schemas import (
     LoggedEventListSpec,
     LoggedEventSpec,
     V1Event,
     V1Events,
 )
-from traceml.processors.writer import EventAsyncManager, EventFileWriter, EventWriter
+from traceml.serialization.writer import EventAsyncManager, EventFileWriter, EventWriter
 
 
-@pytest.mark.events_mark
-class TestEventWriter(TestCase):
+@pytest.mark.serialization_mark
+class TestEventWriter(BaseTestCase):
     def test_event_file(self):
         run_path = tempfile.mkdtemp()
         ew = EventWriter(run_path=run_path, backend=EventWriter.EVENTS_BACKEND)
@@ -191,8 +190,8 @@ class TestEventWriter(TestCase):
         assert results.get_event_at(3).to_dict() == new_events[1].event.to_dict()
 
 
-@pytest.mark.events_mark
-class TestEventFileWriter(TestCase):
+@pytest.mark.serialization_mark
+class TestEventFileWriter(BaseTestCase):
     def test_event_file_writer_initializes_paths(self):
         some_path = tempfile.mkdtemp()
         assert os.path.exists(some_path + "/run_uid") is False
@@ -387,8 +386,8 @@ class TestEventFileWriter(TestCase):
         assert len(os.listdir(run_path + "/events")) == 0
 
 
-@pytest.mark.events_mark
-class TestEventAsyncManager(TestCase):
+@pytest.mark.serialization_mark
+class TestEventAsyncManager(BaseTestCase):
     def test_async_writer_write_once(self):
         run_path = tempfile.mkdtemp()
         ew = EventAsyncManager(

@@ -30,6 +30,7 @@ from traceml.events.schemas import (
     EventModelSchema,
     EventSchema,
     EventVideoSchema,
+    LoggedEventListSpec,
     LoggedEventSpec,
     V1Event,
     V1EventArtifact,

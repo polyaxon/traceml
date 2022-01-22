@@ -19,7 +19,7 @@ import pandas as pd
 
 from typing import Dict, List, Optional, Tuple, Union
 
-from polyaxon_schemas.utils.np_utils import sanitize_np_types
+from polyaxon.utils.np_utils import sanitize_np_types
 
 
 def clean_duplicates(
@@ -32,7 +32,6 @@ def clean_duplicates(
         return None
 
     configs_df = pd.get_dummies(configs_df)
-
     configs_df = configs_df.loc[:, ~configs_df.columns.duplicated()]
     return metrics_df, configs_df
 
@@ -87,7 +86,6 @@ def calculate_importance(metrics: List[Union[int, float]], configs: List[Dict]):
 
     corr_list = configs_df.corrwith(metrics_df[0])
 
-    # Build the Random Forest
     from sklearn.ensemble import ExtraTreesRegressor
 
     forest = ExtraTreesRegressor(n_estimators=250, random_state=0)

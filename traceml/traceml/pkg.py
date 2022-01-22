@@ -15,9 +15,11 @@
 # limitations under the License.
 
 NAME = "traceml"
-VERSION = "1.0.0-rc0"
-DESC = "ML/Data visualization library."
-URL = "https://github.com/polyaxon/polyaxon"
+VERSION = "1.14.2"
+DESC = (
+    "Engine for ML/Data tracking, visualization, dashboards, and model UI for Polyaxon."
+)
+URL = "https://github.com/polyaxon/traceml"
 AUTHOR = "Polyaxon, Inc."
 EMAIL = "contact@polyaxon.com"
 LICENSE = "Apache 2.0"

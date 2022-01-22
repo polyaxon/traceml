@@ -15,9 +15,8 @@
 # limitations under the License.
 import pytest
 
-from unittest import TestCase
-
-from polyaxon_schemas.utils.date_utils import parse_datetime
+from polyaxon.utils.date_utils import parse_datetime
+from polyaxon.utils.test_utils import BaseTestCase
 from traceml.logging.parser import (
     DATETIME_REGEX,
     ISO_DATETIME_REGEX,
@@ -26,7 +25,7 @@ from traceml.logging.parser import (
 
 
 @pytest.mark.logging_mark
-class TestLoggingUtils(TestCase):
+class TestLoggingUtils(BaseTestCase):
     def test_has_timestamp(self):
         log_line = "2018-12-11 10:24:57 UTC"
         log_value, ts = timestamp_search_regex(DATETIME_REGEX, log_line)

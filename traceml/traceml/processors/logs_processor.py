@@ -16,15 +16,9 @@
 
 import logging
 
-from traceml.logging.handler import LoggingHandler
+from traceml.logging.handler import PolyaxonHandler
 
-EXCLUDE_DEFAULT_LOGGERS = (
-    "polyaxon.client",
-    "polyaxon.cli",
-    "polyaxon.schemas",
-    "traceml",
-    "datatile",
-)
+EXCLUDE_DEFAULT_LOGGERS = ("polyaxon.client", "polyaxon.cli")
 
 
 def setup_logging(add_logs, exclude=EXCLUDE_DEFAULT_LOGGERS):
@@ -33,12 +27,12 @@ def setup_logging(add_logs, exclude=EXCLUDE_DEFAULT_LOGGERS):
     if logging.StreamHandler not in map(type, plx_logger.handlers):
         plx_logger.addHandler(logging.StreamHandler())
         plx_logger.propagate = False
-    if LoggingHandler in map(type, plx_logger.handlers):
+    if PolyaxonHandler in map(type, plx_logger.handlers):
         for handler in plx_logger.handlers:
-            if isinstance(handler, LoggingHandler):
+            if isinstance(handler, PolyaxonHandler):
                 handler.set_add_logs(add_logs=add_logs)
     else:
-        handler = LoggingHandler(add_logs=add_logs)
+        handler = PolyaxonHandler(add_logs=add_logs)
         plx_logger.addHandler(handler)
 
     for logger_name in exclude:

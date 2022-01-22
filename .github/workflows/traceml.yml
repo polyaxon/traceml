@@ -34,8 +34,6 @@ jobs:
         python -m pip install --upgrade pip
     - name: Install test dependencies
       run: pip install -r traceml/requirements/test.txt
-    - name: Install dev dependencies
-      run: pip install -r traceml/requirements/dev.txt
     - name: Install master dependencies
       run: pip install -r traceml/requirements/master.txt
     - name: Install dev librarie

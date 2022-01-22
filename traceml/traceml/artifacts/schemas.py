@@ -19,8 +19,8 @@ from marshmallow import fields, validate
 
 import polyaxon_sdk
 
-from polyaxon_schemas.base import BaseConfig, BaseSchema
-from polyaxon_schemas.kinds import V1ArtifactKind
+from polyaxon.schemas.base import BaseConfig, BaseSchema
+from traceml.artifacts.kinds import V1ArtifactKind
 
 
 class RunArtifactSchema(BaseSchema):
