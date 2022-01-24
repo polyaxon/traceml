@@ -3,7 +3,7 @@
 <br>
 <p align="center">
   <p align="center">
-    <img src="https://raw.githubusercontent.com/polyaxon/polyaxon/master/artifacts/packages/datatile.svg" alt="datatile" height="120">
+    <img src="https://raw.githubusercontent.com/polyaxon/polyaxon/master/artifacts/packages/datatile.svg" alt="datatile" height="100">
   </p>
 </p>
 <br>

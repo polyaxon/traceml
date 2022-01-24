@@ -1,14 +1,26 @@
 name: Datatile
 
-on: [push, pull_request]
-
+on:
+  push:
+    branches:
+    - master
+    - testing
 jobs:
-  core:
+  library:
+    #    if: github.event.comment.body == 'test core'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.5, 3.6, 3.7, 3.8, 3.9, '3.10']
+    steps:
+    - run: |
+        pip install -U datatile
+  tests:
 #    if: github.event.comment.body == 'test core'
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.6', '3.7', '3.8', '3.9'] # , '3.10.0']
+        python-version: [3.7, 3.8, 3.9] #, '3.10']
 
     steps:
     - uses: actions/checkout@v2.4.0
@@ -16,10 +28,17 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
+    - name: Upgrade pip
       run: |
+        which python
         python -m pip install --upgrade pip
-        pip install pytest pandas
+    - name: Install test dependencies
+      run: pip install -r datatile/requirements/test.txt
+    - name: Install master dependencies
+      run: pip install -r datatile/requirements/master.txt
+    - name: Install dev librarie
+      run: export USE_LOCAL_PACKAGES="true" && pip install --upgrade --editable "datatile[dev]"
     - name: Test with pytest
       run: |
-        pytest
+        cd datatile
+        pytest -vv
