@@ -1,3 +1,10 @@
+[![License: Apache 2](https://img.shields.io/badge/License-apache2-green.svg)](LICENSE)
+[![Datatile](https://github.com/polyaxon/datatile/actions/workflows/datatile.yml/badge.svg)](https://github.com/polyaxon/datatile/actions/workflows/datatile.yml)
+[![Slack](https://img.shields.io/badge/chat-on%20slack-aadada.svg?logo=slack&longCache=true)](https://polyaxon.com/slack/)
+[![Docs](https://img.shields.io/badge/docs-stable-brightgreen.svg?style=flat)](https://polyaxon.com/docs/)
+[![GitHub](https://img.shields.io/badge/issue_tracker-github-blue?logo=github)](https://github.com/polyaxon/datatile/issues)
+[![GitHub](https://img.shields.io/badge/roadmap-github-blue?logo=github)](https://github.com/polyaxon/)
+
 # Datatile
 
 <br>
