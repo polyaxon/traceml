@@ -39,7 +39,6 @@ extra = {
     "dev": dev_requirements,
     "all": [
         "scikit-learn",
-        "hyperopt",
         "Pillow",
         "matplotlib<3.3.3",
         "moviepy",
