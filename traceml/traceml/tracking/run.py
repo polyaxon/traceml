@@ -28,7 +28,7 @@ import ujson
 import polyaxon_sdk
 
 from polyaxon import settings
-from polyaxon.client import RunClient, get_rel_asset_path
+from polyaxon.client import RunClient
 from polyaxon.client.decorators import client_handler
 from polyaxon.connections.reader import get_connection_type
 from polyaxon.constants.globals import UNKNOWN
@@ -47,12 +47,13 @@ from polyaxon.lifecycle import LifeCycle
 from polyaxon.sidecar.processor import SidecarThread
 from polyaxon.utils.env import get_run_env
 from polyaxon.utils.fqn_utils import to_fqn_name
+from polyaxon.utils.hashing import hash_value
 from polyaxon.utils.path_utils import (
     check_or_create_path,
     get_base_filename,
     get_path_extension,
 )
-from traceml.artifacts import V1ArtifactKind, V1RunArtifact
+from traceml.artifacts import V1ArtifactKind
 from traceml.events import LoggedEventSpec, V1Event, get_asset_path
 from traceml.logger import logger
 from traceml.logging import V1Log, V1Logs
@@ -160,6 +161,7 @@ class Run(RunClient):
         self._resource_logger = None
         self._sidecar = None
         self._exit_handler = None
+        self._store_path = None
 
         is_new = is_new or (
             self._run_uuid is None and not settings.CLIENT_CONFIG.is_managed
@@ -274,10 +276,14 @@ class Run(RunClient):
         )
 
     def _get_store_path(self):
+        if self._store_path:
+            return self._store_path
         connection = get_connection_type(get_artifacts_store_name())
         if not connection:
             logger.warning("Artifacts store connection not detected.")
-        return os.path.join(connection.store_path, self.run_uuid)
+            return None
+        self._store_path = os.path.join(connection.store_path, self.run_uuid)
+        return self._store_path
 
     @client_handler(check_no_op=True)
     def get_artifacts_path(
@@ -313,6 +319,7 @@ class Run(RunClient):
         artifacts_path = (
             self._get_store_path() if use_store_path else self._artifacts_path
         )
+        artifacts_path = artifacts_path or self._artifacts_path
         if rel_path:
             path = os.path.join(artifacts_path, rel_path)
             if ensure_path and not use_store_path:
@@ -352,13 +359,19 @@ class Run(RunClient):
         Returns:
             str, outputs_path
         """
-        outputs_path = (
-            container_contexts.CONTEXTS_OUTPUTS_SUBPATH_FORMAT.format(
-                self._get_store_path()
-            )
-            if use_store_path
-            else self._outputs_path
-        )
+        if use_store_path:
+            artifacts_path = self._get_store_path()
+            if artifacts_path:
+                outputs_path = (
+                    container_contexts.CONTEXTS_OUTPUTS_SUBPATH_FORMAT.format(
+                        artifacts_path
+                    )
+                )
+            else:
+                outputs_path = self._outputs_path
+        else:
+            outputs_path = self._outputs_path
+
         if rel_path:
             path = os.path.join(outputs_path, rel_path)
             if ensure_path:
@@ -470,9 +483,11 @@ class Run(RunClient):
         >>> log_metric(name="loss", value=0.01, step=10)
         ```
 
-        > It's very important to log `step` as one of your metrics
+        > **Note**: It's very important to log `step` as one of your metrics
         > if you want to compare experiments on the dashboard
         > and use the steps in x-axis instead of timestamps.
+
+        > **Note**: To log multiple metrics at once you can use `log_metrics`.
 
         Args:
             name: str, metric name
@@ -506,7 +521,7 @@ class Run(RunClient):
         >>> log_metrics(step=123, loss=0.023, accuracy=0.91)
         ```
 
-        > It's very important to log `step` as one of your metrics
+        > **Note**: It's very important to log `step` as one of your metrics
         > if you want to compare experiments on the dashboard
         > and use the steps in x-axis instead of timestamps.
 
@@ -558,7 +573,7 @@ class Run(RunClient):
             step: int, optional
             timestamp: datetime, optional
         """
-        name = self._sanitize_file_name(name)
+        name = self._sanitize_filename(name)
         self._log_has_events()
 
         event_value = events_processors.roc_auc_curve(
@@ -600,7 +615,7 @@ class Run(RunClient):
             timestamp: datetime, optional
             is_multi_class: bool, optional
         """
-        name = self._sanitize_file_name(name)
+        name = self._sanitize_filename(name)
         self._log_has_events()
 
         def create_event(chart_name, y_p, y_t, pos_label=None):
@@ -650,7 +665,7 @@ class Run(RunClient):
             step: int, optional
             timestamp: datetime, optional
         """
-        name = self._sanitize_file_name(name)
+        name = self._sanitize_filename(name)
         self._log_has_events()
 
         event_value = events_processors.pr_curve(
@@ -692,7 +707,7 @@ class Run(RunClient):
             timestamp: datetime, optional
             is_multi_class: bool, optional
         """
-        name = self._sanitize_file_name(name)
+        name = self._sanitize_filename(name)
         self._log_has_events()
 
         def create_event(chart_name, y_p, y_t, pos_label=None):
@@ -743,7 +758,7 @@ class Run(RunClient):
             step: int, optional
             timestamp: datetime, optional
         """
-        name = self._sanitize_file_name(name)
+        name = self._sanitize_filename(name)
         self._log_has_events()
 
         event_value = events_processors.curve(
@@ -789,7 +804,7 @@ class Run(RunClient):
             step: int, optional
             timestamp: datetime, optional
         """
-        name = self._sanitize_file_name(name)
+        name = self._sanitize_filename(name)
         self._log_has_events()
 
         try:
@@ -854,7 +869,7 @@ class Run(RunClient):
             ext = get_path_extension(filepath=data) or ext
         else:
             name = name or "image"
-        name = self._sanitize_file_name(name)
+        name = self._sanitize_filename(name)
 
         asset_path = get_asset_path(
             run_path=self._artifacts_path,
@@ -929,7 +944,7 @@ class Run(RunClient):
         self._log_has_events()
 
         name = name or "figure"
-        name = self._sanitize_file_name(name)
+        name = self._sanitize_filename(name)
         asset_path = get_asset_path(
             run_path=self._artifacts_path,
             kind=V1ArtifactKind.IMAGE,
@@ -977,7 +992,7 @@ class Run(RunClient):
             timestamp: datetime, optional
         """
         name = name or "figure"
-        name = self._sanitize_file_name(name)
+        name = self._sanitize_filename(name)
         if isinstance(data, list):
             event_value = events_processors.figures_to_images(figures=data, close=close)
 
@@ -1038,7 +1053,7 @@ class Run(RunClient):
             content_type = get_path_extension(filepath=data) or content_type
         else:
             name = name or "video"
-        name = self._sanitize_file_name(name)
+        name = self._sanitize_filename(name)
 
         asset_path = get_asset_path(
             run_path=self._artifacts_path,
@@ -1108,7 +1123,7 @@ class Run(RunClient):
             ext = get_path_extension(filepath=data) or ext
         else:
             name = name or "audio"
-        name = self._sanitize_file_name(name)
+        name = self._sanitize_filename(name)
 
         asset_path = get_asset_path(
             run_path=self._artifacts_path,
@@ -1160,7 +1175,7 @@ class Run(RunClient):
             step: int, optional
             timestamp: datetime, optional
         """
-        name = self._sanitize_file_name(name)
+        name = self._sanitize_filename(name)
         self._log_has_events()
 
         logged_event = LoggedEventSpec(
@@ -1186,7 +1201,7 @@ class Run(RunClient):
             step: int, optional
             timestamp: datetime, optional
         """
-        name = self._sanitize_file_name(name)
+        name = self._sanitize_filename(name)
         self._log_has_events()
 
         logged_event = LoggedEventSpec(
@@ -1214,7 +1229,7 @@ class Run(RunClient):
             step: int, optional
             timestamp: datetime, optional
         """
-        name = self._sanitize_file_name(name)
+        name = self._sanitize_filename(name)
         self._log_has_events()
 
         event_value = events_processors.np_histogram(values=values, counts=counts)
@@ -1258,7 +1273,7 @@ class Run(RunClient):
             step: int, optional
             timestamp: datetime, optional
         """
-        name = self._sanitize_file_name(name)
+        name = self._sanitize_filename(name)
         self._log_has_events()
 
         event_value = events_processors.histogram(
@@ -1285,9 +1300,10 @@ class Run(RunClient):
         step: int = None,
         timestamp: datetime = None,
         rel_path: str = None,
-        versioned: bool = True,
+        skip_hash_calculation: bool = False,
+        **kwargs,
     ):
-        """Logs a model or a versioned model if versioned is true or a step value is provided.
+        """Logs a model or a versioned model if a step value is provided.
 
         This method will:
          * save the model
@@ -1302,22 +1318,26 @@ class Run(RunClient):
         > only record a lineage information of that path you can use `log_model_ref`.
 
         Args:
-            path: str, path to the model to log
-            name: str, name
-            framework: str, optional ,name of the framework
-            summary: Dict, optional, key, value information about the model
+            path: str, path to the model to log.
+            name: str, name to give to the model.
+            framework: str, optional ,name of the framework.
+            summary: Dict, optional, key, value information about the model.
             step: int, optional
             timestamp: datetime, optional
-            rel_path: str, relative path where to store the model
-            versioned: bool, to enable the versioned behavior for storing the model
+            rel_path: str, relative path where to store the model.
+            skip_hash_calculation: optional, flag to instruct the client to skip hash calculation.
         """
+        if kwargs:
+            logger.warning(
+                "`log_model` received a deprecated or an unexpected parameters"
+            )
         name = name or get_base_filename(path)
-        name = self._sanitize_file_name(name)
+        name = self._sanitize_filename(name)
         ext = None
         if os.path.isfile(path):
             ext = get_path_extension(filepath=path)
 
-        if versioned or step is not None:
+        if step is not None:
             self._log_has_model()
             asset_path = get_asset_path(
                 run_path=self._artifacts_path,
@@ -1350,6 +1370,7 @@ class Run(RunClient):
                 framework=framework,
                 summary=summary,
                 rel_path=asset_rel_path,
+                skip_hash_calculation=skip_hash_calculation,
             )
 
     @client_handler(check_no_op=True, can_log_events=True)
@@ -1362,11 +1383,10 @@ class Run(RunClient):
         step: int = None,
         timestamp: datetime = None,
         rel_path: str = None,
-        versioned: bool = True,
+        skip_hash_calculation: bool = False,
         **kwargs,
     ):
-        """Logs a generic artifact or a versioned generic artifact
-        if versioned is true or a step value is provided.
+        """Logs a generic artifact or a versioned generic artifact if a step value is provided.
 
         This method will:
          * save the artifact
@@ -1381,23 +1401,27 @@ class Run(RunClient):
         > only record a lineage information of that path you can use `log_artifact_ref`.
 
         Args:
-            path: str, path to the artifact
-            name: str, optional, if not provided the name of the file will be used
+            path: str, path to the artifact.
+            name: str, optional, if not provided the name of the file will be used.
             kind: optional, str
             summary: Dict, optional,
                  additional summary information to log about data in the lineage table.
             step: int, optional
             timestamp: datetime, optional
-            rel_path: str, relative path where to store the artifacts
-            versioned: bool, to enable the versioned behavior for storing the artifact
+            rel_path: str, relative path where to store the artifacts.
+            skip_hash_calculation: optional, flag to instruct the client to skip hash calculation
         """
+        if kwargs:
+            logger.warning(
+                "`log_artifact` received a deprecated or an unexpected parameters"
+            )
         name = name or get_base_filename(path)
-        name = self._sanitize_file_name(name)
+        name = self._sanitize_filename(name)
         ext = get_path_extension(filepath=path)
         kind = kind or kwargs.get("artifact_kind")  # Backwards compatibility
         kind = kind or V1ArtifactKind.FILE
 
-        if versioned or step is not None:
+        if step is not None:
             self._log_has_events()
             asset_path = get_asset_path(
                 run_path=self._artifacts_path,
@@ -1430,6 +1454,7 @@ class Run(RunClient):
                 kind=kind,
                 summary=summary,
                 rel_path=asset_rel_path,
+                skip_hash_calculation=skip_hash_calculation,
             )
 
     @client_handler(check_no_op=True, can_log_events=True)
@@ -1445,14 +1470,14 @@ class Run(RunClient):
 
         Args:
             df: the dataframe to save
-            name: str, optional, if not provided the name of the file will be used
+            name: str, optional, if not provided the name of the file will be used.
             content_type: str, optional, csv or html.
             step: int, optional
             timestamp: datetime, optional
         """
         self._log_has_events()
 
-        name = self._sanitize_file_name(name)
+        name = self._sanitize_filename(name)
         asset_path = get_asset_path(
             run_path=self._artifacts_path,
             kind=V1ArtifactKind.DATAFRAME,
@@ -1499,7 +1524,7 @@ class Run(RunClient):
             step: int, optional
             timestamp: datetime, optional
         """
-        name = self._sanitize_file_name(name)
+        name = self._sanitize_filename(name)
         self._log_has_events()
 
         chart = events_processors.plotly_chart(figure=figure)
@@ -1522,7 +1547,7 @@ class Run(RunClient):
             step: int, optional
             timestamp: datetime, optional
         """
-        name = self._sanitize_file_name(name)
+        name = self._sanitize_filename(name)
         self._log_has_events()
 
         chart = events_processors.bokeh_chart(figure=figure)
@@ -1545,7 +1570,7 @@ class Run(RunClient):
             step: int, optional
             timestamp: datetime, optional
         """
-        name = self._sanitize_file_name(name)
+        name = self._sanitize_filename(name)
         self._log_has_events()
 
         chart = events_processors.altair_chart(figure=figure)
@@ -1568,7 +1593,7 @@ class Run(RunClient):
             step: int, optional
             timestamp: datetime, optional
         """
-        name = self._sanitize_file_name(name)
+        name = self._sanitize_filename(name)
         self._log_has_events()
 
         chart = events_processors.mpl_plotly_chart(figure=figure)
@@ -1674,11 +1699,10 @@ class Run(RunClient):
         with open(os.path.join(path), "w") as env_file:
             env_file.write(ujson.dumps(content))
 
-        artifact_run = V1RunArtifact(
+        self.log_artifact_ref(
+            path=path,
             name="env",
             kind=V1ArtifactKind.ENV,
-            path=get_rel_asset_path(path=path, is_offline=self._is_offline),
-            summary={"path": path},
+            summary={"path": path, "hash": hash_value(content)},
             is_input=False,
         )
-        self.log_artifact_lineage(body=artifact_run)
