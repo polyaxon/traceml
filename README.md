@@ -5,13 +5,7 @@
 [![GitHub](https://img.shields.io/badge/issue_tracker-github-blue?logo=github)](https://github.com/polyaxon/polyaxon/issues)
 [![GitHub](https://img.shields.io/badge/roadmap-github-blue?logo=github)](https://github.com/polyaxon/polyaxon/milestones)
 
-<br>
-<p align="center">
-  <p align="center">
-    <img src="https://raw.githubusercontent.com/polyaxon/polyaxon/master/artifacts/packages/traceml.svg" alt="traceml" height="100">
-  </p>
-</p>
-<br>
+<a href="https://polyaxon.com"><img src="https://raw.githubusercontent.com/polyaxon/polyaxon/master/artifacts/packages/traceml.svg" width="125" height="125" align="right" /></a>
 
 # TraceML
 
@@ -31,13 +25,7 @@ pip install polyaxon traceml
 
 ## Local sandbox
 
-> WIP: this command is in preview
-
-Start a local sandbox to track and visualize the run
-
-```bash
-polyaxon sandbox -f path/to/artifacts/repo
-```
+> This is work in progress
 
 ## Offline usage
 
@@ -69,7 +57,7 @@ tracking.init(
     description="trying TraceML",
     tags=["examples"],
     artifacts_path="path/to/artifacts/repo"
-) 
+)
 
 # Tracking some data refs
 tracking.log_data_ref(content=X_train, name='x_train')
@@ -147,7 +135,7 @@ model.fit(
 
 ### PyTorch
 
-You can log metrics, inputs, and outputs of Pytorch experiments using the tracking module: 
+You can log metrics, inputs, and outputs of Pytorch experiments using the tracking module:
 
 ```python
 from traceml import tracking
@@ -175,7 +163,7 @@ for batch_idx, (data, target) in enumerate(train_loader):
     loss.backward()
     optimizer.step()
     tracking.log_mtrics(loss=loss)
-    
+
 asset_path = tracking.get_outputs_path('model.ckpt')
 torch.save(model.state_dict(), asset_path)
 
