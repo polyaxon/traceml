@@ -5,15 +5,9 @@
 [![GitHub](https://img.shields.io/badge/issue_tracker-github-blue?logo=github)](https://github.com/polyaxon/datatile/issues)
 [![GitHub](https://img.shields.io/badge/roadmap-github-blue?logo=github)](https://github.com/polyaxon/)
 
-# Datatile
+<a href="https://polyaxon.com"><img src="https://raw.githubusercontent.com/polyaxon/polyaxon/master/artifacts/packages/datatile.svg" width="125" height="125" align="right" /></a>
 
-<br>
-<p align="center">
-  <p align="center">
-    <img src="https://raw.githubusercontent.com/polyaxon/polyaxon/master/artifacts/packages/datatile.svg" alt="datatile" height="100">
-  </p>
-</p>
-<br>
+# Datatile
 
 A library for managing, summarizing, and visualizing data.
 
