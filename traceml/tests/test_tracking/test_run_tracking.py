@@ -29,8 +29,8 @@ import matplotlib.pyplot as plt
 from bokeh.plotting import figure
 from plotly import figure_factory
 
-from polyaxon import settings
-from polyaxon.constants.globals import DEFAULT, PLATFORM_DIST_CE
+from polyaxon import dist, settings
+from polyaxon.constants.globals import DEFAULT
 from polyaxon.containers.contexts import (
     CONTEXT_ARTIFACTS_FORMAT,
     CONTEXT_MOUNT_ARTIFACTS_FORMAT,
@@ -149,7 +149,7 @@ class TestRunTracking(TestEnvVarsCase):
 
         # Uses default as owner in CE
         settings.CLIENT_CONFIG.is_offline = True
-        settings.CLI_CONFIG.installation = {"dist": PLATFORM_DIST_CE}
+        settings.CLI_CONFIG.installation = {"dist": dist.CE}
         with patch("traceml.tracking.run.Run._set_exit_handler") as exit_mock:
             run = Run(project="test", track_code=False, track_env=False)
         assert exit_mock.call_count == 1
@@ -181,7 +181,7 @@ class TestRunTracking(TestEnvVarsCase):
 
         # Uses default as owner in CE
         settings.CLIENT_CONFIG.is_offline = True
-        settings.CLI_CONFIG.installation = {"dist": PLATFORM_DIST_CE}
+        settings.CLI_CONFIG.installation = {"dist": dist.CE}
         run = Run(project="test")
         assert run.owner == DEFAULT
 
@@ -194,7 +194,7 @@ class TestRunTracking(TestEnvVarsCase):
         assert run.run_uuid == "uid"
 
         # FQN CE
-        settings.CLI_CONFIG.installation = {"dist": PLATFORM_DIST_CE}
+        settings.CLI_CONFIG.installation = {"dist": dist.CE}
         os.environ[POLYAXON_KEYS_RUN_INSTANCE] = "user.project_bar.runs.uid"
         run = Run()
         assert run.owner == "user"
