@@ -144,6 +144,7 @@ class TestRunTracking(TestEnvVarsCase):
             Run()
 
         # Uses default as owner in non CE
+        settings.CLI_CONFIG.installation = {"dist": dist.EE}
         with self.assertRaises(PolyaxonClientException):
             Run(project="test")
 
@@ -174,7 +175,7 @@ class TestRunTracking(TestEnvVarsCase):
         with self.assertRaises(PolyaxonClientException):
             Run()
 
-        settings.CLI_CONFIG.installation = None
+        settings.CLI_CONFIG.installation = {"dist": dist.EE}
         # Uses default as owner in non CE
         with self.assertRaises(PolyaxonClientException):
             Run(project="test")
@@ -186,7 +187,7 @@ class TestRunTracking(TestEnvVarsCase):
         assert run.owner == DEFAULT
 
         # FQN non CE
-        settings.CLI_CONFIG.installation = None
+        settings.CLI_CONFIG.installation = {"dist": dist.EE}
         os.environ[POLYAXON_KEYS_RUN_INSTANCE] = "user.project_bar.runs.uid"
         run = Run()
         assert run.owner == "user"
