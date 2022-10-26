@@ -7,4 +7,4 @@ moviepy==1.0.2
 plotly==4.6.0
 Pillow
 bokeh
-aiofiles==0.8.0
+aiofiles==22.1.0
