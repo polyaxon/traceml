@@ -1,4 +1,5 @@
 global-exclude *.py[cod]
+global-exclude __pycache__
 prune tests
 prune __pycache__
 include ../README.md
