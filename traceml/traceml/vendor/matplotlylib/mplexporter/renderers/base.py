@@ -1,11 +1,12 @@
 import warnings
 import itertools
 from contextlib import contextmanager
-from distutils.version import LooseVersion
 
 import numpy as np
 import matplotlib as mpl
 from matplotlib import transforms
+
+from polyaxon.utils.versions import get_loose_version
 
 from .. import utils
 from .. import _py3k_compat as py3k
@@ -201,7 +202,7 @@ class Renderer(object):
 
         # Before mpl 1.4.0, path_transform can be a false-y value, not a valid
         # transformation matrix.
-        if LooseVersion(mpl.__version__) < LooseVersion("1.4.0"):
+        if get_loose_version(mpl.__version__) < get_loose_version("1.4.0"):
             if path_transforms is None:
                 path_transforms = [np.eye(3)]
 
