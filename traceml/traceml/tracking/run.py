@@ -1311,7 +1311,7 @@ class Run(RunClient):
          * save the model
          * several versions of the model and create an event file if the step is provided.
 
-        > **Note 1**: This method does a couple things:
+        > **Note 1**: This method does a couple of things:
         >  * It moves the model under the outputs or the assets directory if the step is provided
         >  * If the step is provided it creates an event file
         >  * It creates a lineage reference to the model or to the event file if the step is provided
