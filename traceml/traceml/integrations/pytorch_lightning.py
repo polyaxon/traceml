@@ -17,23 +17,43 @@
 from argparse import Namespace
 from typing import Any, Dict, List, Optional, Union
 
+import packaging
+
 from polyaxon.client import RunClient
 from traceml import tracking
 from traceml.exceptions import TracemlException
 
 try:
-    from pytorch_lightning.loggers.base import LightningLoggerBase, rank_zero_experiment
-    from pytorch_lightning.utilities import rank_zero_only
+    import pytorch_lightning as pl
+
+    NEW_PL_VERSION = packaging.version.parse(pl.__version__) < packaging.version.parse(
+        "1.7"
+    )
+
+    if NEW_PL_VERSION:
+        from pytorch_lightning.loggers.base import LightningLoggerBase as Logger
+        from pytorch_lightning.loggers.base import rank_zero_experiment
+    else:
+        from pytorch_lightning.loggers.logger import (
+            Logger,
+            rank_zero_experiment,
+        )
+
     from pytorch_lightning.utilities.logger import (
+        _add_prefix,
         _convert_params,
         _flatten_dict,
         _sanitize_callable_params,
     )
+    from pytorch_lightning.utilities.model_summary import ModelSummary
+    from pytorch_lightning.utilities.rank_zero import rank_zero_only, rank_zero_warn
 except ImportError:
     raise TracemlException("PytorchLightning is required to use the tracking Callback")
 
 
-class Callback(LightningLoggerBase):
+class Callback(Logger):
+    LOGGER_JOIN_CHAR = "_"
+
     def __init__(
         self,
         owner: str = None,
@@ -111,8 +131,18 @@ class Callback(LightningLoggerBase):
         self, metrics: Dict[str, float], step: Optional[int] = None
     ) -> None:
         assert rank_zero_only.rank == 0, "experiment tried to log from global_rank != 0"
-        metrics = self._add_prefix(metrics)
+        metrics = _add_prefix(metrics, self._prefix, self.LOGGER_JOIN_CHAR)
         self.experiment.log_metrics(**metrics, step=step)
+
+    @rank_zero_only
+    def log_model_summary(
+        self, model: "pl.LightningModule", max_depth: int = -1
+    ) -> None:
+        summary = str(ModelSummary(model=model, max_depth=max_depth))
+        rel_path = self.run.get_outputs_path("model_summary.txt")
+        with open(rel_path, "w") as f:
+            f.write(summary)
+        self.run.log_file_ref(path=rel_path, name="model_summary", is_input=False)
 
     @property
     def save_dir(self) -> Optional[str]:
