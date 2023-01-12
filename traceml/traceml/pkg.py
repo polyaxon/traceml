@@ -15,7 +15,7 @@
 # limitations under the License.
 
 NAME = "traceml"
-VERSION = "1.0.3"
+VERSION = "1.0.4"
 DESC = (
     "Engine for ML/Data tracking, visualization, dashboards, and model UI for Polyaxon."
 )
