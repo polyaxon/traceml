@@ -13,6 +13,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import os
 import uuid
 
 from argparse import Namespace
@@ -21,6 +22,7 @@ from typing import Any, Dict, List, Optional, Union
 import packaging
 
 from polyaxon.client import RunClient
+from polyaxon.env_vars.keys import EV_KEYS_RUN_INSTANCE
 from traceml import tracking
 from traceml.exceptions import TracemlException
 
@@ -155,18 +157,43 @@ class Callback(Logger):
             self.experiment.end()
             self._experiment = None
 
+    def _set_run_instance_from_env_vars(self, force: bool = False):
+        """Tries to extract run info from canonical env vars"""
+        run_instance = os.getenv(EV_KEYS_RUN_INSTANCE)
+        if not run_instance:
+            return
+
+        parts = run_instance.split(".")
+        if len(parts) != 4:
+            return
+
+        if not self._name or force:
+            self._name = parts[2]
+        if not self._run_uuid or force:
+            self._run_uuid = parts[-1]
+
     @property
     def name(self) -> str:
         if self._experiment is not None and self._experiment.run_data.name is not None:
             return self.experiment.run_data.name
+
+        if not self._name:
+            self._set_run_instance_from_env_vars()
+
         if self._name:
             return self._name
+
         return "default"
 
     @property
     def version(self) -> str:
         if self._experiment is not None and self._experiment.run_data.uuid is not None:
             return self.experiment.run_data.uuid
+
+        if not self._run_uuid:
+            self._set_run_instance_from_env_vars()
+
         if self._run_uuid:
             return self._run_uuid
+
         return uuid.uuid4().hex
