@@ -14,11 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-NUMPY_ERROR_MESSAGE = "numpy is required for this tracking operation!"
-PANDAS_ERROR_MESSAGE = "pandas is required for this tracking operation!"
-PIL_ERROR_MESSAGE = "PIL/Pillow is required for this tracking operation!"
-MOVIEPY_ERROR_MESSAGE = "moviepy is required for this tracking operation!"
-MATPLOTLIB_ERROR_MESSAGE = "matplotlib is required for this tracking operation!"
-PLOTLY_ERROR_MESSAGE = "plotly is required for this tracking operation!"
-BOKEH_ERROR_MESSAGE = "bokeh is required for this tracking operation!"
-SKLEARN_ERROR_MESSAGE = "sklearn is required for this tracking operation!"
+NUMPY_ERROR_MESSAGE = "numpy is required for this tracking operation."
+PANDAS_ERROR_MESSAGE = "pandas is required for this tracking operation."
+PIL_ERROR_MESSAGE = "PIL/Pillow is required for this tracking operation."
+MOVIEPY_ERROR_MESSAGE = "moviepy is required for this tracking operation."
+MATPLOTLIB_ERROR_MESSAGE = "matplotlib is required for this tracking operation."
+PLOTLY_ERROR_MESSAGE = "plotly is required for this tracking operation."
+BOKEH_ERROR_MESSAGE = "bokeh is required for this tracking operation."
+SKLEARN_ERROR_MESSAGE = "sklearn is required for this tracking operation."

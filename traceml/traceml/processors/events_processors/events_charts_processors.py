@@ -44,17 +44,22 @@ def altair_chart(figure) -> V1EventChart:
 
 
 def plotly_chart(figure) -> V1EventChart:
-    try:
-        import plotly.tools
-
-        from traceml.vendor.matplotlylib import mpl_to_plotly
-    except ImportError:
-        logger.warning(PLOTLY_ERROR_MESSAGE)
-        return UNKNOWN
-
     if module_type(figure, "matplotlib.figure.Figure"):
+        try:
+            from traceml.vendor.matplotlylib import mpl_to_plotly
+        except ImportError:
+            logger.error(MATPLOTLIB_ERROR_MESSAGE)
+            logger.error(PLOTLY_ERROR_MESSAGE)
+            return UNKNOWN
+
         figure = mpl_to_plotly(figure)
     else:
+        try:
+            import plotly.tools
+        except ImportError:
+            logger.error(PLOTLY_ERROR_MESSAGE)
+            return UNKNOWN
+
         figure = plotly.tools.return_figure_from_figure_or_data(
             figure, validate_figure=True
         )
