@@ -29,25 +29,28 @@ from traceml.exceptions import TracemlException
 try:
     import pytorch_lightning as pl
 
-    NEW_PL_VERSION = packaging.version.parse(pl.__version__) < packaging.version.parse(
-        "1.7"
-    )
+    NEW_PL_VERSION = packaging.version.parse(pl.__version__)
 
-    if NEW_PL_VERSION:
+    if NEW_PL_VERSION < packaging.version.parse("1.7"):
         from pytorch_lightning.loggers.base import LightningLoggerBase as Logger
         from pytorch_lightning.loggers.base import rank_zero_experiment
     else:
-        from pytorch_lightning.loggers.logger import (
-            Logger,
-            rank_zero_experiment,
-        )
+        from pytorch_lightning.loggers.logger import Logger, rank_zero_experiment
 
-    from pytorch_lightning.utilities.logger import (
-        _add_prefix,
-        _convert_params,
-        _flatten_dict,
-        _sanitize_callable_params,
-    )
+    if NEW_PL_VERSION < packaging.version.parse("1.9"):
+        from pytorch_lightning.utilities.logger import (
+            _add_prefix,
+            _convert_params,
+            _flatten_dict,
+            _sanitize_callable_params,
+        )
+    else:
+        from lightning_fabric.utilities.logger import (
+            _add_prefix,
+            _convert_params,
+            _flatten_dict,
+            _sanitize_callable_params,
+        )
     from pytorch_lightning.utilities.model_summary import ModelSummary
     from pytorch_lightning.utilities.rank_zero import rank_zero_only, rank_zero_warn
 except ImportError:
