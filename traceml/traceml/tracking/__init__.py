@@ -30,6 +30,7 @@ def init(
     client: RunClient = None,
     track_code: bool = True,
     track_env: bool = True,
+    track_logs: bool = True,
     refresh_data: bool = False,
     artifacts_path: str = None,
     collect_artifacts: str = None,
@@ -72,6 +73,7 @@ def init(
                  Polyaxon will try to track information about any repo
                  configured in the context where this client is instantiated.
             track_env: bool, optional, default True, to track information about the environment.
+            track_logs: bool, optional, default True, to track logs for manually managed runs.
             refresh_data: bool, optional, default False, to refresh the run data at instantiation.
             refresh_data: bool, optional, default False, to instruct the run to resume,
                  only useful when the run is not managed by Polyaxon.
@@ -111,6 +113,7 @@ def init(
         track_code=track_code,
         refresh_data=refresh_data,
         track_env=track_env,
+        track_logs=track_logs,
         artifacts_path=artifacts_path,
         collect_artifacts=collect_artifacts,
         collect_resources=collect_resources,

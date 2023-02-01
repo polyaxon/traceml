@@ -22,11 +22,10 @@ from polyaxon import settings
 from polyaxon.env_vars.keys import EV_KEYS_K8S_NODE_NAME, EV_KEYS_K8S_POD_ID
 from polyaxon.utils.date_utils import to_datetime
 from polyaxon.utils.env import get_user
-from traceml.logger import logger
 from traceml.logging import V1Log
 
 
-class PolyaxonHandler(logging.Handler):
+class LogStreamHandler(logging.Handler):
     def __init__(self, add_logs, **kwargs):
         self._add_logs = add_logs
         self._container = socket.gethostname()
@@ -45,8 +44,10 @@ class PolyaxonHandler(logging.Handler):
     def can_record(self, record):
         return not (
             record.name == "polyaxon"
+            or record.name == "traceml"
             or record.name == "polyaxon.cli"
             or record.name.startswith("polyaxon")
+            or record.name.startswith("traceml")
         )
 
     def format_record(self, record):
@@ -66,5 +67,20 @@ class PolyaxonHandler(logging.Handler):
             return
         try:
             return self._add_logs(self.format_record(record))
-        except Exception as e:
-            logger.warning("Polyaxon failed creating log record %e", e)
+        except Exception:  # noqa
+            pass
+
+
+class LogStreamWriter:
+    def __init__(self, logger, log_level, channel):
+        self._logger = logger
+        self._log_level = log_level
+        self._channel = channel
+
+    def write(self, buf):
+        for line in buf.rstrip().splitlines():
+            if line != "\n":
+                self._logger.log(self._log_level, line.rstrip())
+
+    def flush(self):
+        self._channel.flush()

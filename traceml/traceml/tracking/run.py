@@ -55,7 +55,7 @@ from traceml.events import LoggedEventSpec, V1Event, get_asset_path
 from traceml.logger import logger
 from traceml.logging import V1Log, V1Logs
 from traceml.processors import events_processors
-from traceml.processors.logs_processor import setup_logging
+from traceml.processors.logs_processor import end_log_processor, start_log_processor
 from traceml.serialization.writer import EventFileWriter, ResourceFileWriter
 
 
@@ -93,6 +93,7 @@ class Run(RunClient):
              Polyaxon will try to track information about any repo
              configured in the context where this client is instantiated.
         track_env: bool, optional, default True, to track information about the environment.
+        track_logs: bool, optional, default True, to track logs for manually managed runs.
         refresh_data: bool, optional, default False, to refresh the run data at instantiation.
         artifacts_path: str, optional, for in-cluster runs it will be set automatically.
         collect_artifacts: bool, optional,
@@ -193,7 +194,7 @@ class Run(RunClient):
             self.log_code_ref()
 
         if is_new and self._artifacts_path and track_logs:
-            setup_logging(add_logs=self._add_logs)
+            start_log_processor(add_logs=self._add_logs)
 
         self._set_exit_handler(is_new=is_new)
 
@@ -248,19 +249,15 @@ class Run(RunClient):
             logs_path = os.path.join(
                 self._artifacts_path,
                 "plxlogs",
-                "{}.plx".format(
-                    datetime.timestamp(self._logs_history.logs[-1].timestamp)
-                ),
+                "{}".format(datetime.timestamp(self._logs_history.logs[-1].timestamp)),
             )
             check_or_create_path(logs_path, is_dir=False)
             with open(logs_path, "w") as logs_file:
-                logs_file.write(
-                    "{}\n{}".format(
-                        self._logs_history.get_csv_header(), self._logs_history.to_csv()
-                    )
-                )
+                logs_file.write(self._logs_history.to_dict(dump=True))
 
     def _add_logs(self, log: V1Log):
+        if not log:
+            return
         self._logs_history.logs.append(log)
         if V1Logs.should_chunk(self._logs_history.logs):
             self._persist_logs_history()
@@ -460,7 +457,7 @@ class Run(RunClient):
 
     @client_handler(check_no_op=True)
     def set_run_process_sidecar(self):
-        """Sets an sidecar process to sync artifacts.
+        """Sets a sidecar process to sync artifacts.
 
         > **Note**: Both `in-cluster` and `offline` modes will call this method automatically.
         > Be careful, this method is called automatically. Polyaxon has some processes
@@ -1669,6 +1666,7 @@ class Run(RunClient):
 
     def _end(self):
         self.log_succeeded()
+        end_log_processor()
         self._persist_logs_history()
         self._wait(sync_artifacts=True)
         if self._is_offline:
