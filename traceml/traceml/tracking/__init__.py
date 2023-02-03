@@ -16,6 +16,8 @@
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Sequence, Union
 
+import polyaxon_sdk
+
 from polyaxon.client import RunClient
 from traceml.artifacts import V1ArtifactKind, V1RunArtifact
 from traceml.tracking.run import Run
@@ -142,6 +144,14 @@ def get_or_create_run(tracking_run: Run = None) -> Optional[Run]:
 
     init()
     return TRACKING_RUN
+
+
+def update(data: Union[Dict, polyaxon_sdk.V1Run], async_req: bool = False):
+    global TRACKING_RUN
+    TRACKING_RUN.update(data=data, async_req=async_req)
+
+
+update.__doc__ = Run.update.__doc__
 
 
 def get_artifacts_path(
@@ -689,6 +699,14 @@ def get_log_level():
 get_log_level.__doc__ = Run.get_log_level.__doc__
 
 
+def set_readme(readme: str, async_req: bool = True):
+    global TRACKING_RUN
+    TRACKING_RUN.set_readme(readme=readme, async_req=async_req)
+
+
+set_readme.__doc__ = Run.set_readme.__doc__
+
+
 def set_description(description: str, async_req: bool = True):
     global TRACKING_RUN
     TRACKING_RUN.set_description(description=description, async_req=async_req)
@@ -1069,6 +1087,7 @@ __all__ = [
     "Run",
     "init",
     "get_or_create_run",
+    "update",
     "get_artifacts_path",
     "get_outputs_path",
     "get_tensorboard_path",
@@ -1101,6 +1120,7 @@ __all__ = [
     "log_altair_chart",
     "log_mpl_plotly_chart",
     "get_log_level",
+    "set_readme",
     "set_description",
     "set_name",
     "end",
