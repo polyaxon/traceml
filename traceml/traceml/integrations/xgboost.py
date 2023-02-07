@@ -126,7 +126,6 @@ class Callback(xgb.callback.TrainingCallback):
         importance_type: str = "gain",
         max_num_features: int = None,
     ):
-
         self.log_model: bool = log_model
         self.log_importance: bool = log_importance
         self.importance_type: str = importance_type
