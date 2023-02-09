@@ -21,9 +21,9 @@ from pandas.util.testing import assert_series_equal
 from random import shuffle
 from unittest import TestCase
 
-from traceml.summary.df import DataFrameSummary
 from traceml.processors import df_processors
 from traceml.processors.units_processors import to_percentage
+from traceml.summary.df import DataFrameSummary
 
 
 class DataFrameSummaryTest(TestCase):

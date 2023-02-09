@@ -35,8 +35,7 @@ class DataFrameSummary:
     def __init__(self, df, plot=False):
         self.df = df
         self.length = len(df)
-        self.columns_stats = df_processors.get_df_column_stats(self.df)
-        self.corr = df.corr()
+        self._columns_stats = None
         self.plot = plot
 
     def __getitem__(self, column):
@@ -91,6 +90,13 @@ class DataFrameSummary:
             return self.df[column].values
 
         raise KeyError(column)
+
+    @property
+    def columns_stats(self):
+        if self._columns_stats:
+            return self._columns_stats
+        self._columns_stats = df_processors.get_df_column_stats(self.df)
+        return self._columns_stats
 
     @property
     def columns_types(self):
