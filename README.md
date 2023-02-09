@@ -386,7 +386,7 @@ The module contains `DataFrameSummary` object that extend `describe()` with:
 The `DataFrameSummary` expect a pandas `DataFrame` to summarise.
 
 ```python
-from datatile.summary.df import DataFrameSummary
+from traceml.summary.df import DataFrameSummary
 
 dfs = DataFrameSummary(df)
 ```
