@@ -1,6 +1,6 @@
 black==23.1.0
 coverage<7.2
-faker<17.0.0
+faker<18.0.0
 flake8<6.1.0
 flaky<3.8.0
 isort<5.13.0
