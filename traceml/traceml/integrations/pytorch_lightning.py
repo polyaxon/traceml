@@ -145,10 +145,10 @@ class Callback(Logger):
         self, model: "pl.LightningModule", max_depth: int = -1
     ) -> None:
         summary = str(ModelSummary(model=model, max_depth=max_depth))
-        rel_path = self.run.get_outputs_path("model_summary.txt")
+        rel_path = self.experiment.get_outputs_path("model_summary.txt")
         with open(rel_path, "w") as f:
             f.write(summary)
-        self.run.log_file_ref(path=rel_path, name="model_summary", is_input=False)
+        self.experiment.log_file_ref(path=rel_path, name="model_summary", is_input=False)
 
     @property
     def save_dir(self) -> Optional[str]:
