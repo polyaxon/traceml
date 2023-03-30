@@ -14,10 +14,42 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import polyaxon_sdk
+from polyaxon.utils.enums_utils import PEnum
 
 
-class V1ArtifactKind(polyaxon_sdk.V1ArtifactKind):
+class V1ArtifactKind(str, PEnum):
+    MODEL = "model"
+    AUDIO = "audio"
+    VIDEO = "video"
+    HISTOGRAM = "histogram"
+    IMAGE = "image"
+    TENSOR = "tensor"
+    DATAFRAME = "dataframe"
+    CHART = "chart"
+    CSV = "csv"
+    TSV = "tsv"
+    PSV = "psv"
+    SSV = "ssv"
+    METRIC = "metric"
+    ENV = "env"
+    HTML = "html"
+    TEXT = "text"
+    FILE = "file"
+    DIR = "dir"
+    DOCKERFILE = "dockerfile"
+    DOCKER_IMAGE = "docker_image"
+    DATA = "data"
+    CODEREF = "coderef"
+    TABLE = "table"
+    TENSORBOARD = "tensorboard"
+    CURVE = "curve"
+    CONFUSION = "confusion"
+    ANALYSIS = "analysis"
+    ITERATION = "iteration"
+    MARKDOWN = "markdown"
+    SYSTEM = "system"
+    ARTIFACT = "artifact"
+
     @classmethod
     def is_single_file_event(cls, kind: str) -> bool:
         return kind in {

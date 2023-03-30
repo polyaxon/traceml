@@ -21,15 +21,6 @@ from traceml.events.paths import (
     get_resource_path,
 )
 from traceml.events.schemas import (
-    EventArtifactSchema,
-    EventAudioSchema,
-    EventChartSchema,
-    EventDataframeSchema,
-    EventHistogramSchema,
-    EventImageSchema,
-    EventModelSchema,
-    EventSchema,
-    EventVideoSchema,
     LoggedEventListSpec,
     LoggedEventSpec,
     V1Event,

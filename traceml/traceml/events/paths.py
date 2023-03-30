@@ -13,12 +13,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from enum import Enum
+
+from polyaxon.utils.enums_utils import get_enum_value
 
 
 def get_resource_path(run_path: str, kind: str = None, name: str = None) -> str:
     _path = "{}/resources".format(run_path)
     if kind:
-        _path = "{}/{}".format(_path, kind)
+        _path = "{}/{}".format(_path, get_enum_value(kind))
     if name:
         _path = "{}/{}.plx".format(_path, name)
 
@@ -28,7 +31,7 @@ def get_resource_path(run_path: str, kind: str = None, name: str = None) -> str:
 def get_event_path(run_path: str, kind: str = None, name: str = None) -> str:
     _path = "{}/events".format(run_path)
     if kind:
-        _path = "{}/{}".format(_path, kind)
+        _path = "{}/{}".format(_path, get_enum_value(kind))
     if name:
         _path = "{}/{}.plx".format(_path, name)
 
@@ -38,7 +41,7 @@ def get_event_path(run_path: str, kind: str = None, name: str = None) -> str:
 def get_event_assets_path(run_path: str, kind: str = None) -> str:
     _path = "{}/assets".format(run_path)
     if kind:
-        _path = "{}/{}".format(_path, kind)
+        _path = "{}/{}".format(_path, get_enum_value(kind))
     return _path
 
 

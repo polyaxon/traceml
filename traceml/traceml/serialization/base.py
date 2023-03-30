@@ -18,6 +18,7 @@ import os
 
 from typing import Dict, List
 
+from polyaxon.utils.enums_utils import get_enum_value
 from polyaxon.utils.path_utils import check_or_create_path
 from traceml.events import LoggedEventSpec
 from traceml.events.schemas import LoggedEventListSpec
@@ -36,13 +37,21 @@ class EventWriter:
     def _get_event_path(self, kind: str, name: str) -> str:
         if self._events_backend == self.EVENTS_BACKEND:
             return os.path.join(
-                self._run_path, self._events_backend, kind, "{}.plx".format(name)
+                self._run_path,
+                get_enum_value(self._events_backend),
+                kind,
+                "{}.plx".format(name),
             )
         if self._events_backend == self.RESOURCES_BACKEND:
             return os.path.join(
-                self._run_path, self._events_backend, kind, "{}.plx".format(name)
+                self._run_path,
+                get_enum_value(self._events_backend),
+                kind,
+                "{}.plx".format(name),
             )
-        raise ValueError("Unrecognized backend {}".format(self._events_backend))
+        raise ValueError(
+            "Unrecognized backend {}".format(get_enum_value(self._events_backend))
+        )
 
     def _init_events(self, events_spec: LoggedEventListSpec):
         event_path = self._get_event_path(kind=events_spec.kind, name=events_spec.name)

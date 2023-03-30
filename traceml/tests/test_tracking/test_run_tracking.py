@@ -132,6 +132,7 @@ class TestRunTracking(TestEnvVarsCase):
 
     @patch("polyaxon.managers.base.os.path.expanduser")
     def test_run_init(self, expanduser):
+        uid = uuid.uuid4().hex
         expanduser.return_value = tempfile.mkdtemp()
         settings.CLIENT_CONFIG.is_managed = False
         settings.CLIENT_CONFIG.is_offline = False
@@ -183,21 +184,22 @@ class TestRunTracking(TestEnvVarsCase):
 
         # FQN non CE
         settings.CLI_CONFIG.installation = {"dist": dist.EE}
-        os.environ[EV_KEYS_RUN_INSTANCE] = "user.project_bar.runs.uid"
+        os.environ[EV_KEYS_RUN_INSTANCE] = "user.project_bar.runs.{}".format(uid)
         run = Run()
         assert run.owner == "user"
         assert run.project == "project_bar"
-        assert run.run_uuid == "uid"
+        assert run.run_uuid == uid
 
         # FQN CE
         settings.CLI_CONFIG.installation = {"dist": dist.CE}
-        os.environ[EV_KEYS_RUN_INSTANCE] = "user.project_bar.runs.uid"
+        os.environ[EV_KEYS_RUN_INSTANCE] = "user.project_bar.runs.{}".format(uid)
         run = Run()
         assert run.owner == "user"
         assert run.project == "project_bar"
-        assert run.run_uuid == "uid"
+        assert run.run_uuid == uid
 
     def test_event_logger_from_non_managed_run(self):
+        uid = uuid.uuid4().hex
         settings.CLIENT_CONFIG.is_managed = False
         settings.CLIENT_CONFIG.is_offline = False
 
@@ -222,7 +224,7 @@ class TestRunTracking(TestEnvVarsCase):
         with patch("traceml.tracking.run.Run._set_exit_handler") as exit_mock:
             run = Run(
                 project="owner-test.test",
-                run_uuid="uuid",
+                run_uuid=uid,
                 track_code=False,
                 track_env=False,
                 collect_artifacts=False,
@@ -239,11 +241,11 @@ class TestRunTracking(TestEnvVarsCase):
         run.set_artifacts_path()
         assert (
             run.get_artifacts_path()
-            == ctx_paths.CONTEXT_MOUNT_ARTIFACTS_FORMAT.format("uuid")
+            == ctx_paths.CONTEXT_MOUNT_ARTIFACTS_FORMAT.format(uid)
         )
         assert (
             run.get_outputs_path()
-            == ctx_paths.CONTEXT_MOUNT_RUN_OUTPUTS_FORMAT.format("uuid")
+            == ctx_paths.CONTEXT_MOUNT_RUN_OUTPUTS_FORMAT.format(uid)
         )
 
         with patch("traceml.tracking.run.EventFileWriter") as mock_call:
@@ -264,7 +266,7 @@ class TestRunTracking(TestEnvVarsCase):
                     with patch(
                         "traceml.tracking.run.Run._set_exit_handler"
                     ) as exit_call:
-                        run = Run(project="owner-test.test", run_uuid="uuid")
+                        run = Run(project="owner-test.test", run_uuid=uid)
 
         assert refresh_call.call_count == 1
         assert event_call.call_count == 1
@@ -272,18 +274,19 @@ class TestRunTracking(TestEnvVarsCase):
         assert exit_call.call_count == 1
         assert (
             run.get_artifacts_path()
-            == ctx_paths.CONTEXT_MOUNT_ARTIFACTS_FORMAT.format("uuid")
+            == ctx_paths.CONTEXT_MOUNT_ARTIFACTS_FORMAT.format(uid)
         )
         assert (
             run.get_outputs_path()
-            == ctx_paths.CONTEXT_MOUNT_RUN_OUTPUTS_FORMAT.format("uuid")
+            == ctx_paths.CONTEXT_MOUNT_RUN_OUTPUTS_FORMAT.format(uid)
         )
 
     def test_event_logger_from_a_managed_run(self):
+        uid = uuid.uuid4().hex
         # Set managed flag
         settings.CLIENT_CONFIG.is_managed = True
         settings.CLIENT_CONFIG.is_offline = False
-        os.environ[EV_KEYS_RUN_INSTANCE] = "user.project_bar.runs.uid"
+        os.environ[EV_KEYS_RUN_INSTANCE] = "user.project_bar.runs.{}".format(uid)
         os.environ[EV_KEYS_COLLECT_ARTIFACTS] = "false"
         os.environ[EV_KEYS_COLLECT_RESOURCES] = "false"
 
@@ -292,11 +295,11 @@ class TestRunTracking(TestEnvVarsCase):
         assert refresh_call.call_count == 1
         assert (
             run.get_artifacts_path()
-            == ctx_paths.CONTEXT_MOUNT_ARTIFACTS_FORMAT.format("uid")
+            == ctx_paths.CONTEXT_MOUNT_ARTIFACTS_FORMAT.format(uid)
         )
         assert (
             run.get_outputs_path()
-            == ctx_paths.CONTEXT_MOUNT_RUN_OUTPUTS_FORMAT.format("uid")
+            == ctx_paths.CONTEXT_MOUNT_RUN_OUTPUTS_FORMAT.format(uid)
         )
         assert run._event_logger is None
 
@@ -305,6 +308,7 @@ class TestRunTracking(TestEnvVarsCase):
         os.environ[EV_KEYS_COLLECT_RESOURCES] = "true"
 
         # Add run id
+        uid2 = uuid.uuid4().hex
         with patch("traceml.tracking.run.Run.set_run_event_logger") as event_call:
             with patch(
                 "traceml.tracking.run.Run.set_run_resource_logger"
@@ -313,14 +317,14 @@ class TestRunTracking(TestEnvVarsCase):
                     with patch(
                         "traceml.tracking.run.Run._set_exit_handler"
                     ) as exit_call:
-                        Run(project="test.test", run_uuid="uuid")
+                        Run(project="test.test", run_uuid=uid2)
         assert event_call.call_count == 1
         assert resource_call.call_count == 1
         assert refresh_call.call_count == 1
         assert exit_call.call_count == 1
 
         # Set run info
-        os.environ[EV_KEYS_RUN_INSTANCE] = "user.project_bar.runs.uid"
+        os.environ[EV_KEYS_RUN_INSTANCE] = "user.project_bar.runs.{}".format(uid2)
         # Add run id
         with patch("traceml.tracking.run.Run.set_run_event_logger") as event_call:
             with patch(
@@ -333,6 +337,7 @@ class TestRunTracking(TestEnvVarsCase):
         assert refresh_call.call_count == 1
 
     def test_event_logger_from_an_offline_run(self):
+        uid = uuid.uuid4().hex
         # Set managed flag
         settings.CLIENT_CONFIG.is_managed = False
         settings.CLIENT_CONFIG.is_offline = True
@@ -340,10 +345,10 @@ class TestRunTracking(TestEnvVarsCase):
         os.environ[EV_KEYS_COLLECT_RESOURCES] = "false"
 
         with patch("traceml.tracking.run.Run._set_exit_handler") as exit_mock:
-            run = Run(project="test.test", run_uuid="uid")
+            run = Run(project="test.test", run_uuid=uid)
         assert exit_mock.call_count == 1
         artifacts_path = ctx_paths.get_offline_path(
-            entity_value="uid", entity_kind=V1ProjectFeature.RUNTIME
+            entity_value=uid, entity_kind=V1ProjectFeature.RUNTIME
         )
         assert run.get_artifacts_path() == artifacts_path
         assert (
@@ -362,7 +367,7 @@ class TestRunTracking(TestEnvVarsCase):
                 "traceml.tracking.run.Run.set_run_resource_logger"
             ) as resource_call:
                 with patch("traceml.tracking.run.Run._set_exit_handler") as exit_mock:
-                    Run(project="test.test", run_uuid="uid")
+                    Run(project="test.test", run_uuid=uid)
         assert exit_mock.call_count == 1
         assert event_call.call_count == 1
         assert resource_call.call_count == 1
@@ -1126,7 +1131,10 @@ class TestRunLogging(TestEnvVarsCase):
             os.path.exists(get_asset_path(self.run_path, kind=V1ArtifactKind.MODEL))
             is False
         )
-        assert os.path.exists(self.run.get_outputs_path(V1ArtifactKind.MODEL)) is False
+        assert (
+            os.path.exists(self.run.get_outputs_path(V1ArtifactKind.MODEL.value))
+            is False
+        )
         model_file = tempfile.mkdtemp() + "/model.pkl"
         self.touch(model_file)
         with patch("traceml.tracking.run.Run.log_model_ref") as log_model:
@@ -1145,7 +1153,10 @@ class TestRunLogging(TestEnvVarsCase):
             os.path.exists(get_event_path(self.run_path, kind=V1ArtifactKind.MODEL))
             is False
         )
-        assert os.path.exists(self.run.get_outputs_path(V1ArtifactKind.MODEL)) is False
+        assert (
+            os.path.exists(self.run.get_outputs_path(V1ArtifactKind.MODEL.value))
+            is False
+        )
         model_file = self.run.get_outputs_path("model.pkl")
         assert os.path.exists(model_file) is True
 
@@ -1158,7 +1169,10 @@ class TestRunLogging(TestEnvVarsCase):
             os.path.exists(get_asset_path(self.run_path, kind=V1ArtifactKind.MODEL))
             is False
         )
-        assert os.path.exists(self.run.get_outputs_path(V1ArtifactKind.MODEL)) is False
+        assert (
+            os.path.exists(self.run.get_outputs_path(V1ArtifactKind.MODEL.value))
+            is False
+        )
         model_dir = tempfile.mkdtemp() + "/model"
         create_path(model_dir)
         model_file = model_dir + "/model.pkl"
@@ -1183,9 +1197,12 @@ class TestRunLogging(TestEnvVarsCase):
             os.path.exists(get_event_path(self.run_path, kind=V1ArtifactKind.MODEL))
             is False
         )
-        assert os.path.exists(self.run.get_outputs_path(V1ArtifactKind.MODEL)) is True
+        assert (
+            os.path.exists(self.run.get_outputs_path(V1ArtifactKind.MODEL.value))
+            is True
+        )
         model_file = self.run.get_outputs_path(
-            "{}/{}".format(V1ArtifactKind.MODEL, "model.pkl")
+            "{}/{}".format(V1ArtifactKind.MODEL.value, "model.pkl")
         )
         assert os.path.exists(model_file) is True
 

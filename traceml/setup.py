@@ -107,7 +107,7 @@ setup(
     ],
     install_requires=[],
     extras_require=extra,
-    python_requires=">=3.5",
+    python_requires=">=3.7",
     classifiers=[
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",

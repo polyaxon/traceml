@@ -15,46 +15,27 @@
 # limitations under the License.
 import uuid
 
-from marshmallow import fields, validate
+from typing import Dict, List, Optional
 
-import polyaxon_sdk
+from pydantic import StrictStr
 
-from polyaxon.schemas.base import BaseConfig, BaseSchema
+from polyaxon.schemas.base import BaseSchemaModel
+from polyaxon.schemas.fields import UUIDStr
 from traceml.artifacts.kinds import V1ArtifactKind
 
 
-class RunArtifactSchema(BaseSchema):
-    name = fields.Str(allow_none=True)
-    kind = fields.Str(
-        allow_none=True, validate=validate.OneOf(V1ArtifactKind.allowable_values)
-    )
-    path = fields.Str(allow_none=True)
-    state = fields.Str(allow_none=True)
-    summary = fields.Dict(allow_none=True)
-    meta_info = fields.Dict(allow_none=True)
-    run = fields.Str(allow_none=True)
-    connection = fields.Str(allow_none=True)
-    is_input = fields.Bool(allow_none=True)
+class V1RunArtifact(BaseSchemaModel):
+    _IDENTIFIER = "artifact"
 
-    @staticmethod
-    def schema_config():
-        return V1RunArtifact
-
-
-class V1RunArtifact(BaseConfig, polyaxon_sdk.V1RunArtifact):
-    IDENTIFIER = "artifact"
-    SCHEMA = RunArtifactSchema
-    REDUCED_ATTRIBUTES = [
-        "name",
-        "kind",
-        "path",
-        "state",
-        "summary",
-        "meta_info",
-        "run",
-        "connection",
-        "is_input",
-    ]
+    name: Optional[StrictStr]
+    kind: Optional[V1ArtifactKind]
+    path: Optional[StrictStr]
+    state: Optional[UUIDStr]
+    summary: Optional[Dict]
+    meta_info: Optional[Dict]
+    run: Optional[UUIDStr]
+    connection: Optional[StrictStr]
+    is_input: Optional[bool]
 
     @classmethod
     def from_model(cls, model):
@@ -75,3 +56,9 @@ class V1RunArtifact(BaseConfig, polyaxon_sdk.V1RunArtifact):
         if not summary.get("hash") and self.path:
             content += self.path
         return uuid.uuid5(namespace, content)
+
+
+class V1RunArtifacts(BaseSchemaModel):
+    _IDENTIFIER = "artifacts"
+
+    artifacts: Optional[List[V1RunArtifact]]

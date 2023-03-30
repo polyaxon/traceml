@@ -105,7 +105,7 @@ class TestLogV1(BaseTestCase):
 class TestLogsV1(BaseTestCase):
     def test_logs(self):
         logs = V1Logs(
-            last_file=1000,
+            last_file="1679665234.498643",
             logs=[
                 V1Log(
                     value="foo",
@@ -132,11 +132,11 @@ class TestLogsV1(BaseTestCase):
         )
         logs_dict = logs.to_light_dict()
         assert logs_dict == logs.from_dict(logs_dict).to_light_dict()
-        assert logs_dict == logs.read(logs.to_dict(dump=True)).to_light_dict()
+        assert logs_dict == logs.read(logs.to_json()).to_light_dict()
 
     def test_logs_with_files(self):
         logs = V1Logs(
-            last_file=1000,
+            last_file="1679665234.498643",
             last_time=now(),
             files=["file1", "file2"],
             logs=[
@@ -165,7 +165,7 @@ class TestLogsV1(BaseTestCase):
         )
         logs_dict = logs.to_light_dict()
         assert logs_dict == logs.from_dict(logs_dict).to_light_dict()
-        assert logs_dict == logs.read(logs.to_dict(dump=True)).to_light_dict()
+        assert logs_dict == logs.read(logs.to_json()).to_light_dict()
 
     def test_chunk_logs(self):
         logs = [
@@ -205,7 +205,7 @@ class TestLogsV1(BaseTestCase):
 
     def test_logs_to_csv(self):
         logs = V1Logs(
-            last_file=1000,
+            last_file="1679665234.498643",
             logs=[
                 V1Log(
                     value="foo",

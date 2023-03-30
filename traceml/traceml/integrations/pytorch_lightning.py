@@ -148,7 +148,9 @@ class Callback(Logger):
         rel_path = self.experiment.get_outputs_path("model_summary.txt")
         with open(rel_path, "w") as f:
             f.write(summary)
-        self.experiment.log_file_ref(path=rel_path, name="model_summary", is_input=False)
+        self.experiment.log_file_ref(
+            path=rel_path, name="model_summary", is_input=False
+        )
 
     @property
     def save_dir(self) -> Optional[str]:

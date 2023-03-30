@@ -25,8 +25,6 @@ from typing import Dict, List
 
 import ujson
 
-import polyaxon_sdk
-
 from polyaxon import settings
 from polyaxon.client import PolyaxonClient, RunClient
 from polyaxon.client.decorators import client_handler
@@ -39,7 +37,7 @@ from polyaxon.env_vars.getters import (
     get_collect_resources,
     get_log_level,
 )
-from polyaxon.lifecycle import LifeCycle, V1ProjectFeature
+from polyaxon.lifecycle import LifeCycle, V1ProjectFeature, V1Statuses
 from polyaxon.sidecar.processor import SidecarThread
 from polyaxon.utils.env import get_run_env
 from polyaxon.utils.fqn_utils import to_fqn_name
@@ -253,7 +251,7 @@ class Run(RunClient):
             )
             check_or_create_path(logs_path, is_dir=False)
             with open(logs_path, "w") as logs_file:
-                logs_file.write(self._logs_history.to_dict(dump=True))
+                logs_file.write(self._logs_history.to_json())
 
     def _add_logs(self, log: V1Log):
         if not log:
@@ -1644,7 +1642,7 @@ class Run(RunClient):
                 logger.info(f"An offline run was found: {self._artifacts_path}")
             else:
                 self.log_status(
-                    polyaxon_sdk.V1Statuses.CREATED,
+                    V1Statuses.CREATED,
                     reason="OfflineOperation",
                     message="Operation is starting",
                 )

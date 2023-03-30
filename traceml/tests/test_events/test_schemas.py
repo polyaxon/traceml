@@ -41,27 +41,35 @@ from traceml.events.schemas import (
 @pytest.mark.events_mark
 class TestBaseEvent(BaseTestCase):
     def test_has_timestamp(self):
-        parsed = V1Event.make(timestamp="2018-12-11 10:24:57 UTC")
-        expected = V1Event(timestamp=parse_datetime("2018-12-11 10:24:57 UTC"))
+        parsed = V1Event.make(timestamp="2018-12-11 10:24:57 UTC", metric=2.2)
+        expected = V1Event(
+            timestamp=parse_datetime("2018-12-11 10:24:57 UTC"), metric=2.2
+        )
         assert parsed == expected
 
     def test_has_no_timestamp(self):
-        event_result = V1Event.make()
+        event_result = V1Event.make(metric=2.2)
         assert event_result.timestamp.date() == now().date()
 
     def test_has_datetime_timestamp(self):
-        event_result = V1Event.make(timestamp=now())
+        event_result = V1Event.make(timestamp=now(), metric=2.2)
         assert event_result.timestamp.date() == now().date()
 
     def test_log_line_has_datetime(self):
-        parsed = V1Event.make(timestamp="2018-12-11 10:24:57", step=12)
-        expected = V1Event(timestamp=parse_datetime("2018-12-11 10:24:57"), step=12)
+        parsed = V1Event.make(timestamp="2018-12-11 10:24:57", metric=2.2, step=12)
+        expected = V1Event(
+            timestamp=parse_datetime("2018-12-11 10:24:57"), metric=2.2, step=12
+        )
         assert parsed == expected
 
     def test_log_line_has_iso_datetime(self):
-        parsed = V1Event.make(timestamp="2018-12-11T08:49:07.163495183Z", step=12)
+        parsed = V1Event.make(
+            timestamp="2018-12-11T08:49:07.163495183Z", metric=2.2, step=12
+        )
         expected = V1Event(
-            timestamp=parse_datetime("2018-12-11T08:49:07.163495+00:00"), step=12
+            timestamp=parse_datetime("2018-12-11T08:49:07.163495+00:00"),
+            metric=2.2,
+            step=12,
         )
         assert parsed == expected
 

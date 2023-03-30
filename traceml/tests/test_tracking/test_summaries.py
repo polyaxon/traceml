@@ -15,6 +15,7 @@
 # limitations under the License.
 import os
 import pytest
+import uuid
 
 from mock import patch
 
@@ -34,8 +35,9 @@ class TestEventsSummaries(BaseTestCase):
         settings.CLIENT_CONFIG.is_offline = True
         os.environ[EV_KEYS_COLLECT_ARTIFACTS] = "false"
         os.environ[EV_KEYS_COLLECT_RESOURCES] = "false"
+        uid = uuid.uuid4().hex
         with patch("traceml.tracking.run.Run._set_exit_handler") as exit_mock:
-            self.run = Run(project="test.test", run_uuid="uid")
+            self.run = Run(project="test.test", run_uuid=uid)
         assert exit_mock.call_count == 1
 
     def test_metrics_summaries(self):

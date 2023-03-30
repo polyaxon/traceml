@@ -13,15 +13,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import datetime
+
 from typing import List, Optional, Text
 
 import ujson
 
-from marshmallow import ValidationError, fields
+from pydantic import StrictStr
 
-import polyaxon_sdk
-
-from polyaxon.schemas.base import BaseConfig, BaseSchema
+from polyaxon.schemas.base import BaseSchemaModel
 from polyaxon.utils.csv_utils import validate_csv
 from polyaxon.utils.date_utils import parse_datetime
 from polyaxon.utils.tz_utils import now
@@ -32,23 +32,15 @@ from traceml.logging.parser import (
 )
 
 
-class LogSchema(BaseSchema):
-    timestamp = fields.DateTime(allow_none=True)
-    node = fields.Str(allow_none=True)
-    pod = fields.Str(allow_none=True)
-    container = fields.Str(allow_none=True)
-    value = fields.Str(allow_none=True)
+class V1Log(BaseSchemaModel):
+    _SEPARATOR = "|"
+    _IDENTIFIER = "log"
 
-    @staticmethod
-    def schema_config():
-        return V1Log
-
-
-class V1Log(BaseConfig, polyaxon_sdk.V1Log):
-    SEPARATOR = "|"
-    IDENTIFIER = "log"
-    SCHEMA = LogSchema
-    REDUCED_ATTRIBUTES = ["timestamp", "node", "pod", "container", "value"]
+    timestamp: Optional[datetime.datetime]
+    node: Optional[StrictStr]
+    pod: Optional[StrictStr]
+    container: Optional[StrictStr]
+    value: Optional[StrictStr]
 
     @classmethod
     def process_log_line(
@@ -75,7 +67,7 @@ class V1Log(BaseConfig, polyaxon_sdk.V1Log):
             try:
                 timestamp = parse_datetime(timestamp)
             except Exception as e:
-                raise ValidationError("Received an invalid timestamp") from e
+                raise ValueError("Received an invalid timestamp") from e
 
         return cls(
             timestamp=timestamp if timestamp else now(tzinfo=True),
@@ -94,29 +86,21 @@ class V1Log(BaseConfig, polyaxon_sdk.V1Log):
             ujson.dumps({"_": self.value}) if self.value is not None else "",
         ]
 
-        return self.SEPARATOR.join(values)
+        return self._SEPARATOR.join(values)
 
 
-class LogsSchema(BaseSchema):
-    logs = fields.List(fields.Nested(LogSchema), allow_none=True)
-    last_time = fields.DateTime(allow_none=True)
-    last_file = fields.Str(allow_none=True)
-    files = fields.List(fields.Str(), allow_none=True)
+class V1Logs(BaseSchemaModel):
+    _CHUNK_SIZE = 2000
+    _IDENTIFIER = "logs"
 
-    @staticmethod
-    def schema_config():
-        return V1Logs
+    logs: Optional[List[V1Log]]
+    last_time: Optional[datetime.datetime]
+    last_file: Optional[StrictStr]
+    files: Optional[List[StrictStr]]
 
-
-class V1Logs(BaseConfig, polyaxon_sdk.V1Logs):
-    CHUNK_SIZE = 2000
-    IDENTIFIER = "logs"
-    SCHEMA = LogsSchema
-    REDUCED_ATTRIBUTES = ["logs", "last_time", "last_file", "files"]
-
-    @staticmethod
-    def get_csv_header() -> str:
-        return V1Log.SEPARATOR.join(V1Log.REDUCED_ATTRIBUTES)
+    @classmethod
+    def get_csv_header(cls) -> str:
+        return V1Log._SEPARATOR.join(V1Log.__fields__.keys())
 
     def to_csv(self):
         _logs = ["\n{}".format(e.to_csv()) for e in self.logs if e.value]
@@ -141,14 +125,14 @@ class V1Logs(BaseConfig, polyaxon_sdk.V1Logs):
         if parse_dates:
             df = pd.read_csv(
                 csv,
-                sep=V1Log.SEPARATOR,
+                sep=V1Log._SEPARATOR,
                 parse_dates=["timestamp"],
                 error_bad_lines=False,
             )
         else:
             df = pd.read_csv(
                 csv,
-                sep=V1Log.SEPARATOR,
+                sep=V1Log._SEPARATOR,
             )
 
         return cls(
