@@ -50,7 +50,7 @@ class V1Log(BaseSchemaModel):
         pod: Optional[str],
         container: Optional[str],
         timestamp=None,
-    ) -> "V1Log":
+    ) -> Optional["V1Log"]:
         if not value:
             return None
 

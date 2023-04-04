@@ -28,7 +28,7 @@ def to_cpu_value(cpu_definition: Union[str, int, float]) -> float:
     except (ValueError, TypeError):
         pass
 
-    cpu_definition = cpu_definition.lower()
+    cpu_definition = cpu_definition.lower()  # type: ignore[union-attr]
     cpu_unit = cpu_definition[-1]
     cpu_value = cpu_definition[:-1]
     if cpu_unit == "m":
@@ -38,7 +38,7 @@ def to_cpu_value(cpu_definition: Union[str, int, float]) -> float:
     elif cpu_unit == "n":
         cpu = _sanitize_value(cpu_value) / 1000**3
     else:
-        cpu = cpu_definition
+        cpu = cpu_definition  # type: ignore[assignment]
     return _sanitize_value(cpu)
 
 
@@ -70,7 +70,7 @@ def to_memory_bytes(mem_definition: Union[str, int, float]) -> int:
         "ei": 1024**6,
     }
 
-    mem_definition = mem_definition.lower()
+    mem_definition = mem_definition.lower()  # type: ignore[union-attr]
 
     mem_unit = mem_definition[-2:]
     mem_value = mem_definition[:-2]

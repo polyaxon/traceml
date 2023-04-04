@@ -126,24 +126,20 @@ class Callback(Logger):
         return self._experiment
 
     @rank_zero_only
-    def log_hyperparams(self, params: Union[Dict[str, Any], Namespace]) -> None:
+    def log_hyperparams(self, params: Union[Dict[str, Any], Namespace]):
         params = _convert_params(params)
         params = _flatten_dict(params)
         params = _sanitize_callable_params(params)
         self.experiment.log_inputs(**params)
 
     @rank_zero_only
-    def log_metrics(
-        self, metrics: Dict[str, float], step: Optional[int] = None
-    ) -> None:
+    def log_metrics(self, metrics: Dict[str, float], step: Optional[int] = None):
         assert rank_zero_only.rank == 0, "experiment tried to log from global_rank != 0"
         metrics = _add_prefix(metrics, self._prefix, self.LOGGER_JOIN_CHAR)
         self.experiment.log_metrics(**metrics, step=step)
 
     @rank_zero_only
-    def log_model_summary(
-        self, model: "pl.LightningModule", max_depth: int = -1
-    ) -> None:
+    def log_model_summary(self, model: "pl.LightningModule", max_depth: int = -1):
         summary = str(ModelSummary(model=model, max_depth=max_depth))
         rel_path = self.experiment.get_outputs_path("model_summary.txt")
         with open(rel_path, "w") as f:
@@ -157,7 +153,7 @@ class Callback(Logger):
         return self.experiment.get_outputs_path()
 
     @rank_zero_only
-    def finalize(self, status: str) -> None:
+    def finalize(self, status: str):
         if self._end_on_finalize:
             self.experiment.end()
             self._experiment = None

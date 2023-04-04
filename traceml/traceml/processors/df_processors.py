@@ -16,6 +16,7 @@
 
 from typing import Dict, List, Optional, Tuple, Union
 
+from polyaxon.utils.enums_utils import PEnum
 from traceml.processors.errors import NUMPY_ERROR_MESSAGE, PANDAS_ERROR_MESSAGE
 from traceml.processors.units_processors import to_percentage
 
@@ -31,17 +32,21 @@ try:
 except ImportError as e:
     raise ImportError(PANDAS_ERROR_MESSAGE) from e
 
-DF_TYPE_BOOL = "bool"
-DF_TYPE_NUMERIC = "numeric"
-DF_TYPE_DATE = "date"
-DF_TYPE_CATEGORICAL = "categorical"
-DF_TYPE_CONSTANT = "constant"
-DF_TYPE_UNIQUE = "unique"
 
-EXCLUDE = "exclude"
-INCLUDE = "include"
-RAISE = "raise"
-ALL = "all"
+class DFTypes(str, PEnum):
+    BOOL = "bool"
+    NUMERIC = "numeric"
+    DATE = "date"
+    CATEGORICAL = "categorical"
+    CONSTANT = "constant"
+    UNIQUE = "unique"
+
+
+class DFUsage(str, PEnum):
+    EXCLUDE = "exclude"
+    INCLUDE = "include"
+    RAISE = "raise"
+    ALL = "all"
 
 
 def df_has_column(df: pd.DataFrame, column: Union[int, str]):
@@ -52,7 +57,7 @@ def df_has_column(df: pd.DataFrame, column: Union[int, str]):
 
 def get_df_columns(
     df: pd.DataFrame,
-    usage: Union[INCLUDE, EXCLUDE, ALL],
+    usage: DFUsage,
     columns: Union[pd.Index, List[str]] = None,
 ):
     """
@@ -75,12 +80,12 @@ def get_df_columns(
     columns_excluded = pd.Index([])
     columns_included = df.columns
 
-    if usage == INCLUDE:
+    if usage == DFUsage.INCLUDE:
         try:
             columns_included = columns_included.intersection(pd.Index(columns))
         except TypeError:
             pass
-    elif usage == EXCLUDE:
+    elif usage == DFUsage.EXCLUDE:
         try:
             columns_excluded = columns_excluded.union(pd.Index(columns))
         except TypeError:
@@ -95,7 +100,9 @@ def get_df_uniques(df: pd.DataFrame):
 
 
 def get_df_missing(
-    df: pd.DataFrame, df_length: Optional[int] = None, df_counts: Optional[int] = None
+    df: pd.DataFrame,
+    df_length: Optional[pd.DataFrame] = None,
+    df_counts: Optional[pd.DataFrame] = None,
 ):
     if df_length is None:
         df_length = len(df)
@@ -110,28 +117,32 @@ def get_df_missing(
 
 
 def get_df_column_stats(
-    df: pd.DataFrame, df_counts: Optional[int] = None
+    df: pd.DataFrame, df_counts: Optional[pd.DataFrame] = None
 ) -> pd.DataFrame:
     def get_df_columns_info():
         column_info = {}
-        column_info[DF_TYPE_CONSTANT] = stats["uniques"][stats["uniques"] == 1].index
-        column_info[DF_TYPE_BOOL] = stats["uniques"][stats["uniques"] == 2].index
+        column_info[DFTypes.CONSTANT] = stats["uniques"][stats["uniques"] == 1].index
+        column_info[DFTypes.BOOL] = stats["uniques"][stats["uniques"] == 2].index
         rest_columns = get_df_columns(
-            df, EXCLUDE, column_info["constant"].union(column_info["bool"])
+            df, DFUsage.EXCLUDE, column_info["constant"].union(column_info["bool"])
         )
-        column_info[DF_TYPE_NUMERIC] = pd.Index(
+        column_info[DFTypes.NUMERIC] = pd.Index(
             [c for c in rest_columns if pd_types.is_numeric_dtype(df[c])]
         )
-        rest_columns = get_df_columns(df[rest_columns], EXCLUDE, column_info["numeric"])
-        column_info[DF_TYPE_DATE] = pd.Index(
+        rest_columns = get_df_columns(
+            df[rest_columns], DFUsage.EXCLUDE, column_info["numeric"]
+        )
+        column_info[DFTypes.DATE] = pd.Index(
             [c for c in rest_columns if pd_types.is_datetime64_dtype(df[c])]
         )
-        rest_columns = get_df_columns(df[rest_columns], EXCLUDE, column_info["date"])
+        rest_columns = get_df_columns(
+            df[rest_columns], DFUsage.EXCLUDE, column_info["date"]
+        )
         unique_columns = stats["uniques"][rest_columns] == stats["counts"][rest_columns]
-        column_info[DF_TYPE_UNIQUE] = stats["uniques"][rest_columns][
+        column_info[DFTypes.UNIQUE] = stats["uniques"][rest_columns][
             unique_columns
         ].index
-        column_info[DF_TYPE_CATEGORICAL] = stats["uniques"][rest_columns][
+        column_info[DFTypes.CATEGORICAL] = stats["uniques"][rest_columns][
             ~unique_columns
         ].index
         return column_info
@@ -156,13 +167,14 @@ def get_df_columns_types(columns_stats: pd.DataFrame):
 
 
 def get_deviation_of_mean(
-    series: pd.Series, multiplier: int = 3, df_length: Optional[int] = None
-) -> Tuple[int, float]:
+    series: pd.Series, multiplier: int = 3, df_length: Optional[pd.DataFrame] = None
+) -> Tuple[int, str]:
     """
     Returns count of values deviating of the mean, i.e. larger than `multiplier` * `std`.
     Args:
         series: Series to perform operation over.
         multiplier: The value to use as
+        df_length: Optional cached length of the dataframe.
     Returns:
         tuple
     """
@@ -186,7 +198,7 @@ def mad(series) -> np.ndarray:
 
 
 def get_median_absolute_deviation(
-    series, multiplier=3, df_length: Optional[int] = None
+    series, multiplier=3, df_length: Optional[pd.DataFrame] = None
 ) -> Tuple[int, float]:
     """
     Returns count of values larger than `multiplier` * `mad`
@@ -239,7 +251,7 @@ def get_numeric_summary(
     df: pd.DataFrame,
     column: str,
     columns_stats: pd.DataFrame = None,
-    df_length: Optional[int] = None,
+    df_length: Optional[pd.DataFrame] = None,
     plot: bool = False,
 ):
     series = df[column]
@@ -324,7 +336,7 @@ def get_bool_summary(
     df: pd.DataFrame,
     column: str,
     columns_stats: pd.DataFrame = None,
-    df_length: Optional[int] = None,
+    df_length: Optional[pd.DataFrame] = None,
 ):
     series = df[column]
 
@@ -357,7 +369,7 @@ def get_df_column_summary(
     df: pd.DataFrame,
     column: str,
     columns_stats: pd.DataFrame = None,
-    df_length: Optional[int] = None,
+    df_length: Optional[pd.DataFrame] = None,
     plot: bool = False,
 ):
     if columns_stats is None:
@@ -367,7 +379,7 @@ def get_df_column_summary(
         df_length = len(df)
 
     column_type = columns_stats.loc["types"][column]
-    if column_type == DF_TYPE_NUMERIC:
+    if column_type == DFTypes.NUMERIC:
         return get_numeric_summary(
             df=df,
             column=column,
@@ -375,17 +387,17 @@ def get_df_column_summary(
             df_length=df_length,
             plot=plot,
         )
-    if column_type == DF_TYPE_CATEGORICAL:
+    if column_type == DFTypes.CATEGORICAL:
         return get_categorical_summary(
             df=df, column=column, columns_stats=columns_stats
         )
-    if column_type == DF_TYPE_BOOL:
+    if column_type == DFTypes.BOOL:
         return get_bool_summary(
             df=df, column=column, columns_stats=columns_stats, df_length=df_length
         )
-    if column_type == DF_TYPE_UNIQUE:
+    if column_type == DFTypes.UNIQUE:
         return get_unique_summary(df=df, column=column, columns_stats=columns_stats)
-    if column_type == DF_TYPE_DATE:
+    if column_type == DFTypes.DATE:
         return get_date_summary(df=df, column=column, columns_stats=columns_stats)
-    if column_type == DF_TYPE_CONSTANT:
+    if column_type == DFTypes.CONSTANT:
         return get_constant_summary(df=df, column=column)

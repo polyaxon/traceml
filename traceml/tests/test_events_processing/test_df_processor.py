@@ -37,12 +37,12 @@ class DataFrameSummaryTest(TestCase):
 
         self.types = pd.Index(
             [
-                df_processors.DF_TYPE_NUMERIC,
-                df_processors.DF_TYPE_BOOL,
-                df_processors.DF_TYPE_CATEGORICAL,
-                df_processors.DF_TYPE_CONSTANT,
-                df_processors.DF_TYPE_UNIQUE,
-                df_processors.DF_TYPE_DATE,
+                df_processors.DFTypes.NUMERIC,
+                df_processors.DFTypes.BOOL,
+                df_processors.DFTypes.CATEGORICAL,
+                df_processors.DFTypes.CONSTANT,
+                df_processors.DFTypes.UNIQUE,
+                df_processors.DFTypes.DATE,
             ],
             name="types",
         )
@@ -86,13 +86,15 @@ class DataFrameSummaryTest(TestCase):
         self.columns_types = df_processors.get_df_columns_types(self.column_stats)
 
     def test_get_columns_works_as_expected(self):
-        assert len(df_processors.get_df_columns(self.df, df_processors.ALL)) == 10
+        assert (
+            len(df_processors.get_df_columns(self.df, df_processors.DFUsage.ALL)) == 10
+        )
 
         assert (
             len(
                 df_processors.get_df_columns(
                     self.df,
-                    df_processors.INCLUDE,
+                    df_processors.DFUsage.INCLUDE,
                     ["dnumerics1", "dnumerics2", "dnumerics3"],
                 )
             )
@@ -103,7 +105,7 @@ class DataFrameSummaryTest(TestCase):
             len(
                 df_processors.get_df_columns(
                     self.df,
-                    df_processors.EXCLUDE,
+                    df_processors.DFUsage.EXCLUDE,
                     ["dnumerics1", "dnumerics2", "dnumerics3"],
                 )
             )
@@ -167,14 +169,14 @@ class DataFrameSummaryTest(TestCase):
             index=self.columns, data=[np.nan] * 10, name="types", dtype="object"
         )
 
-        expected[["dbool1", "dbool2"]] = df_processors.DF_TYPE_BOOL
-        expected[["dcategoricals"]] = df_processors.DF_TYPE_CATEGORICAL
-        expected[["dconstant"]] = df_processors.DF_TYPE_CONSTANT
-        expected[["ddates"]] = df_processors.DF_TYPE_DATE
-        expected[["duniques"]] = df_processors.DF_TYPE_UNIQUE
+        expected[["dbool1", "dbool2"]] = df_processors.DFTypes.BOOL
+        expected[["dcategoricals"]] = df_processors.DFTypes.CATEGORICAL
+        expected[["dconstant"]] = df_processors.DFTypes.CONSTANT
+        expected[["ddates"]] = df_processors.DFTypes.DATE
+        expected[["duniques"]] = df_processors.DFTypes.UNIQUE
         expected[
             ["dnumerics1", "dnumerics2", "dnumerics3", "dmissing"]
-        ] = df_processors.DF_TYPE_NUMERIC
+        ] = df_processors.DFTypes.NUMERIC
         assert_series_equal(
             self.column_stats[self.columns].loc["types"], expected[self.columns]
         )
@@ -182,7 +184,7 @@ class DataFrameSummaryTest(TestCase):
     def test_uniques_summary(self):
         expected = pd.Series(
             index=["counts", "uniques", "missing", "missing_perc", "types"],
-            data=[self.size, self.size, 0, "0%", df_processors.DF_TYPE_UNIQUE],
+            data=[self.size, self.size, 0, "0%", df_processors.DFTypes.UNIQUE],
             name="duniques",
             dtype=object,
         )
@@ -224,7 +226,7 @@ class DataFrameSummaryTest(TestCase):
                 2,
                 0,
                 "0%",
-                df_processors.DF_TYPE_BOOL,
+                df_processors.DFTypes.BOOL,
             ],
             name="dbool1",
             dtype=object,
@@ -262,7 +264,7 @@ class DataFrameSummaryTest(TestCase):
                 2,
                 0,
                 "0%",
-                df_processors.DF_TYPE_BOOL,
+                df_processors.DFTypes.BOOL,
             ],
             name="dbool2",
             dtype=object,
@@ -275,7 +277,7 @@ class DataFrameSummaryTest(TestCase):
     def test_categorical_summary(self):
         expected = pd.Series(
             index=["top", "counts", "uniques", "missing", "missing_perc", "types"],
-            data=["a: 500", self.size, 3, 0, "0%", df_processors.DF_TYPE_CATEGORICAL],
+            data=["a: 500", self.size, 3, 0, "0%", df_processors.DFTypes.CATEGORICAL],
             name="dcategoricals",
             dtype=object,
         )
@@ -306,7 +308,7 @@ class DataFrameSummaryTest(TestCase):
                 self.size,
                 0,
                 "0%",
-                df_processors.DF_TYPE_DATE,
+                df_processors.DFTypes.DATE,
             ],
             name="ddates",
             dtype=object,
@@ -380,7 +382,7 @@ class DataFrameSummaryTest(TestCase):
                 self.size,
                 0,
                 "0%",
-                df_processors.DF_TYPE_NUMERIC,
+                df_processors.DFTypes.NUMERIC,
             ],
             name="dnumerics1",
             dtype=object,

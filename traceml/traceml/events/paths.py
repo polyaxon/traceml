@@ -51,12 +51,14 @@ def get_event_assets_path(run_path: str, kind: Optional[str] = None) -> str:
 
 
 def get_asset_path(
-    run_path: str,
+    run_path: Optional[str],
     kind: Optional[str] = None,
     name: Optional[str] = None,
     step: Optional[int] = None,
     ext: Optional[str] = None,
 ) -> str:
+    if not run_path:
+        raise ValueError("run_path must be provided to get asset path.")
     _path = get_event_assets_path(run_path, kind)
     if name:
         _path = "{}/{}".format(_path, name)

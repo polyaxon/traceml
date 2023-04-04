@@ -25,14 +25,9 @@ try:
 except ImportError:
     raise TracemlException("tensorflow is required to use the tracking Callback")
 
-SessionRunHook = None
-
 try:
     from tensorflow.train import SessionRunHook  # noqa
 except ImportError:
-    pass
-
-if not SessionRunHook:
     raise TracemlException("tensorflow is required to use the tracking Callback")
 
 
