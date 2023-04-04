@@ -35,14 +35,17 @@ class DataFrameSummaryTest(TestCase):
         )
         shuffle(missing)
 
-        self.types = [
-            df_processors.DF_TYPE_NUMERIC,
-            df_processors.DF_TYPE_BOOL,
-            df_processors.DF_TYPE_CATEGORICAL,
-            df_processors.DF_TYPE_CONSTANT,
-            df_processors.DF_TYPE_UNIQUE,
-            df_processors.DF_TYPE_DATE,
-        ]
+        self.types = pd.Index(
+            [
+                df_processors.DF_TYPE_NUMERIC,
+                df_processors.DF_TYPE_BOOL,
+                df_processors.DF_TYPE_CATEGORICAL,
+                df_processors.DF_TYPE_CONSTANT,
+                df_processors.DF_TYPE_UNIQUE,
+                df_processors.DF_TYPE_DATE,
+            ],
+            name="types",
+        )
 
         self.columns = [
             "dbool1",
@@ -108,8 +111,11 @@ class DataFrameSummaryTest(TestCase):
         )
 
     def test_column_types_works_as_expected(self):
-        expected = pd.Series(index=self.types, data=[4, 2, 1, 1, 1, 1], name="types")
-        assert_series_equal(self.columns_types[self.types], expected[self.types])
+        result = self.columns_types[self.types]
+        expected = pd.Series(
+            index=self.types, data=[4, 2, 1, 1, 1, 1], name=result.name
+        )[self.types]
+        assert_series_equal(result, expected)
 
     def test_column_stats_works_as_expected(self):
         self.assertTupleEqual(self.column_stats.shape, (5, 10))
@@ -361,7 +367,7 @@ class DataFrameSummaryTest(TestCase):
                 num1.kurt(),
                 num1.skew(),
                 num1.sum(),
-                num1.mad(),
+                df_processors.mad(num1),
                 num1.std() / num1.mean() if num1.mean() else np.nan,
                 self.size - np.count_nonzero(num1),
                 to_percentage((self.size - np.count_nonzero(num1)) / self.size),

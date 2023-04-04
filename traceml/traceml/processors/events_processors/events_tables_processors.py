@@ -13,6 +13,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from typing import Optional
 
 from polyaxon.utils.path_utils import copy_file_path
 from traceml.events import V1EventDataframe
@@ -26,8 +27,8 @@ except ImportError:
 def dataframe_path(
     from_path: str,
     asset_path: str,
-    content_type: str = None,
-    asset_rel_path: str = None,
+    content_type: Optional[str] = None,
+    asset_rel_path: Optional[str] = None,
 ) -> V1EventDataframe:
     copy_file_path(from_path, asset_path)
     return V1EventDataframe(

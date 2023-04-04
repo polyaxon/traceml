@@ -17,7 +17,7 @@
 import numpy as np
 import pandas as pd
 
-from pandas.util.testing import assert_series_equal
+from pandas.testing import assert_series_equal
 from random import shuffle
 from unittest import TestCase
 
@@ -34,14 +34,17 @@ class DataFrameSummaryTest(TestCase):
         )
         shuffle(missing)
 
-        self.types = [
-            DataFrameSummary.TYPE_NUMERIC,
-            DataFrameSummary.TYPE_BOOL,
-            DataFrameSummary.TYPE_CATEGORICAL,
-            DataFrameSummary.TYPE_CONSTANT,
-            DataFrameSummary.TYPE_UNIQUE,
-            DataFrameSummary.TYPE_DATE,
-        ]
+        self.types = pd.Index(
+            [
+                DataFrameSummary.TYPE_NUMERIC,
+                DataFrameSummary.TYPE_BOOL,
+                DataFrameSummary.TYPE_CATEGORICAL,
+                DataFrameSummary.TYPE_CONSTANT,
+                DataFrameSummary.TYPE_UNIQUE,
+                DataFrameSummary.TYPE_DATE,
+            ],
+            name="types",
+        )
 
         self.columns = [
             "dbool1",
@@ -107,8 +110,11 @@ class DataFrameSummaryTest(TestCase):
         )
 
     def test_column_types_works_as_expected(self):
-        expected = pd.Series(index=self.types, data=[4, 2, 1, 1, 1, 1], name="types")
-        assert_series_equal(self.dfs.columns_types[self.types], expected[self.types])
+        result = self.dfs.columns_types[self.types]
+        expected = pd.Series(
+            index=self.types, data=[4, 2, 1, 1, 1, 1], name=result.name
+        )[self.types]
+        assert_series_equal(result, expected)
 
     def test_column_stats_works_as_expected(self):
         column_stats = self.dfs.columns_stats
@@ -350,7 +356,7 @@ class DataFrameSummaryTest(TestCase):
                 num1.kurt(),
                 num1.skew(),
                 num1.sum(),
-                num1.mad(),
+                df_processors.mad(num1),
                 num1.std() / num1.mean() if num1.mean() else np.nan,
                 self.size - np.count_nonzero(num1),
                 to_percentage((self.size - np.count_nonzero(num1)) / self.size),

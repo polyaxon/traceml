@@ -15,7 +15,7 @@
 # limitations under the License.
 import pandas as pd
 
-from typing import Dict, List, Set, Union
+from typing import Dict, List, Optional, Set, Union
 
 from polyaxon.client import RunClient
 from polyaxon.client.decorators import client_handler
@@ -100,7 +100,13 @@ class RunPlot(RunClient):
         return px.line(df, x=x, y=y, color=color)
 
     @client_handler(check_no_op=True)
-    def scatter(self, x: str = None, y: str = None, color: str = None, **kwargs):
+    def scatter(
+        self,
+        x: Optional[str] = None,
+        y: Optional[str] = None,
+        color: Optional[str] = None,
+        **kwargs
+    ):
         import plotly.express as px
 
         if len(self.metric_names) < 2:
@@ -149,7 +155,11 @@ class MultiRunPlot(RunClient):
 
     @client_handler(check_no_op=True)
     def get_runs(
-        self, query: str = None, sort: str = None, limit: int = None, offset: int = None
+        self,
+        query: Optional[str] = None,
+        sort: Optional[str] = None,
+        limit: Optional[int] = None,
+        offset: Optional[int] = None,
     ) -> Dict:
         runs = self.list(
             query=query,
@@ -163,7 +173,11 @@ class MultiRunPlot(RunClient):
         return self.runs
 
     def get_runs_io(
-        self, query: str = None, sort: str = None, limit: int = None, offset: int = None
+        self,
+        query: Optional[str] = None,
+        sort: Optional[str] = None,
+        limit: Optional[int] = None,
+        offset: Optional[int] = None,
     ):
         runs = self.get_runs(query=query, sort=sort, limit=limit, offset=offset)
         data = []
@@ -176,7 +190,11 @@ class MultiRunPlot(RunClient):
 
     @client_handler(check_no_op=True)
     def get_hiplot(
-        self, query: str = None, sort: str = None, limit: int = None, offset: int = None
+        self,
+        query: Optional[str] = None,
+        sort: Optional[str] = None,
+        limit: Optional[int] = None,
+        offset: Optional[int] = None,
     ):
         import hiplot
 

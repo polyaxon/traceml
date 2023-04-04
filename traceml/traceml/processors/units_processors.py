@@ -13,7 +13,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from typing import Union
+from typing import Optional, Union
 
 
 def _sanitize_value(value: Union[str, int, float]) -> Union[int, float]:
@@ -87,7 +87,7 @@ def to_memory_bytes(mem_definition: Union[str, int, float]) -> int:
     return 0
 
 
-def to_unit_memory(number, precision: int = 2):
+def to_unit_memory(number: Union[int, float], precision: int = 2) -> str:
     """Creates a string representation of memory size given `number`."""
     kb = 1024
 
@@ -116,7 +116,9 @@ def to_unit_memory(number, precision: int = 2):
     return "{} Ei".format(round(number, precision))
 
 
-def number_percentage_format(x, precision: int = None, use_comma: bool = False):
+def number_percentage_format(
+    x, precision: Optional[int] = None, use_comma: bool = False
+) -> str:
     if precision is None:
         return x
     eps = 0.000000001
@@ -130,8 +132,8 @@ def number_percentage_format(x, precision: int = None, use_comma: bool = False):
 
 
 def to_percentage(
-    number, rounding: int = 2, precision: int = None, use_comma: bool = False
-):
+    number, rounding: int = 2, precision: Optional[int] = None, use_comma: bool = False
+) -> str:
     """Creates a percentage string representation from the given `number`. The
     number is multiplied by 100 before adding a '%' character.
 
@@ -149,7 +151,7 @@ def to_percentage(
     return "{}%".format(value)
 
 
-def format_sizeof(num, suffix="B"):
+def format_sizeof(num: Union[int, float], suffix: str = "B") -> str:
     """
     Print in human friendly format
     """

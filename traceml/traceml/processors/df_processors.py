@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Dict, List, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 from traceml.processors.errors import NUMPY_ERROR_MESSAGE, PANDAS_ERROR_MESSAGE
 from traceml.processors.units_processors import to_percentage
@@ -94,7 +94,9 @@ def get_df_uniques(df: pd.DataFrame):
     return pd.Series(dict((c, df[c].nunique()) for c in df.columns), name="uniques")
 
 
-def get_df_missing(df: pd.DataFrame, df_length: int = None, df_counts: int = None):
+def get_df_missing(
+    df: pd.DataFrame, df_length: Optional[int] = None, df_counts: Optional[int] = None
+):
     if df_length is None:
         df_length = len(df)
     if df_counts is None:
@@ -107,7 +109,9 @@ def get_df_missing(df: pd.DataFrame, df_length: int = None, df_counts: int = Non
     return pd.concat([count, perc], axis=1, sort=True)
 
 
-def get_df_column_stats(df: pd.DataFrame, df_counts: int = None) -> pd.DataFrame:
+def get_df_column_stats(
+    df: pd.DataFrame, df_counts: Optional[int] = None
+) -> pd.DataFrame:
     def get_df_columns_info():
         column_info = {}
         column_info[DF_TYPE_CONSTANT] = stats["uniques"][stats["uniques"] == 1].index
@@ -152,7 +156,7 @@ def get_df_columns_types(columns_stats: pd.DataFrame):
 
 
 def get_deviation_of_mean(
-    series: pd.Series, multiplier: int = 3, df_length: int = None
+    series: pd.Series, multiplier: int = 3, df_length: Optional[int] = None
 ) -> Tuple[int, float]:
     """
     Returns count of values deviating of the mean, i.e. larger than `multiplier` * `std`.
@@ -170,8 +174,19 @@ def get_deviation_of_mean(
     return count, to_percentage(count / df_length)
 
 
+def mad(series) -> np.ndarray:
+    """Returns Median Absolute Deviation.
+    https://en.wikipedia.org/wiki/Median_absolute_deviation
+    Args:
+        Union[series, np.ndarray]: Series to perform operation over.
+    Returns:
+        float
+    """
+    return np.median(np.abs(series - np.median(series)))
+
+
 def get_median_absolute_deviation(
-    series, multiplier=3, df_length: int = None
+    series, multiplier=3, df_length: Optional[int] = None
 ) -> Tuple[int, float]:
     """
     Returns count of values larger than `multiplier` * `mad`
@@ -183,7 +198,7 @@ def get_median_absolute_deviation(
     """
     if df_length is None:
         df_length = len(series)
-    capped_series = np.minimum(series, series.median() + multiplier * series.mad())
+    capped_series = np.minimum(series, series.median() + multiplier * mad(series))
     count = pd.value_counts(series != capped_series)
     count = count[True] if True in count else 0
     return count, to_percentage(count / df_length)
@@ -224,7 +239,7 @@ def get_numeric_summary(
     df: pd.DataFrame,
     column: str,
     columns_stats: pd.DataFrame = None,
-    df_length: int = None,
+    df_length: Optional[int] = None,
     plot: bool = False,
 ):
     series = df[column]
@@ -257,7 +272,7 @@ def get_numeric_summary(
     stats["kurtosis"] = series.kurt()
     stats["skewness"] = series.skew()
     stats["sum"] = series.sum()
-    stats["mad"] = series.mad()
+    stats["mad"] = mad(series)
     stats["cv"] = stats["std"] / stats["mean"] if stats["mean"] else np.nan
     stats["zeros_num"] = df_length - np.count_nonzero(series)
     stats["zeros_perc"] = to_percentage(stats["zeros_num"] / df_length)
@@ -309,7 +324,7 @@ def get_bool_summary(
     df: pd.DataFrame,
     column: str,
     columns_stats: pd.DataFrame = None,
-    df_length: int = None,
+    df_length: Optional[int] = None,
 ):
     series = df[column]
 
@@ -342,7 +357,7 @@ def get_df_column_summary(
     df: pd.DataFrame,
     column: str,
     columns_stats: pd.DataFrame = None,
-    df_length: int = None,
+    df_length: Optional[int] = None,
     plot: bool = False,
 ):
     if columns_stats is None:

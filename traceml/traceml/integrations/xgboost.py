@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 import ujson
 
@@ -76,8 +76,8 @@ def _log_model(run, model, model_folds):
 def callback(
     log_model: bool = True,
     log_importance: bool = True,
-    max_num_features: int = None,
-    run: "Run" = None,
+    max_num_features: Optional[int] = None,
+    run: Optional["Run"] = None,
 ):
     run = tracking.get_or_create_run(run)
 
@@ -124,7 +124,7 @@ class Callback(xgb.callback.TrainingCallback):
         log_model: bool = True,
         log_importance: bool = True,
         importance_type: str = "gain",
-        max_num_features: int = None,
+        max_num_features: Optional[int] = None,
     ):
         self.log_model: bool = log_model
         self.log_importance: bool = log_importance

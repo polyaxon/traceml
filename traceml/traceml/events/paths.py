@@ -14,11 +14,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from enum import Enum
+from typing import Optional
 
 from polyaxon.utils.enums_utils import get_enum_value
 
 
-def get_resource_path(run_path: str, kind: str = None, name: str = None) -> str:
+def get_resource_path(
+    run_path: str, kind: Optional[str] = None, name: Optional[str] = None
+) -> str:
     _path = "{}/resources".format(run_path)
     if kind:
         _path = "{}/{}".format(_path, get_enum_value(kind))
@@ -28,7 +31,9 @@ def get_resource_path(run_path: str, kind: str = None, name: str = None) -> str:
     return _path
 
 
-def get_event_path(run_path: str, kind: str = None, name: str = None) -> str:
+def get_event_path(
+    run_path: str, kind: Optional[str] = None, name: Optional[str] = None
+) -> str:
     _path = "{}/events".format(run_path)
     if kind:
         _path = "{}/{}".format(_path, get_enum_value(kind))
@@ -38,7 +43,7 @@ def get_event_path(run_path: str, kind: str = None, name: str = None) -> str:
     return _path
 
 
-def get_event_assets_path(run_path: str, kind: str = None) -> str:
+def get_event_assets_path(run_path: str, kind: Optional[str] = None) -> str:
     _path = "{}/assets".format(run_path)
     if kind:
         _path = "{}/{}".format(_path, get_enum_value(kind))
@@ -46,7 +51,11 @@ def get_event_assets_path(run_path: str, kind: str = None) -> str:
 
 
 def get_asset_path(
-    run_path: str, kind: str = None, name: str = None, step: int = None, ext=None
+    run_path: str,
+    kind: Optional[str] = None,
+    name: Optional[str] = None,
+    step: Optional[int] = None,
+    ext: Optional[str] = None,
 ) -> str:
     _path = get_event_assets_path(run_path, kind)
     if name:

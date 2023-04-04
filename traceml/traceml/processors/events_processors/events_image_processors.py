@@ -15,6 +15,8 @@
 # limitations under the License.
 import io
 
+from typing import Optional
+
 from polyaxon.constants.globals import UNKNOWN
 from polyaxon.utils.np_utils import calculate_scale_factor, to_np
 from polyaxon.utils.path_utils import check_or_create_path, copy_file_path
@@ -33,7 +35,7 @@ except ImportError:
 
 
 def image_path(
-    from_path: str, asset_path: str, asset_rel_path: str = None
+    from_path: str, asset_path: str, asset_rel_path: Optional[str] = None
 ) -> V1EventImage:
     copy_file_path(from_path, asset_path)
     return V1EventImage(path=asset_rel_path or asset_path)
@@ -89,7 +91,7 @@ def _draw_single_box(
     return image
 
 
-def encoded_image(asset_path: str, data, asset_rel_path: str = None):
+def encoded_image(asset_path: str, data, asset_rel_path: Optional[str] = None):
     try:
         from PIL import Image
     except ImportError:
@@ -107,7 +109,11 @@ def encoded_image(asset_path: str, data, asset_rel_path: str = None):
 
 
 def image(
-    asset_path: str, data, rescale=1, dataformats="CHW", asset_rel_path: str = None
+    asset_path: str,
+    data,
+    rescale=1,
+    dataformats="CHW",
+    asset_rel_path: Optional[str] = None,
 ):
     if not np:
         logger.warning(NUMPY_ERROR_MESSAGE)
@@ -130,7 +136,7 @@ def image_boxes(
     tensor_boxes,
     rescale=1,
     dataformats="CHW",
-    asset_rel_path: str = None,
+    asset_rel_path: Optional[str] = None,
 ):
     if not np:
         logger.warning(NUMPY_ERROR_MESSAGE)
@@ -169,7 +175,7 @@ def draw_boxes(disp_image, boxes):
 
 
 def make_image(
-    asset_path: str, tensor, rescale=1, rois=None, asset_rel_path: str = None
+    asset_path: str, tensor, rescale=1, rois=None, asset_rel_path: Optional[str] = None
 ):
     try:
         from PIL import Image
@@ -196,7 +202,12 @@ def make_image(
 
 
 def save_image(
-    asset_path: str, image_data, height, width, colorspace, asset_rel_path: str = None
+    asset_path: str,
+    image_data,
+    height,
+    width,
+    colorspace,
+    asset_rel_path: Optional[str] = None,
 ):
     check_or_create_path(asset_path, is_dir=False)
     image_data.save(asset_path, format="PNG")

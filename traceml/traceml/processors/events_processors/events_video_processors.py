@@ -13,6 +13,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from typing import Optional
 
 from polyaxon.constants.globals import UNKNOWN
 from polyaxon.utils.np_utils import calculate_scale_factor, to_np
@@ -28,14 +29,21 @@ except ImportError:
 
 
 def video_path(
-    from_path: str, asset_path: str, content_type=None, asset_rel_path: str = None
+    from_path: str,
+    asset_path: str,
+    content_type=None,
+    asset_rel_path: Optional[str] = None,
 ) -> V1EventVideo:
     copy_file_path(from_path, asset_path)
     return V1EventVideo(path=asset_rel_path or asset_path, content_type=content_type)
 
 
 def video(
-    asset_path: str, tensor, fps=4, content_type="gif", asset_rel_path: str = None
+    asset_path: str,
+    tensor,
+    fps=4,
+    content_type="gif",
+    asset_rel_path: Optional[str] = None,
 ):
     if not np:
         logger.warning(NUMPY_ERROR_MESSAGE)
@@ -53,7 +61,11 @@ def video(
 
 
 def make_video(
-    asset_path: str, tensor, fps, content_type="gif", asset_rel_path: str = None
+    asset_path: str,
+    tensor,
+    fps,
+    content_type="gif",
+    asset_rel_path: Optional[str] = None,
 ):
     try:
         import moviepy  # noqa: F401

@@ -13,7 +13,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+from typing import Optional
 
 from polyaxon.utils.path_utils import copy_file_or_dir_path
 from traceml.events import V1EventArtifact
@@ -25,7 +25,7 @@ except ImportError:
 
 
 def artifact_path(
-    from_path: str, asset_path: str, kind: str, asset_rel_path: str = None
+    from_path: str, asset_path: str, kind: str, asset_rel_path: Optional[str] = None
 ) -> V1EventArtifact:
     copy_file_or_dir_path(from_path, asset_path)
     return V1EventArtifact(kind=kind, path=asset_rel_path or asset_path)

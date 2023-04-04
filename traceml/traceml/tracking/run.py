@@ -21,7 +21,7 @@ import tempfile
 import time
 
 from datetime import datetime
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import ujson
 
@@ -125,23 +125,23 @@ class Run(RunClient):
     @client_handler(check_no_op=True)
     def __init__(
         self,
-        owner: str = None,
-        project: str = None,
-        run_uuid: str = None,
-        client: PolyaxonClient = None,
+        owner: Optional[str] = None,
+        project: Optional[str] = None,
+        run_uuid: Optional[str] = None,
+        client: Optional[PolyaxonClient] = None,
         track_code: bool = True,
         track_env: bool = True,
         track_logs: bool = True,
         refresh_data: bool = False,
-        artifacts_path: str = None,
-        collect_artifacts: bool = None,
-        collect_resources: bool = None,
-        is_new: bool = None,
-        is_offline: bool = None,
-        no_op: bool = None,
-        name: str = None,
-        description: str = None,
-        tags: List[str] = None,
+        artifacts_path: Optional[str] = None,
+        collect_artifacts: Optional[bool] = None,
+        collect_resources: Optional[bool] = None,
+        is_new: Optional[bool] = None,
+        is_offline: Optional[bool] = None,
+        no_op: Optional[bool] = None,
+        name: Optional[str] = None,
+        description: Optional[str] = None,
+        tags: Optional[List[str]] = None,
         auto_create: bool = True,
     ):
         super().__init__(
@@ -198,10 +198,10 @@ class Run(RunClient):
 
     def _init_artifacts_tracking(
         self,
-        artifacts_path: str = None,
-        collect_artifacts: bool = None,
-        collect_resources: bool = None,
-        is_new: bool = None,
+        artifacts_path: Optional[str] = None,
+        collect_artifacts: Optional[bool] = None,
+        collect_resources: Optional[bool] = None,
+        is_new: Optional[bool] = None,
     ):
         if (settings.CLIENT_CONFIG.is_managed and self.run_uuid) or artifacts_path:
             self.set_artifacts_path(artifacts_path, is_related=is_new)
@@ -281,7 +281,7 @@ class Run(RunClient):
     @client_handler(check_no_op=True)
     def get_artifacts_path(
         self,
-        rel_path: str = None,
+        rel_path: Optional[str] = None,
         ensure_path: bool = False,
         is_dir: bool = False,
         use_store_path: bool = False,
@@ -326,7 +326,7 @@ class Run(RunClient):
     @client_handler(check_no_op=True)
     def get_outputs_path(
         self,
-        rel_path: str = None,
+        rel_path: Optional[str] = None,
         ensure_path: bool = True,
         is_dir: bool = False,
         use_store_path: bool = False,
@@ -395,7 +395,9 @@ class Run(RunClient):
         return path
 
     @client_handler(check_no_op=True)
-    def set_artifacts_path(self, artifacts_path: str = None, is_related: bool = False):
+    def set_artifacts_path(
+        self, artifacts_path: Optional[str] = None, is_related: bool = False
+    ):
         """Sets the root artifacts_path.
 
         > **Note**: Both `in-cluster` and `offline` modes will call this method automatically.
@@ -472,7 +474,11 @@ class Run(RunClient):
 
     @client_handler(check_no_op=True, can_log_events=True)
     def log_metric(
-        self, name: str, value: float, step: int = None, timestamp: datetime = None
+        self,
+        name: str,
+        value: float,
+        step: Optional[int] = None,
+        timestamp: Optional[datetime] = None,
     ):
         """Logs a metric datapoint.
 
@@ -511,7 +517,12 @@ class Run(RunClient):
             self._results[name] = event_value
 
     @client_handler(check_no_op=True, can_log_events=True)
-    def log_metrics(self, step: int = None, timestamp: datetime = None, **metrics):
+    def log_metrics(
+        self,
+        step: Optional[int] = None,
+        timestamp: Optional[datetime] = None,
+        **metrics,
+    ):
         """Logs multiple metrics.
 
         ```python
@@ -554,8 +565,8 @@ class Run(RunClient):
         fpr,
         tpr,
         auc=None,
-        step: int = None,
-        timestamp: datetime = None,
+        step: Optional[int] = None,
+        timestamp: Optional[datetime] = None,
     ):
         """Logs ROC/AUC curve. This method expects an already processed values.
 
@@ -591,8 +602,8 @@ class Run(RunClient):
         name: str,
         y_preds,
         y_targets,
-        step: int = None,
-        timestamp: datetime = None,
+        step: Optional[int] = None,
+        timestamp: Optional[datetime] = None,
         is_multi_class: bool = False,
     ):
         """Calculates and logs ROC/AUC curve using sklearn.
@@ -646,8 +657,8 @@ class Run(RunClient):
         precision,
         recall,
         average_precision=None,
-        step: int = None,
-        timestamp: datetime = None,
+        step: Optional[int] = None,
+        timestamp: Optional[datetime] = None,
     ):
         """Logs PR curve. This method expects an already processed values.
 
@@ -683,8 +694,8 @@ class Run(RunClient):
         name: str,
         y_preds,
         y_targets,
-        step: int = None,
-        timestamp: datetime = None,
+        step: Optional[int] = None,
+        timestamp: Optional[datetime] = None,
         is_multi_class: bool = False,
     ):
         """Calculates and logs PR curve using sklearn.
@@ -738,8 +749,8 @@ class Run(RunClient):
         x,
         y,
         annotation=None,
-        step: int = None,
-        timestamp: datetime = None,
+        step: Optional[int] = None,
+        timestamp: Optional[datetime] = None,
     ):
         """Logs a custom curve.
 
@@ -777,8 +788,8 @@ class Run(RunClient):
         x,
         y,
         z,
-        step: int = None,
-        timestamp: datetime = None,
+        step: Optional[int] = None,
+        timestamp: Optional[datetime] = None,
     ):
         """Logs a custom curve.
 
@@ -831,12 +842,12 @@ class Run(RunClient):
     def log_image(
         self,
         data,
-        name: str = None,
-        step: int = None,
-        timestamp: datetime = None,
+        name: Optional[str] = None,
+        step: Optional[int] = None,
+        timestamp: Optional[datetime] = None,
         rescale: int = 1,
         dataformats: str = "CHW",
-        ext: str = None,
+        ext: Optional[str] = None,
     ):
         """Logs an image.
 
@@ -912,9 +923,9 @@ class Run(RunClient):
         self,
         tensor_image,
         tensor_boxes,
-        name: str = None,
-        step: int = None,
-        timestamp: datetime = None,
+        name: Optional[str] = None,
+        step: Optional[int] = None,
+        timestamp: Optional[datetime] = None,
         rescale: int = 1,
         dataformats: str = "CHW",
     ):
@@ -970,10 +981,10 @@ class Run(RunClient):
     def log_mpl_image(
         self,
         data,
-        name: str = None,
+        name: Optional[str] = None,
         close: bool = True,
-        step: int = None,
-        timestamp: datetime = None,
+        step: Optional[int] = None,
+        timestamp: Optional[datetime] = None,
     ):
         """Logs a matplotlib image.
 
@@ -1017,11 +1028,11 @@ class Run(RunClient):
     def log_video(
         self,
         data,
-        name: str = None,
+        name: Optional[str] = None,
         fps: int = 4,
-        step: int = None,
-        timestamp: datetime = None,
-        content_type: str = None,
+        step: Optional[int] = None,
+        timestamp: Optional[datetime] = None,
+        content_type: Optional[str] = None,
     ):
         """Logs a video.
 
@@ -1090,11 +1101,11 @@ class Run(RunClient):
     def log_audio(
         self,
         data,
-        name: str = None,
+        name: Optional[str] = None,
         sample_rate: int = 44100,
-        step: int = None,
-        timestamp: datetime = None,
-        content_type: str = None,
+        step: Optional[int] = None,
+        timestamp: Optional[datetime] = None,
+        content_type: Optional[str] = None,
     ):
         """Logs a audio.
 
@@ -1158,7 +1169,11 @@ class Run(RunClient):
 
     @client_handler(check_no_op=True, can_log_events=True)
     def log_text(
-        self, name: str, text: str, step: int = None, timestamp: datetime = None
+        self,
+        name: str,
+        text: str,
+        step: Optional[int] = None,
+        timestamp: Optional[datetime] = None,
     ):
         """Logs a text.
 
@@ -1184,7 +1199,11 @@ class Run(RunClient):
 
     @client_handler(check_no_op=True, can_log_events=True)
     def log_html(
-        self, name: str, html: str, step: int = None, timestamp: datetime = None
+        self,
+        name: str,
+        html: str,
+        step: Optional[int] = None,
+        timestamp: Optional[datetime] = None,
     ):
         """Logs an html.
 
@@ -1210,7 +1229,12 @@ class Run(RunClient):
 
     @client_handler(check_no_op=True, can_log_events=True)
     def log_np_histogram(
-        self, name: str, values, counts, step: int = None, timestamp: datetime = None
+        self,
+        name: str,
+        values,
+        counts,
+        step: Optional[int] = None,
+        timestamp: Optional[datetime] = None,
     ):
         """Logs a numpy histogram.
 
@@ -1248,8 +1272,8 @@ class Run(RunClient):
         values,
         bins,
         max_bins=None,
-        step: int = None,
-        timestamp: datetime = None,
+        step: Optional[int] = None,
+        timestamp: Optional[datetime] = None,
     ):
         """Logs a histogram.
 
@@ -1291,12 +1315,12 @@ class Run(RunClient):
     def log_model(
         self,
         path: str,
-        name: str = None,
-        framework: str = None,
-        summary: Dict = None,
-        step: int = None,
-        timestamp: datetime = None,
-        rel_path: str = None,
+        name: Optional[str] = None,
+        framework: Optional[str] = None,
+        summary: Optional[Dict] = None,
+        step: Optional[int] = None,
+        timestamp: Optional[datetime] = None,
+        rel_path: Optional[str] = None,
         skip_hash_calculation: bool = False,
         **kwargs,
     ):
@@ -1374,12 +1398,12 @@ class Run(RunClient):
     def log_artifact(
         self,
         path: str,
-        name: str = None,
-        kind: str = None,
-        summary: Dict = None,
-        step: int = None,
-        timestamp: datetime = None,
-        rel_path: str = None,
+        name: Optional[str] = None,
+        kind: Optional[str] = None,
+        summary: Optional[Dict] = None,
+        step: Optional[int] = None,
+        timestamp: Optional[datetime] = None,
+        rel_path: Optional[str] = None,
         skip_hash_calculation: bool = False,
         **kwargs,
     ):
@@ -1460,8 +1484,8 @@ class Run(RunClient):
         df,
         name: str,
         content_type: str = V1ArtifactKind.CSV,
-        step: int = None,
-        timestamp: datetime = None,
+        step: Optional[int] = None,
+        timestamp: Optional[datetime] = None,
     ):
         """Logs a dataframe.
 
@@ -1511,7 +1535,11 @@ class Run(RunClient):
 
     @client_handler(check_no_op=True, can_log_events=True)
     def log_plotly_chart(
-        self, name: str, figure, step: int = None, timestamp: datetime = None
+        self,
+        name: str,
+        figure,
+        step: Optional[int] = None,
+        timestamp: Optional[datetime] = None,
     ):
         """Logs a plotly chart/figure.
 
@@ -1534,7 +1562,11 @@ class Run(RunClient):
 
     @client_handler(check_no_op=True, can_log_events=True)
     def log_bokeh_chart(
-        self, name: str, figure, step: int = None, timestamp: datetime = None
+        self,
+        name: str,
+        figure,
+        step: Optional[int] = None,
+        timestamp: Optional[datetime] = None,
     ):
         """Logs a bokeh chart/figure.
 
@@ -1557,7 +1589,11 @@ class Run(RunClient):
 
     @client_handler(check_no_op=True, can_log_events=True)
     def log_altair_chart(
-        self, name: str, figure, step: int = None, timestamp: datetime = None
+        self,
+        name: str,
+        figure,
+        step: Optional[int] = None,
+        timestamp: Optional[datetime] = None,
     ):
         """Logs a vega/altair chart/figure.
 
@@ -1583,8 +1619,8 @@ class Run(RunClient):
         self,
         name: str,
         figure,
-        step: int = None,
-        timestamp: datetime = None,
+        step: Optional[int] = None,
+        timestamp: Optional[datetime] = None,
         close: bool = True,
         fallback_to_image: bool = True,
     ):
@@ -1695,7 +1731,7 @@ class Run(RunClient):
         time.sleep(settings.CLIENT_CONFIG.tracking_timeout)
 
     @client_handler(check_no_op=True, can_log_outputs=True)
-    def log_env(self, rel_path: str = None, content: Dict = None):
+    def log_env(self, rel_path: Optional[str] = None, content: Optional[Dict] = None):
         """Logs information about the environment.
 
         Called automatically if track_env is set to True.

@@ -293,15 +293,15 @@ class V1Event(BaseSchemaModel):
     @classmethod
     def make(
         cls,
-        step: int = None,
+        step: Optional[int] = None,
         timestamp=None,
         metric: float = None,
         image: V1EventImage = None,
         histogram: V1EventHistogram = None,
         audio: V1EventAudio = None,
         video: V1EventVideo = None,
-        html: str = None,
-        text: str = None,
+        html: Optional[str] = None,
+        text: Optional[str] = None,
         chart: V1EventChart = None,
         curve: V1EventCurve = None,
         confusion: V1EventConfusionMatrix = None,

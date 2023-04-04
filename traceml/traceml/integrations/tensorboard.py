@@ -16,8 +16,9 @@
 
 import os
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Optional
 
+from polyaxon.exceptions import PolyaxonClientException
 from traceml import tracking
 from traceml.exceptions import TracemlException
 from traceml.logger import logger
@@ -53,7 +54,7 @@ class Logger:
     def process_summary(
         cls,
         summary: Any,
-        global_step: int = None,
+        global_step: Optional[int] = None,
         run: "Run" = None,
         log_image: bool = False,
         log_histo: bool = False,

@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Dict
+from typing import Dict, Optional
 
 from polyaxon.utils.path_utils import copy_file_or_dir_path
 from traceml.events import V1EventModel
@@ -29,9 +29,9 @@ except ImportError:
 def model_path(
     from_path: str,
     asset_path: str,
-    framework: str = None,
-    spec: Dict = None,
-    asset_rel_path: str = None,
+    framework: Optional[str] = None,
+    spec: Optional[Dict] = None,
+    asset_rel_path: Optional[str] = None,
 ) -> V1EventModel:
     copy_file_or_dir_path(from_path, asset_path)
     return V1EventModel(

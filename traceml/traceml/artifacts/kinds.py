@@ -13,6 +13,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from typing import Optional, Union
 
 from polyaxon.utils.enums_utils import PEnum
 
@@ -51,7 +52,7 @@ class V1ArtifactKind(str, PEnum):
     ARTIFACT = "artifact"
 
     @classmethod
-    def is_single_file_event(cls, kind: str) -> bool:
+    def is_single_file_event(cls, kind: Optional[Union["V1ArtifactKind", str]]) -> bool:
         return kind in {
             V1ArtifactKind.HTML,
             V1ArtifactKind.TEXT,
@@ -64,7 +65,9 @@ class V1ArtifactKind(str, PEnum):
         }
 
     @classmethod
-    def is_single_or_multi_file_event(cls, kind: str) -> bool:
+    def is_single_or_multi_file_event(
+        cls, kind: Optional[Union["V1ArtifactKind", str]]
+    ) -> bool:
         return kind in {
             V1ArtifactKind.MODEL,
             V1ArtifactKind.DATAFRAME,
@@ -78,14 +81,14 @@ class V1ArtifactKind(str, PEnum):
         }
 
     @classmethod
-    def is_dir(cls, kind: str) -> bool:
+    def is_dir(cls, kind: Optional[Union["V1ArtifactKind", str]]) -> bool:
         return kind in {
             V1ArtifactKind.TENSORBOARD,
             V1ArtifactKind.DIR,
         }
 
     @classmethod
-    def is_file(cls, kind: str) -> bool:
+    def is_file(cls, kind: Optional[Union["V1ArtifactKind", str]]) -> bool:
         return kind in {
             V1ArtifactKind.DOCKERFILE,
             V1ArtifactKind.FILE,
@@ -93,7 +96,7 @@ class V1ArtifactKind(str, PEnum):
         }
 
     @classmethod
-    def is_file_or_dir(cls, kind: str) -> bool:
+    def is_file_or_dir(cls, kind: Optional[Union["V1ArtifactKind", str]]) -> bool:
         return kind in {
             V1ArtifactKind.DATA,
             V1ArtifactKind.MODEL,

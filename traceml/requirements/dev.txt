@@ -1,4 +1,4 @@
-pandas
+pandas<2.0.0
 ipython
 scikit-learn
 altair==4.1.0

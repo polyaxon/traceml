@@ -15,7 +15,7 @@
 # limitations under the License.
 import operator
 
-from typing import List
+from typing import List, Optional
 
 from polyaxon.client.decorators import client_handler
 from polyaxon.utils.np_utils import sanitize_np_types
@@ -37,7 +37,7 @@ class Callback(keras.callbacks.Callback):
     def __init__(
         self,
         run=None,
-        metrics: List[str] = None,
+        metrics: Optional[List[str]] = None,
         log_model: bool = True,
         save_weights_only: bool = False,
         log_best_prefix="best",
