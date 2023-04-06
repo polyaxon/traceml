@@ -1746,7 +1746,7 @@ class Run(RunClient):
         if not os.path.exists(self._outputs_path):
             return
         if not content:
-            content = get_run_env()
+            content = get_run_env(["polyaxon", "traceml"])
 
         rel_path = rel_path or "env.json"
         path = self._outputs_path
