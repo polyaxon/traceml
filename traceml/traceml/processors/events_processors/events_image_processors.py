@@ -17,9 +17,10 @@ import io
 
 from typing import Optional
 
+from clipped.np_utils import calculate_scale_factor, to_np
+from clipped.path_utils import check_or_create_path, copy_file_path
+
 from polyaxon.constants.globals import UNKNOWN
-from polyaxon.utils.np_utils import calculate_scale_factor, to_np
-from polyaxon.utils.path_utils import check_or_create_path, copy_file_path
 from traceml.events import V1EventImage
 from traceml.logger import logger
 from traceml.processors.errors import (

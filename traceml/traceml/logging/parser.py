@@ -16,7 +16,7 @@
 
 import re
 
-from polyaxon.utils.date_utils import parse_datetime
+from clipped.date_utils import parse_datetime
 
 # pylint:disable=anomalous-backslash-in-string
 

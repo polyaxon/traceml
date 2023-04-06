@@ -18,10 +18,11 @@ import logging
 import os
 import socket
 
+from clipped.date_utils import to_datetime
+from clipped.env import get_user
+
 from polyaxon import settings
 from polyaxon.env_vars.keys import EV_KEYS_K8S_NODE_NAME, EV_KEYS_K8S_POD_ID
-from polyaxon.utils.date_utils import to_datetime
-from polyaxon.utils.env import get_user
 from traceml.logging import V1Log
 
 

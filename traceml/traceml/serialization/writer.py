@@ -20,7 +20,8 @@ import time
 
 from typing import List, Union
 
-from polyaxon.utils.path_utils import check_or_create_path
+from clipped.path_utils import check_or_create_path
+
 from traceml.events import LoggedEventSpec, get_asset_path, get_event_path
 from traceml.events.paths import get_resource_path
 from traceml.processors.gpu_processor import can_log_gpu_resources, get_gpu_metrics

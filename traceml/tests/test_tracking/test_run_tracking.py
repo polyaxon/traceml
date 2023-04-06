@@ -27,6 +27,7 @@ import altair as alt
 import matplotlib.pyplot as plt
 
 from bokeh.plotting import figure
+from clipped.path_utils import create_path
 from plotly import figure_factory
 
 from polyaxon import dist, settings
@@ -42,7 +43,6 @@ from polyaxon.env_vars.keys import (
 )
 from polyaxon.exceptions import PolyaxonClientException
 from polyaxon.lifecycle import V1ProjectFeature
-from polyaxon.utils.path_utils import create_path
 from polyaxon.utils.test_utils import TestEnvVarsCase, tensor_np
 from traceml.artifacts import V1ArtifactKind
 from traceml.events import V1Events, get_asset_path, get_event_path

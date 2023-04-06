@@ -15,7 +15,7 @@
 # limitations under the License.
 from typing import Optional, Union
 
-from polyaxon.utils.enums_utils import PEnum
+from clipped.enums_utils import PEnum
 
 
 class V1ArtifactKind(str, PEnum):

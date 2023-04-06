@@ -14,7 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from polyaxon.utils.np_utils import sanitize_dict
+from clipped.np_utils import sanitize_dict
+
 from traceml import tracking
 from traceml.exceptions import TracemlException
 

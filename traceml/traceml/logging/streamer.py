@@ -17,9 +17,11 @@
 from collections import deque
 from typing import Callable
 
+from clipped.formatting import Printer
+from clipped.tz_utils import local_datetime
+
+from polyaxon import settings
 from polyaxon.containers.names import MAIN_JOB_CONTAINER
-from polyaxon.utils.formatting import Printer
-from polyaxon.utils.tz_utils import local_datetime
 from traceml.logging.schemas import V1Log, V1Logs
 
 
@@ -35,7 +37,9 @@ def get_logs_streamer(
         log_dict = log.to_dict()
         log_line = ""
         if log.timestamp and show_timestamp:
-            date_value = local_datetime(log_dict.get("timestamp"))
+            date_value = local_datetime(
+                log_dict.get("timestamp"), tz=settings.CLIENT_CONFIG.timezone
+            )
             log_line = Printer.add_log_color(date_value, "white") + " | "
 
         def get_container_info():

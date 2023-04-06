@@ -16,7 +16,8 @@
 
 from typing import Dict, List, Optional, Tuple, Union
 
-from polyaxon.utils.enums_utils import PEnum
+from clipped.enums_utils import PEnum
+
 from traceml.processors.errors import NUMPY_ERROR_MESSAGE, PANDAS_ERROR_MESSAGE
 from traceml.processors.units_processors import to_percentage
 

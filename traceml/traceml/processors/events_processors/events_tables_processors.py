@@ -15,7 +15,8 @@
 # limitations under the License.
 from typing import Optional
 
-from polyaxon.utils.path_utils import copy_file_path
+from clipped.path_utils import copy_file_path
+
 from traceml.events import V1EventDataframe
 
 try:

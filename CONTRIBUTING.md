@@ -49,7 +49,7 @@ Before you contribute to Polyaxon, there are a few things that you'll need to do
 
 ### Which branch to base the work
 
-All changes should be be based on the latest master commit.
+All changes should be based on the latest master commit.
 
 ## Questions
 

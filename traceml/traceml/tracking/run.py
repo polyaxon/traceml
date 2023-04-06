@@ -25,6 +25,15 @@ from typing import Dict, List, Optional
 
 import ujson
 
+from clipped.env import get_run_env
+from clipped.hashing import hash_value
+from clipped.path_utils import (
+    check_or_create_path,
+    copy_file_or_dir_path,
+    get_base_filename,
+    get_path_extension,
+)
+
 from polyaxon import settings
 from polyaxon.client import PolyaxonClient, RunClient
 from polyaxon.client.decorators import client_handler
@@ -39,15 +48,7 @@ from polyaxon.env_vars.getters import (
 )
 from polyaxon.lifecycle import LifeCycle, V1ProjectFeature, V1Statuses
 from polyaxon.sidecar.processor import SidecarThread
-from polyaxon.utils.env import get_run_env
 from polyaxon.utils.fqn_utils import to_fqn_name
-from polyaxon.utils.hashing import hash_value
-from polyaxon.utils.path_utils import (
-    check_or_create_path,
-    copy_file_or_dir_path,
-    get_base_filename,
-    get_path_extension,
-)
 from traceml.artifacts import V1ArtifactKind
 from traceml.events import LoggedEventSpec, V1Event, get_asset_path
 from traceml.logger import logger

@@ -19,12 +19,12 @@ from typing import List, Optional, Text
 
 import ujson
 
+from clipped.csv_utils import validate_csv
+from clipped.date_utils import parse_datetime
+from clipped.tz_utils import now
 from pydantic import StrictStr
 
 from polyaxon.schemas.base import BaseSchemaModel
-from polyaxon.utils.csv_utils import validate_csv
-from polyaxon.utils.date_utils import parse_datetime
-from polyaxon.utils.tz_utils import now
 from traceml.logging.parser import (
     DATETIME_REGEX,
     ISO_DATETIME_REGEX,

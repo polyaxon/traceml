@@ -16,7 +16,7 @@
 from enum import Enum
 from typing import Optional
 
-from polyaxon.utils.enums_utils import get_enum_value
+from clipped.enums_utils import get_enum_value
 
 
 def get_resource_path(

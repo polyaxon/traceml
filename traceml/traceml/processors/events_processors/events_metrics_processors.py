@@ -16,8 +16,9 @@
 
 from typing import Dict, List
 
+from clipped.np_utils import to_np
+
 from polyaxon.constants.globals import UNKNOWN
-from polyaxon.utils.np_utils import to_np
 from traceml.artifacts import V1ArtifactKind
 from traceml.events import (
     LoggedEventSpec,

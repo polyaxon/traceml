@@ -19,15 +19,15 @@ import json
 from collections import namedtuple
 from typing import Dict, List, Mapping, Optional, Union
 
+from clipped.csv_utils import validate_csv
+from clipped.date_utils import parse_datetime
+from clipped.enums_utils import PEnum
+from clipped.np_utils import sanitize_np_types
+from clipped.tz_utils import now
 from pydantic import StrictStr, root_validator
 
 from polyaxon.parser import parser
 from polyaxon.schemas.base import BaseSchemaModel, skip_partial
-from polyaxon.utils.csv_utils import validate_csv
-from polyaxon.utils.date_utils import parse_datetime
-from polyaxon.utils.enums_utils import PEnum
-from polyaxon.utils.np_utils import sanitize_np_types
-from polyaxon.utils.tz_utils import now
 from traceml.artifacts.kinds import V1ArtifactKind
 
 

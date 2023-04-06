@@ -18,8 +18,9 @@ import os
 
 from typing import Dict, List
 
-from polyaxon.utils.enums_utils import get_enum_value
-from polyaxon.utils.path_utils import check_or_create_path
+from clipped.enums_utils import get_enum_value
+from clipped.path_utils import check_or_create_path
+
 from traceml.events import LoggedEventSpec
 from traceml.events.schemas import LoggedEventListSpec
 

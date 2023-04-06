@@ -16,9 +16,10 @@
 import os
 import pytest
 
-from polyaxon.utils.date_utils import parse_datetime
+from clipped.date_utils import parse_datetime
+from clipped.tz_utils import now
+
 from polyaxon.utils.test_utils import BaseTestCase
-from polyaxon.utils.tz_utils import now
 from traceml.events import (
     V1Event,
     V1EventArtifact,
