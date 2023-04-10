@@ -69,7 +69,7 @@ class V1Log(BaseSchemaModel):
             except Exception as e:
                 raise ValueError("Received an invalid timestamp") from e
 
-        return cls(
+        return cls.construct(
             timestamp=timestamp if timestamp else now(tzinfo=True),
             node=node,
             pod=pod,
@@ -108,13 +108,13 @@ class V1Logs(BaseSchemaModel):
 
     @classmethod
     def should_chunk(cls, logs: List[V1Log]):
-        return len(logs) >= cls.CHUNK_SIZE
+        return len(logs) >= cls._CHUNK_SIZE
 
     @classmethod
     def chunk_logs(cls, logs: List[V1Log]):
         total_size = len(logs)
-        for i in range(0, total_size, cls.CHUNK_SIZE):
-            yield cls(logs=logs[i : i + cls.CHUNK_SIZE])
+        for i in range(0, total_size, cls._CHUNK_SIZE):
+            yield cls(logs=logs[i : i + cls._CHUNK_SIZE])
 
     @classmethod
     def read_csv(cls, data: str, parse_dates: bool = True) -> "V1Logs":
@@ -135,9 +135,9 @@ class V1Logs(BaseSchemaModel):
                 sep=V1Log._SEPARATOR,
             )
 
-        return cls(
+        return cls.construct(
             logs=[
-                V1Log(
+                V1Log.construct(
                     timestamp=i.get("timestamp"),
                     node=i.get("node"),
                     pod=i.get("pod"),

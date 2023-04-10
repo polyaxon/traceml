@@ -154,7 +154,7 @@ class Run(RunClient):
             no_op=no_op,
         )
         track_logs = track_logs if track_logs is not None else self._is_offline
-        self._logs_history = V1Logs(logs=[])
+        self._logs_history = V1Logs.construct(logs=[])
         self._artifacts_path = None
         self._outputs_path = None
         self._event_logger = None
@@ -261,7 +261,7 @@ class Run(RunClient):
         if V1Logs.should_chunk(self._logs_history.logs):
             self._persist_logs_history()
             # Reset
-            self._logs_history = V1Logs(logs=[])
+            self._logs_history = V1Logs.construct(logs=[])
 
     def create(self, **kwargs):
         raise NotImplementedError(

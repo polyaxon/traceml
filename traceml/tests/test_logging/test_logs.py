@@ -193,7 +193,7 @@ class TestLogsV1(BaseTestCase):
             ),
         ]
 
-        V1Logs.CHUNK_SIZE = 2
+        V1Logs._CHUNK_SIZE = 2
         chunks = [c for c in V1Logs.chunk_logs(logs)]
         # 1 chunk
         assert [i.value for i in chunks[0].logs] == ["foo1", "foo2"]
