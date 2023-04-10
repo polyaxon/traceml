@@ -2,7 +2,7 @@ global-exclude *.py[cod]
 global-exclude __pycache__
 prune tests
 prune __pycache__
-include polyaxon/py.typed
+include traceml/py.typed
 include ../README.md
 include ../LICENSE
 include ../CONTRIBUTING.md
