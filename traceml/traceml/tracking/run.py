@@ -23,10 +23,9 @@ import time
 from datetime import datetime
 from typing import Dict, List, Optional
 
-import ujson
-
 from clipped.env import get_run_env
 from clipped.hashing import hash_value
+from clipped.json_utils import orjson_dumps
 from clipped.path_utils import (
     check_or_create_path,
     copy_file_or_dir_path,
@@ -1754,7 +1753,7 @@ class Run(RunClient):
             path = os.path.join(path, rel_path)
 
         with open(os.path.join(path), "w") as env_file:
-            env_file.write(ujson.dumps(content))
+            env_file.write(orjson_dumps(content))
 
         self.log_artifact_ref(
             path=path,

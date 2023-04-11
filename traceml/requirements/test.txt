@@ -20,4 +20,4 @@ types-PyYAML
 types-requests
 types-setuptools
 types-six
-types-ujson
+types-orjson

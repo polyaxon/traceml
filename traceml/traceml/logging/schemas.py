@@ -17,10 +17,11 @@ import datetime
 
 from typing import List, Optional, Text
 
-import ujson
+import orjson
 
 from clipped.csv_utils import validate_csv
 from clipped.date_utils import parse_datetime
+from clipped.json_utils import orjson_dumps
 from clipped.tz_utils import now
 from pydantic import StrictStr
 
@@ -83,7 +84,7 @@ class V1Log(BaseSchemaModel):
             str(self.node) if self.node is not None else "",
             str(self.pod) if self.pod is not None else "",
             str(self.container) if self.container is not None else "",
-            ujson.dumps({"_": self.value}) if self.value is not None else "",
+            orjson_dumps({"_": self.value}) if self.value is not None else "",
         ]
 
         return self._SEPARATOR.join(values)
@@ -142,7 +143,7 @@ class V1Logs(BaseSchemaModel):
                     node=i.get("node"),
                     pod=i.get("pod"),
                     container=i.get("container"),
-                    value=ujson.loads(i.get("value")).get("_"),
+                    value=orjson.loads(i.get("value")).get("_"),
                 )
                 for i in df.replace({np.nan: None}).to_dict(orient="records")
             ]
