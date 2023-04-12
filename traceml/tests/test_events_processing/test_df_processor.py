@@ -22,8 +22,9 @@ from pandas.testing import assert_series_equal
 from random import shuffle
 from unittest import TestCase
 
+from clipped.units_processors import to_percentage
+
 from traceml.processors import df_processors
-from traceml.processors.units_processors import to_percentage
 
 
 @pytest.mark.processors_mark
