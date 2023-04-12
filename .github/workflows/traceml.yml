@@ -36,7 +36,7 @@ jobs:
       run: pip install -r traceml/requirements/test.txt
     - name: Install master dependencies
       run: pip install -r traceml/requirements/master.txt
-    - name: Install dev librarie
+    - name: Install dev libraries
       run: export USE_LOCAL_PACKAGES="true" && pip install --upgrade --editable "traceml[dev]"
     - name: Test with pytest
       run: |
