@@ -18,7 +18,7 @@ from collections import deque
 from typing import Callable
 
 from clipped.formatting import Printer
-from clipped.tz_utils import local_datetime
+from clipped.utils.tz import local_datetime
 
 from polyaxon import settings
 from polyaxon.containers.names import MAIN_JOB_CONTAINER

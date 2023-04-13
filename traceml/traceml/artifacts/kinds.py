@@ -15,7 +15,7 @@
 # limitations under the License.
 from typing import Optional, Union
 
-from clipped.enums_utils import PEnum
+from clipped.utils.enums import PEnum
 
 
 class V1ArtifactKind(str, PEnum):

@@ -16,8 +16,8 @@
 
 from typing import Dict, List, Optional, Tuple, Union
 
-from clipped.enums_utils import PEnum
-from clipped.units_processors import to_percentage
+from clipped.utils.enums import PEnum
+from clipped.utils.units import to_percentage
 
 from traceml.processors.errors import NUMPY_ERROR_MESSAGE, PANDAS_ERROR_MESSAGE
 

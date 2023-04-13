@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from clipped.path_utils import module_type
+from clipped.utils.paths import module_type
 
 from polyaxon.constants.globals import UNKNOWN
 from traceml.events import V1EventChart, V1EventChartKind

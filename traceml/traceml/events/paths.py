@@ -16,7 +16,7 @@
 from enum import Enum
 from typing import Optional
 
-from clipped.enums_utils import get_enum_value
+from clipped.utils.enums import get_enum_value
 
 
 def get_resource_path(

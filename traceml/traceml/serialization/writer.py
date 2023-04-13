@@ -20,7 +20,7 @@ import time
 
 from typing import List, Union
 
-from clipped.path_utils import check_or_create_path
+from clipped.utils.paths import check_or_create_path
 
 from traceml.events import LoggedEventSpec, get_asset_path, get_event_path
 from traceml.events.paths import get_resource_path

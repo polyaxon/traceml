@@ -27,7 +27,7 @@ import altair as alt
 import matplotlib.pyplot as plt
 
 from bokeh.plotting import figure
-from clipped.path_utils import create_path
+from clipped.utils.paths import create_path
 from plotly import figure_factory
 
 from polyaxon import dist, settings

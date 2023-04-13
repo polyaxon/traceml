@@ -19,10 +19,10 @@ from typing import List, Optional, Text
 
 import orjson
 
-from clipped.csv_utils import validate_csv
-from clipped.date_utils import parse_datetime
-from clipped.json_utils import orjson_dumps
-from clipped.tz_utils import now
+from clipped.utils.csv import validate_csv
+from clipped.utils.dates import parse_datetime
+from clipped.utils.json import orjson_dumps
+from clipped.utils.tz import now
 from pydantic import StrictStr
 
 from polyaxon.schemas.base import BaseSchemaModel

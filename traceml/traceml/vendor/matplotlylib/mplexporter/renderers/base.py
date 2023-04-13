@@ -6,7 +6,7 @@ import numpy as np
 import matplotlib as mpl
 from matplotlib import transforms
 
-from clipped.versions import get_loose_version
+from clipped.utils.versions import get_loose_version
 
 from .. import utils
 from .. import _py3k_compat as py3k

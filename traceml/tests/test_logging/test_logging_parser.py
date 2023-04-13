@@ -15,7 +15,7 @@
 # limitations under the License.
 import pytest
 
-from clipped.date_utils import parse_datetime
+from clipped.utils.dates import parse_datetime
 
 from polyaxon.utils.test_utils import BaseTestCase
 from traceml.logging.parser import (

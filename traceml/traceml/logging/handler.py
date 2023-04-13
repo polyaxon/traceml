@@ -18,8 +18,8 @@ import logging
 import os
 import socket
 
-from clipped.date_utils import to_datetime
-from clipped.env import get_user
+from clipped.utils.dates import to_datetime
+from clipped.utils.env import get_user
 
 from polyaxon import settings
 from polyaxon.env_vars.keys import EV_KEYS_K8S_NODE_NAME, EV_KEYS_K8S_POD_ID

@@ -15,8 +15,8 @@
 # limitations under the License.
 import pytest
 
-from clipped.date_utils import parse_datetime
-from clipped.tz_utils import now
+from clipped.utils.dates import parse_datetime
+from clipped.utils.tz import now
 
 from polyaxon.utils.test_utils import BaseTestCase
 from traceml.logging.schemas import V1Log, V1Logs

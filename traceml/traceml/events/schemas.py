@@ -19,11 +19,11 @@ import json
 from collections import namedtuple
 from typing import Dict, List, Mapping, Optional, Union
 
-from clipped.csv_utils import validate_csv
-from clipped.date_utils import parse_datetime
-from clipped.enums_utils import PEnum
-from clipped.np_utils import sanitize_np_types
-from clipped.tz_utils import now
+from clipped.utils.csv import validate_csv
+from clipped.utils.dates import parse_datetime
+from clipped.utils.enums import PEnum
+from clipped.utils.np import sanitize_np_types
+from clipped.utils.tz import now
 from pydantic import StrictStr, root_validator
 
 from polyaxon.parser import parser

@@ -15,7 +15,7 @@
 # limitations under the License.
 from typing import Optional
 
-from clipped.path_utils import copy_file_or_dir_path
+from clipped.utils.paths import copy_file_or_dir_path
 
 from traceml.events import V1EventArtifact
 

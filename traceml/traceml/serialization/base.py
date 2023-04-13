@@ -18,8 +18,8 @@ import os
 
 from typing import Dict, List
 
-from clipped.enums_utils import get_enum_value
-from clipped.path_utils import check_or_create_path
+from clipped.utils.enums import get_enum_value
+from clipped.utils.paths import check_or_create_path
 
 from traceml.events import LoggedEventSpec
 from traceml.events.schemas import LoggedEventListSpec

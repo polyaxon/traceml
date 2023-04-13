@@ -15,8 +15,8 @@
 # limitations under the License.
 from typing import Optional
 
-from clipped.np_utils import calculate_scale_factor, to_np
-from clipped.path_utils import check_or_create_path, copy_file_path
+from clipped.utils.np import calculate_scale_factor, to_np
+from clipped.utils.paths import check_or_create_path, copy_file_path
 
 from polyaxon.constants.globals import UNKNOWN
 from traceml.events import V1EventVideo

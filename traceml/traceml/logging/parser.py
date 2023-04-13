@@ -16,7 +16,7 @@
 
 import re
 
-from clipped.date_utils import parse_datetime
+from clipped.utils.dates import parse_datetime
 
 # pylint:disable=anomalous-backslash-in-string
 

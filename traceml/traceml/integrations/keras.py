@@ -17,7 +17,7 @@ import operator
 
 from typing import List, Optional
 
-from clipped.np_utils import sanitize_np_types
+from clipped.utils.np import sanitize_np_types
 
 from polyaxon.client.decorators import client_handler
 from traceml import tracking
