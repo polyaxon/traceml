@@ -1,6 +1,7 @@
 import warnings
-import json
 import random
+
+from clipped.utils.json import orjson_dumps
 from .base import Renderer
 from ..exporter import Exporter
 
@@ -106,7 +107,7 @@ class VegaHTML(object):
         id = random.randint(0, 2 ** 16)
         html = '<div id="vis%d"></div>' % id
         html += "<script>\n"
-        html += VEGA_TEMPLATE % (json.dumps(self.specification), id)
+        html += VEGA_TEMPLATE % (orjson_dumps(self.specification), id)
         html += "</script>\n"
         return html
 

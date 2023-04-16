@@ -19,6 +19,8 @@ import json
 from collections import namedtuple
 from typing import Dict, List, Mapping, Optional, Union
 
+from clipped.config.parser import Parser
+from clipped.config.schema import skip_partial
 from clipped.utils.csv import validate_csv
 from clipped.utils.dates import parse_datetime
 from clipped.utils.enums import PEnum
@@ -26,8 +28,7 @@ from clipped.utils.np import sanitize_np_types
 from clipped.utils.tz import now
 from pydantic import StrictStr, root_validator
 
-from polyaxon.parser import parser
-from polyaxon.schemas.base import BaseSchemaModel, skip_partial
+from polyaxon.schemas.base import BaseSchemaModel
 from traceml.artifacts.kinds import V1ArtifactKind
 
 
@@ -177,62 +178,63 @@ class V1Event(BaseSchemaModel):
     @skip_partial
     def pre_validate(cls, values):
         v = values.get(V1ArtifactKind.IMAGE)
+        get_dict = Parser.parse(Dict)
         if v is not None and not isinstance(v, BaseSchemaModel):
-            values[V1ArtifactKind.IMAGE] = parser.get_dict(
+            values[V1ArtifactKind.IMAGE] = get_dict(
                 key=V1ArtifactKind.IMAGE,
                 value=v,
             )
         v = values.get(V1ArtifactKind.HISTOGRAM)
         if v is not None and not isinstance(v, BaseSchemaModel):
-            values[V1ArtifactKind.HISTOGRAM] = parser.get_dict(
+            values[V1ArtifactKind.HISTOGRAM] = get_dict(
                 key=V1ArtifactKind.HISTOGRAM,
                 value=v,
             )
         v = values.get(V1ArtifactKind.AUDIO)
         if v is not None and not isinstance(v, BaseSchemaModel):
-            values[V1ArtifactKind.AUDIO] = parser.get_dict(
+            values[V1ArtifactKind.AUDIO] = get_dict(
                 key=V1ArtifactKind.AUDIO,
                 value=v,
             )
         v = values.get(V1ArtifactKind.VIDEO)
         if v is not None and not isinstance(v, BaseSchemaModel):
-            values[V1ArtifactKind.VIDEO] = parser.get_dict(
+            values[V1ArtifactKind.VIDEO] = get_dict(
                 key=V1ArtifactKind.VIDEO,
                 value=v,
             )
         v = values.get(V1ArtifactKind.CHART)
         if v is not None and not isinstance(v, BaseSchemaModel):
-            values[V1ArtifactKind.CHART] = parser.get_dict(
+            values[V1ArtifactKind.CHART] = get_dict(
                 key=V1ArtifactKind.CHART,
                 value=v,
             )
         v = values.get(V1ArtifactKind.CURVE)
         if v is not None and not isinstance(v, BaseSchemaModel):
-            values[V1ArtifactKind.CURVE] = parser.get_dict(
+            values[V1ArtifactKind.CURVE] = get_dict(
                 key=V1ArtifactKind.CURVE,
                 value=v,
             )
         v = values.get(V1ArtifactKind.CONFUSION)
         if v is not None and not isinstance(v, BaseSchemaModel):
-            values[V1ArtifactKind.CONFUSION] = parser.get_dict(
+            values[V1ArtifactKind.CONFUSION] = get_dict(
                 key=V1ArtifactKind.CONFUSION,
                 value=v,
             )
         v = values.get(V1ArtifactKind.ARTIFACT)
         if v is not None and not isinstance(v, BaseSchemaModel):
-            values[V1ArtifactKind.ARTIFACT] = parser.get_dict(
+            values[V1ArtifactKind.ARTIFACT] = get_dict(
                 key=V1ArtifactKind.ARTIFACT,
                 value=v,
             )
         v = values.get(V1ArtifactKind.MODEL)
         if v is not None and not isinstance(v, BaseSchemaModel):
-            values[V1ArtifactKind.MODEL] = parser.get_dict(
+            values[V1ArtifactKind.MODEL] = get_dict(
                 key=V1ArtifactKind.MODEL,
                 value=v,
             )
         v = values.get(V1ArtifactKind.DATAFRAME)
         if v is not None and not isinstance(v, BaseSchemaModel):
-            values[V1ArtifactKind.DATAFRAME] = parser.get_dict(
+            values[V1ArtifactKind.DATAFRAME] = get_dict(
                 key=V1ArtifactKind.DATAFRAME,
                 value=v,
             )

@@ -16,7 +16,7 @@
 
 from typing import TYPE_CHECKING, Optional
 
-import orjson
+from clipped.utils.json import orjson_loads
 
 from traceml import tracking
 from traceml.exceptions import TracemlException
@@ -149,13 +149,13 @@ class Callback(xgb.callback.TrainingCallback):
         if model_folds:
             config = {}
             for i, fold in enumerate(model_folds):
-                config["fold_{}_config".format(i)] = orjson.loads(
+                config["fold_{}_config".format(i)] = orjson_loads(
                     fold.bst.save_config()
                 )
             if config:
                 self.run.log_inputs(**config)
         else:
-            self.run.log_inputs(config=orjson.loads(model.save_config()))
+            self.run.log_inputs(config=orjson_loads(model.save_config()))
             outputs = {}
             if "best_score" in model.attributes().keys():
                 outputs["best_score"] = model.attributes()["best_score"]

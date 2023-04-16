@@ -17,11 +17,9 @@ import datetime
 
 from typing import List, Optional, Text
 
-import orjson
-
 from clipped.utils.csv import validate_csv
 from clipped.utils.dates import parse_datetime
-from clipped.utils.json import orjson_dumps
+from clipped.utils.json import orjson_dumps, orjson_loads
 from clipped.utils.tz import now
 from pydantic import StrictStr
 
@@ -143,7 +141,7 @@ class V1Logs(BaseSchemaModel):
                     node=i.get("node"),
                     pod=i.get("pod"),
                     container=i.get("container"),
-                    value=orjson.loads(i.get("value")).get("_"),
+                    value=orjson_loads(i.get("value")).get("_"),
                 )
                 for i in df.replace({np.nan: None}).to_dict(orient="records")
             ]
