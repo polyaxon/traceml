@@ -19,7 +19,7 @@ import json
 from collections import namedtuple
 from typing import Dict, List, Mapping, Optional, Union
 
-from clipped.config.parser import Parser
+from clipped.config.parser import ConfigParser
 from clipped.config.schema import skip_partial
 from clipped.utils.csv import validate_csv
 from clipped.utils.dates import parse_datetime
@@ -178,7 +178,7 @@ class V1Event(BaseSchemaModel):
     @skip_partial
     def pre_validate(cls, values):
         v = values.get(V1ArtifactKind.IMAGE)
-        get_dict = Parser.parse(Dict)
+        get_dict = ConfigParser.parse(Dict)
         if v is not None and not isinstance(v, BaseSchemaModel):
             values[V1ArtifactKind.IMAGE] = get_dict(
                 key=V1ArtifactKind.IMAGE,
