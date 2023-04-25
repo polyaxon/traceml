@@ -91,9 +91,9 @@ def make_video(
 
     try:  # older version of moviepy
         if content_type == "gif":
-            clip.write_gif(asset_path, verbose=False, progress_bar=False)
+            clip.write_gif(asset_path, verbose=False, logger=None)
         else:
-            clip.write_videofile(asset_path, verbose=False, progress_bar=False)
+            clip.write_videofile(asset_path, verbose=False, logger=None)
     except TypeError:
         if content_type == "gif":
             clip.write_gif(asset_path, verbose=False)

@@ -3,7 +3,7 @@ ipython
 scikit-learn
 altair==4.1.0
 matplotlib
-moviepy==1.0.2
+moviepy==1.0.3
 plotly==4.6.0
 Pillow
 bokeh
