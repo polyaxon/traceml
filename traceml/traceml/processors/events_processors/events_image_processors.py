@@ -190,7 +190,7 @@ def make_image(
     image_data = Image.fromarray(tensor)
     if rois is not None:
         image_data = draw_boxes(image_data, rois)
-    image_data = image_data.resize((scaled_width, scaled_height), Image.ANTIALIAS)
+    image_data = image_data.resize((scaled_width, scaled_height), Image.LANCZOS)
 
     return save_image(
         asset_path=asset_path,

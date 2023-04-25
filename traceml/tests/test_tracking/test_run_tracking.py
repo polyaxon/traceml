@@ -907,7 +907,7 @@ class TestRunLogging(TestEnvVarsCase):
             is False
         )
         with patch("traceml.tracking.run.Run._log_has_events") as log_dashboard:
-            self.run.log_video(name="my_video", data=tensor_np(shape=(4, 3, 3, 8, 8)))
+            self.run.log_video(name="my_video", data=tensor_np(shape=(4, 3, 1, 8, 8)))
         assert log_dashboard.call_count == 1
         self.event_logger.flush()
         assert (
