@@ -162,7 +162,7 @@ for batch_idx, (data, target) in enumerate(train_loader):
     loss = F.nll_loss(output, target)
     loss.backward()
     optimizer.step()
-    tracking.log_mtrics(loss=loss)
+    tracking.log_metrics(loss=loss)
 
 asset_path = tracking.get_outputs_path('model.ckpt')
 torch.save(model.state_dict(), asset_path)
