@@ -36,7 +36,7 @@ from clipped.utils.paths import (
 from polyaxon import settings
 from polyaxon.client import PolyaxonClient, RunClient
 from polyaxon.client.decorators import client_handler
-from polyaxon.connections.reader import get_connection_type
+from polyaxon.connections import CONNECTION_CONFIG
 from polyaxon.constants.globals import UNKNOWN
 from polyaxon.contexts import paths as ctx_paths
 from polyaxon.env_vars.getters import (
@@ -271,7 +271,7 @@ class Run(RunClient):
     def _get_store_path(self):
         if self._store_path:
             return self._store_path
-        connection = get_connection_type(get_artifacts_store_name())
+        connection = CONNECTION_CONFIG.get_connection_type(get_artifacts_store_name())
         if not connection:
             logger.warning("Artifacts store connection not detected.")
             return None
