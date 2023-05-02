@@ -271,7 +271,7 @@ class Run(RunClient):
     def _get_store_path(self):
         if self._store_path:
             return self._store_path
-        connection = CONNECTION_CONFIG.get_connection_type(get_artifacts_store_name())
+        connection = CONNECTION_CONFIG.get_connection_for(get_artifacts_store_name())
         if not connection:
             logger.warning("Artifacts store connection not detected.")
             return None
