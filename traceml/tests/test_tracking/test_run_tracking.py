@@ -34,7 +34,6 @@ from polyaxon import dist, settings
 from polyaxon.constants.globals import DEFAULT
 from polyaxon.contexts import paths as ctx_paths
 from polyaxon.env_vars import getters
-from polyaxon.env_vars.getters import get_run_info
 from polyaxon.env_vars.keys import (
     EV_KEYS_COLLECT_ARTIFACTS,
     EV_KEYS_COLLECT_RESOURCES,
@@ -98,24 +97,24 @@ class TestRunTracking(TestEnvVarsCase):
     def test_run_info_checks_is_managed(self):
         settings.CLIENT_CONFIG.is_managed = False
         with self.assertRaises(PolyaxonClientException):
-            get_run_info()
+            getters.get_run_info()
 
     def test_empty_run_info(self):
         self.check_raise_for_invalid_value(
-            EV_KEYS_RUN_INSTANCE, get_run_info, None, PolyaxonClientException
+            EV_KEYS_RUN_INSTANCE, getters.get_run_info, None, PolyaxonClientException
         )
 
     def test_non_valid_run_info(self):
         self.check_raise_for_invalid_value(
             EV_KEYS_RUN_INSTANCE,
-            get_run_info,
+            getters.get_run_info,
             "something random",
             PolyaxonClientException,
         )
 
         self.check_raise_for_invalid_value(
             EV_KEYS_RUN_INSTANCE,
-            get_run_info,
+            getters.get_run_info,
             "foo.bar",
             PolyaxonClientException,
         )
@@ -125,7 +124,7 @@ class TestRunTracking(TestEnvVarsCase):
         run_info = "user.project_bar.runs.{}".format(uid)
         self.check_valid_value(
             EV_KEYS_RUN_INSTANCE,
-            get_run_info,
+            getters.get_run_info,
             run_info,
             ("user", "project_bar", uid),
         )
