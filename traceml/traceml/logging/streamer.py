@@ -1,7 +1,10 @@
+import os
+
 from collections import deque
 from typing import Callable
 
 from clipped.formatting import Printer
+from clipped.utils.json import orjson_loads
 from clipped.utils.tz import local_datetime
 
 from polyaxon import settings
@@ -58,3 +61,20 @@ def get_logs_streamer(
                 handle_log_line(log=log)
 
     return handle_log_lines
+
+
+def load_logs_from_path(
+    logs_path: str,
+    hide_time: bool = False,
+    all_containers: bool = True,
+    all_info: bool = True,
+):
+    for file_logs in sorted(os.listdir(logs_path)):
+        with open(os.path.join(logs_path, file_logs)) as f:
+            logs_data = orjson_loads(f.read()).get("logs", [])
+            logs_stream = V1Logs(logs=logs_data)
+            get_logs_streamer(
+                show_timestamp=not hide_time,
+                all_containers=all_containers,
+                all_info=all_info,
+            )(logs_stream)
