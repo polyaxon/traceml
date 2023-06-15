@@ -1,4 +1,3 @@
-from enum import Enum
 from typing import Optional
 
 from clipped.utils.enums import get_enum_value
