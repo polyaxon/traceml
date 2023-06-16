@@ -816,17 +816,29 @@ def log_progress(value: float):
 log_progress.__doc__ = Run.log_progress.__doc__
 
 
-def log_succeeded():
+def log_succeeded(
+    reason: Optional[str] = None,
+    message: Optional[str] = "Operation has succeeded",
+):
     global TRACKING_RUN
-    TRACKING_RUN.log_succeeded()
+    TRACKING_RUN.log_succeeded(
+        reason=reason,
+        message=message,
+    )
 
 
 log_succeeded.__doc__ = Run.log_succeeded.__doc__
 
 
-def log_stopped():
+def log_stopped(
+    reason: Optional[str] = None,
+    message: Optional[str] = "Operation is stopped",
+):
     global TRACKING_RUN
-    TRACKING_RUN.log_stopped()
+    TRACKING_RUN.log_stopped(
+        reason=reason,
+        message=message,
+    )
 
 
 log_stopped.__doc__ = Run.log_stopped.__doc__
