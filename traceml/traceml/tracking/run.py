@@ -493,7 +493,7 @@ class Run(RunClient):
 
         events = []
         event_value = events_processors.metric(value)
-        if event_value == UNKNOWN:
+        if isinstance(event_value, str) and event_value == UNKNOWN:
             return
         events.append(
             LoggedEventSpec(
@@ -534,7 +534,7 @@ class Run(RunClient):
         for metric in metrics:
             metric_name = to_fqn_name(metric)
             event_value = events_processors.metric(metrics[metric])
-            if event_value == UNKNOWN:
+            if isinstance(event_value, str) and event_value == UNKNOWN:
                 continue
             events.append(
                 LoggedEventSpec(
@@ -898,7 +898,7 @@ class Run(RunClient):
                 asset_rel_path=asset_rel_path,
             )
 
-        if event_value == UNKNOWN:
+        if isinstance(event_value, str) and event_value == UNKNOWN:
             return
 
         logged_event = LoggedEventSpec(
@@ -958,7 +958,7 @@ class Run(RunClient):
             dataformats=dataformats,
             asset_rel_path=asset_rel_path,
         )
-        if event_value == UNKNOWN:
+        if isinstance(event_value, str) and event_value == UNKNOWN:
             return
         logged_event = LoggedEventSpec(
             name=name,
@@ -994,7 +994,7 @@ class Run(RunClient):
         if isinstance(data, list):
             event_value = events_processors.figures_to_images(figures=data, close=close)
 
-            if event_value == UNKNOWN:
+            if isinstance(event_value, str) and event_value == UNKNOWN:
                 return
 
             self.log_image(
@@ -1077,7 +1077,7 @@ class Run(RunClient):
                 asset_rel_path=asset_rel_path,
             )
 
-        if event_value == UNKNOWN:
+        if isinstance(event_value, str) and event_value == UNKNOWN:
             return
 
         logged_event = LoggedEventSpec(
@@ -1147,7 +1147,7 @@ class Run(RunClient):
                 asset_rel_path=asset_rel_path,
             )
 
-        if event_value == UNKNOWN:
+        if isinstance(event_value, str) and event_value == UNKNOWN:
             return
 
         logged_event = LoggedEventSpec(
@@ -1245,7 +1245,7 @@ class Run(RunClient):
 
         event_value = events_processors.np_histogram(values=values, counts=counts)
 
-        if event_value == UNKNOWN:
+        if isinstance(event_value, str) and event_value == UNKNOWN:
             return
 
         logged_event = LoggedEventSpec(
@@ -1291,7 +1291,7 @@ class Run(RunClient):
             values=values, bins=bins, max_bins=max_bins
         )
 
-        if event_value == UNKNOWN:
+        if isinstance(event_value, str) and event_value == UNKNOWN:
             return
 
         logged_event = LoggedEventSpec(
