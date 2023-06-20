@@ -29,6 +29,7 @@ from polyaxon.env_vars.getters import (
     get_collect_resources,
     get_log_level,
 )
+from polyaxon.env_vars.keys import EV_KEYS_HAS_PROCESS_SIDECAR
 from polyaxon.lifecycle import LifeCycle, V1ProjectFeature, V1Statuses
 from polyaxon.sidecar.processor import SidecarThread
 from polyaxon.utils.fqn_utils import to_fqn_name
@@ -149,6 +150,7 @@ class Run(RunClient):
         is_new = is_new or (
             self._run_uuid is None and not settings.CLIENT_CONFIG.is_managed
         )
+        has_process_sidecar = os.environ.get(EV_KEYS_HAS_PROCESS_SIDECAR, False)
 
         if auto_create and (is_new or self._is_offline):
             super().create(name=name, description=description, tags=tags)
@@ -165,6 +167,7 @@ class Run(RunClient):
             collect_artifacts=collect_artifacts,
             collect_resources=collect_resources,
             is_new=is_new,
+            has_process_sidecar=has_process_sidecar,
         )
 
         # Track run env
@@ -172,13 +175,13 @@ class Run(RunClient):
             self.log_env()
 
         # Track code
-        if is_new and track_code:
+        if (is_new or has_process_sidecar) and track_code:
             self.log_code_ref()
 
-        if is_new and self._artifacts_path and track_logs:
+        if (is_new or has_process_sidecar) and self._artifacts_path and track_logs:
             start_log_processor(add_logs=self._add_logs)
 
-        self._set_exit_handler(is_new=is_new)
+        self._set_exit_handler(force=is_new or has_process_sidecar)
 
     def _init_artifacts_tracking(
         self,
@@ -186,6 +189,7 @@ class Run(RunClient):
         collect_artifacts: Optional[bool] = None,
         collect_resources: Optional[bool] = None,
         is_new: Optional[bool] = None,
+        has_process_sidecar: Optional[bool] = None,
     ):
         if (settings.CLIENT_CONFIG.is_managed and self.run_uuid) or artifacts_path:
             self.set_artifacts_path(artifacts_path, is_related=is_new)
@@ -198,11 +202,13 @@ class Run(RunClient):
             self.set_artifacts_path(artifacts_path)
 
         if self._artifacts_path and get_collect_artifacts(
-            arg=collect_artifacts, default=self._is_offline or is_new
+            arg=collect_artifacts,
+            default=self._is_offline or is_new or has_process_sidecar,
         ):
             self.set_run_event_logger()
             if get_collect_resources(
-                arg=collect_resources, default=self._is_offline or is_new
+                arg=collect_resources,
+                default=self._is_offline or is_new or has_process_sidecar,
             ):
                 self.set_run_resource_logger()
             if not self._is_offline and not settings.CLIENT_CONFIG.is_managed:
@@ -450,8 +456,8 @@ class Run(RunClient):
         self._sidecar = SidecarThread(client=self, run_path=self._artifacts_path)
         self._sidecar.start()
 
-    def _set_exit_handler(self, is_new: bool = False):
-        if self._is_offline or is_new:
+    def _set_exit_handler(self, force: bool = False):
+        if self._is_offline or force:
             self._start()
         elif settings.CLIENT_CONFIG.is_managed:
             self._register_exit_handler(self._wait)
