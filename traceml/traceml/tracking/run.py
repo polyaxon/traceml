@@ -211,7 +211,9 @@ class Run(RunClient):
                 default=self._is_offline or is_new or has_process_sidecar,
             ):
                 self.set_run_resource_logger()
-            if not self._is_offline and not settings.CLIENT_CONFIG.is_managed:
+            if has_process_sidecar or (
+                not self._is_offline and not settings.CLIENT_CONFIG.is_managed
+            ):
                 self.set_run_process_sidecar()
 
     def _add_event(self, event: LoggedEventSpec):
