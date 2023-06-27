@@ -8,7 +8,7 @@ from clipped.utils.json import orjson_loads
 from clipped.utils.tz import local_datetime
 
 from polyaxon import settings
-from polyaxon.containers.names import MAIN_JOB_CONTAINER
+from polyaxon.containers.names import MAIN_CONTAINER_NAMES
 from traceml.logging.schemas import V1Log, V1Logs
 
 
@@ -38,7 +38,7 @@ def get_logs_streamer(
                 job_to_color[container_info] = color
             return Printer.add_log_color(container_info, color) + " | "
 
-        if not all_containers and log.container != MAIN_JOB_CONTAINER:
+        if not all_containers and log.container not in MAIN_CONTAINER_NAMES:
             return log_line
 
         if all_info:
