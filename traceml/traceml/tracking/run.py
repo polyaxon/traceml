@@ -1698,6 +1698,20 @@ class Run(RunClient):
         if self._is_offline:
             self.persist_run(path=self._artifacts_path)
 
+    def sync_artifacts_and_summaries(self):
+        self.sync_events_summaries(
+            last_check=None,
+            events_path=ctx_paths.CONTEXTS_EVENTS_SUBPATH_FORMAT.format(
+                self._artifacts_path
+            ),
+        )
+        self.sync_system_events_summaries(
+            last_check=None,
+            events_path=ctx_paths.CONTEXTS_SYSTEM_RESOURCES_EVENTS_SUBPATH_FORMAT.format(
+                self._artifacts_path
+            ),
+        )
+
     def _wait(self, sync_artifacts: bool = False):
         if self._event_logger:
             self._event_logger.close()
@@ -1708,18 +1722,8 @@ class Run(RunClient):
         if self._results:
             self.log_outputs(**self._results)
         if sync_artifacts:
-            self.sync_events_summaries(
-                last_check=None,
-                events_path=ctx_paths.CONTEXTS_EVENTS_SUBPATH_FORMAT.format(
-                    self._artifacts_path
-                ),
-            )
-            self.sync_system_events_summaries(
-                last_check=None,
-                events_path=ctx_paths.CONTEXTS_SYSTEM_RESOURCES_EVENTS_SUBPATH_FORMAT.format(
-                    self._artifacts_path
-                ),
-            )
+            self.sync_artifacts_and_summaries()
+
         time.sleep(settings.CLIENT_CONFIG.tracking_timeout)
 
     @client_handler(check_no_op=True, can_log_outputs=True)
