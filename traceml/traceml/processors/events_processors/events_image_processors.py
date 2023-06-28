@@ -310,7 +310,7 @@ def convert_to_HWC(tensor, input_format):  # noqa
 
     assert len(set(input_format)) == len(
         input_format
-    ), "You can not use the same dimension shordhand twice. \
+    ), "You can not use the same dimension shorthand twice. \
         input_format: {}".format(
         input_format
     )
