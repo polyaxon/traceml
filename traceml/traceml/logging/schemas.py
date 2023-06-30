@@ -112,11 +112,13 @@ class V1Logs(BaseSchemaModel):
                 sep=V1Log._SEPARATOR,
                 parse_dates=["timestamp"],
                 error_bad_lines=False,
+                engine="pyarrow",
             )
         else:
             df = pd.read_csv(
                 csv,
                 sep=V1Log._SEPARATOR,
+                engine="pyarrow",
             )
 
         return cls.construct(

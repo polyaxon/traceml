@@ -202,7 +202,11 @@ def get_median_absolute_deviation(
 
 
 def get_top_correlations(
-    df: pd.DataFrame, column: str, threshold: float = 0.65, top: int = 3, df_corr=None
+    df: pd.DataFrame,
+    column: str,
+    threshold: float = 0.65,
+    top: int = 3,
+    df_corr: Optional[pd.DataFrame] = None,
 ) -> Dict:
     """
     Returns count of values larger than `multiplier` * `mad`
@@ -284,7 +288,6 @@ def get_numeric_summary(
     ) = get_median_absolute_deviation(series, df_length=df_length)
     stats["deviating_of_median"] = deviating_of_median
     stats["deviating_of_median_perc"] = deviating_of_median_perc
-    stats["top_correlations"] = get_top_correlations_description(df=df, column=column)
     return pd.concat([pd.Series(stats, name=column), columns_stats[column]], sort=True)
 
 

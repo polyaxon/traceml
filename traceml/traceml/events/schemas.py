@@ -380,11 +380,13 @@ class V1Events:
                     csv,
                     sep=V1Event._SEPARATOR,
                     parse_dates=["timestamp"],
+                    engine="pyarrow",
                 )
             else:
                 df = pd.read_csv(
                     csv,
                     sep=V1Event._SEPARATOR,
+                    engine="pyarrow",
                 )
         elif isinstance(data, dict):
             df = pd.DataFrame.from_dict(data)
