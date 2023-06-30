@@ -388,6 +388,9 @@ class V1Events:
                     sep=V1Event._SEPARATOR,
                     engine="pyarrow",
                 )
+                # Pyarrow automatically converts timestamp fields
+                if "timestamp" in df.columns:
+                    df["timestamp"] = df["timestamp"].astype(str)
         elif isinstance(data, dict):
             df = pd.DataFrame.from_dict(data)
         else:
