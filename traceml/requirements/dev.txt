@@ -1,7 +1,8 @@
-pandas<2.0.0
+pandas
+pyarrow
 ipython
 scikit-learn
-altair==4.1.0
+altair
 matplotlib
 moviepy==1.0.3
 plotly==4.6.0
