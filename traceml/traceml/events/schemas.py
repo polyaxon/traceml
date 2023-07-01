@@ -369,7 +369,12 @@ class V1Events:
 
     @classmethod
     def read(
-        cls, kind: str, name: str, data: Union[str, Dict], parse_dates: bool = True
+        cls,
+        kind: str,
+        name: str,
+        data: Union[str, Dict],
+        parse_dates: Optional[bool] = True,
+        engine: Optional[str] = None,
     ) -> "V1Events":
         import pandas as pd
 
@@ -380,13 +385,13 @@ class V1Events:
                     csv,
                     sep=V1Event._SEPARATOR,
                     parse_dates=["timestamp"],
-                    engine="pyarrow",
+                    engine=engine,
                 )
             else:
                 df = pd.read_csv(
                     csv,
                     sep=V1Event._SEPARATOR,
-                    engine="pyarrow",
+                    engine=engine,
                 )
                 # Pyarrow automatically converts timestamp fields
                 if "timestamp" in df.columns:
