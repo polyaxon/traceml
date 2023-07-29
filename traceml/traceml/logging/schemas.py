@@ -2,11 +2,11 @@ import datetime
 
 from typing import List, Optional, Text
 
+from clipped.compact.pydantic import StrictStr
 from clipped.utils.csv import validate_csv
 from clipped.utils.dates import parse_datetime
 from clipped.utils.json import orjson_dumps, orjson_loads
 from clipped.utils.tz import now
-from pydantic import StrictStr
 
 from polyaxon.schemas.base import BaseSchemaModel
 from traceml.logging.parser import (
