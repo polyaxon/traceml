@@ -5,7 +5,10 @@ import uuid
 from mock import patch
 
 from polyaxon import settings
-from polyaxon.env_vars.keys import EV_KEYS_COLLECT_ARTIFACTS, EV_KEYS_COLLECT_RESOURCES
+from polyaxon.env_vars.keys import (
+    ENV_KEYS_COLLECT_ARTIFACTS,
+    ENV_KEYS_COLLECT_RESOURCES,
+)
 from polyaxon.utils.test_utils import BaseTestCase
 from traceml.artifacts import V1RunArtifact
 from traceml.events import V1Events
@@ -18,8 +21,8 @@ class TestEventsSummaries(BaseTestCase):
         super().setUp()
         settings.CLIENT_CONFIG.is_managed = False
         settings.CLIENT_CONFIG.is_offline = True
-        os.environ[EV_KEYS_COLLECT_ARTIFACTS] = "false"
-        os.environ[EV_KEYS_COLLECT_RESOURCES] = "false"
+        os.environ[ENV_KEYS_COLLECT_ARTIFACTS] = "false"
+        os.environ[ENV_KEYS_COLLECT_RESOURCES] = "false"
         uid = uuid.uuid4().hex
         with patch("traceml.tracking.run.Run._set_exit_handler") as exit_mock:
             self.run = Run(project="test.test", run_uuid=uid)

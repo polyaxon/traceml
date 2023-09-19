@@ -5,21 +5,19 @@ from clipped.utils.dates import parse_datetime
 from clipped.utils.tz import now
 
 from polyaxon.utils.test_utils import BaseTestCase
-from traceml.events import (
+from traceml.events.schemas import (
+    LoggedEventListSpec,
     V1Event,
     V1EventArtifact,
     V1EventAudio,
     V1EventChart,
+    V1EventConfusionMatrix,
+    V1EventCurve,
+    V1EventDataframe,
     V1EventHistogram,
     V1EventImage,
     V1EventModel,
     V1Events,
-)
-from traceml.events.schemas import (
-    LoggedEventListSpec,
-    V1EventConfusionMatrix,
-    V1EventCurve,
-    V1EventDataframe,
     V1EventVideo,
 )
 

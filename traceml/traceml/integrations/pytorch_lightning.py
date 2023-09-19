@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Optional, Union
 import packaging
 
 from polyaxon.client import RunClient
-from polyaxon.env_vars.keys import EV_KEYS_RUN_INSTANCE
+from polyaxon.env_vars.keys import ENV_KEYS_RUN_INSTANCE
 from traceml import tracking
 from traceml.exceptions import TracemlException
 
@@ -145,7 +145,7 @@ class Callback(Logger):
 
     def _set_run_instance_from_env_vars(self, force: bool = False):
         """Tries to extract run info from canonical env vars"""
-        run_instance = os.getenv(EV_KEYS_RUN_INSTANCE)
+        run_instance = os.getenv(ENV_KEYS_RUN_INSTANCE)
         if not run_instance:
             return
 

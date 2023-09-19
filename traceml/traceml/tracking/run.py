@@ -29,7 +29,7 @@ from polyaxon.env_vars.getters import (
     get_collect_resources,
     get_log_level,
 )
-from polyaxon.env_vars.keys import EV_KEYS_HAS_PROCESS_SIDECAR
+from polyaxon.env_vars.keys import ENV_KEYS_HAS_PROCESS_SIDECAR
 from polyaxon.lifecycle import LifeCycle, V1ProjectFeature, V1Statuses
 from polyaxon.sidecar.processor import SidecarThread
 from polyaxon.utils.fqn_utils import to_fqn_name
@@ -150,7 +150,7 @@ class Run(RunClient):
         is_new = is_new or (
             self._run_uuid is None and not settings.CLIENT_CONFIG.is_managed
         )
-        has_process_sidecar = os.environ.get(EV_KEYS_HAS_PROCESS_SIDECAR, False)
+        has_process_sidecar = os.environ.get(ENV_KEYS_HAS_PROCESS_SIDECAR, False)
 
         if auto_create and (is_new or self._is_offline):
             super().create(name=name, description=description, tags=tags)

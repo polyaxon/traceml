@@ -14,7 +14,7 @@ from clipped.utils.np import sanitize_np_types
 from clipped.utils.tz import now
 
 from polyaxon.schemas.base import BaseSchemaModel
-from traceml.artifacts.kinds import V1ArtifactKind
+from traceml.artifacts.enums import V1ArtifactKind
 
 
 class SearchView(str, PEnum):

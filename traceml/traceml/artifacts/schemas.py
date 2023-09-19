@@ -6,7 +6,7 @@ from clipped.compact.pydantic import StrictStr
 from clipped.types.uuids import UUIDStr
 
 from polyaxon.schemas.base import BaseSchemaModel
-from traceml.artifacts.kinds import V1ArtifactKind
+from traceml.artifacts.enums import V1ArtifactKind
 
 
 class V1RunArtifact(BaseSchemaModel):

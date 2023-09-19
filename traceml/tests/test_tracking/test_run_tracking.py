@@ -19,10 +19,10 @@ from polyaxon.constants.globals import DEFAULT
 from polyaxon.contexts import paths as ctx_paths
 from polyaxon.env_vars import getters
 from polyaxon.env_vars.keys import (
-    EV_KEYS_COLLECT_ARTIFACTS,
-    EV_KEYS_COLLECT_RESOURCES,
-    EV_KEYS_LOG_LEVEL,
-    EV_KEYS_RUN_INSTANCE,
+    ENV_KEYS_COLLECT_ARTIFACTS,
+    ENV_KEYS_COLLECT_RESOURCES,
+    ENV_KEYS_LOG_LEVEL,
+    ENV_KEYS_RUN_INSTANCE,
 )
 from polyaxon.exceptions import PolyaxonClientException
 from polyaxon.lifecycle import V1ProjectFeature
@@ -42,7 +42,7 @@ class TestRunTracking(TestEnvVarsCase):
 
     def test_get_collect_artifacts_return_false_out_cluster(self):
         settings.CLIENT_CONFIG.is_managed = False
-        os.environ[EV_KEYS_COLLECT_ARTIFACTS] = "false"
+        os.environ[ENV_KEYS_COLLECT_ARTIFACTS] = "false"
         assert getters.get_collect_artifacts() is False
 
     def test_empty_collect_artifacts_path(self):
@@ -52,12 +52,12 @@ class TestRunTracking(TestEnvVarsCase):
     def test_valid_artifacts_path(self):
         settings.CLIENT_CONFIG.is_managed = True
         self.check_valid_value(
-            EV_KEYS_COLLECT_ARTIFACTS, getters.get_collect_artifacts, "true", True
+            ENV_KEYS_COLLECT_ARTIFACTS, getters.get_collect_artifacts, "true", True
         )
 
     def test_get_collect_resources_return_false_out_cluster(self):
         settings.CLIENT_CONFIG.is_managed = False
-        os.environ[EV_KEYS_COLLECT_RESOURCES] = "false"
+        os.environ[ENV_KEYS_COLLECT_RESOURCES] = "false"
         assert getters.get_collect_resources() is False
 
     def test_empty_collect_resources_path(self):
@@ -67,16 +67,16 @@ class TestRunTracking(TestEnvVarsCase):
     def test_valid_resources_path(self):
         settings.CLIENT_CONFIG.is_managed = True
         self.check_valid_value(
-            EV_KEYS_COLLECT_RESOURCES, getters.get_collect_resources, "true", True
+            ENV_KEYS_COLLECT_RESOURCES, getters.get_collect_resources, "true", True
         )
 
     def test_get_log_level_out_cluster(self):
         settings.CLIENT_CONFIG.is_managed = False
-        self.check_empty_value(EV_KEYS_LOG_LEVEL, getters.get_log_level)
+        self.check_empty_value(ENV_KEYS_LOG_LEVEL, getters.get_log_level)
 
     def test_empty_log_level(self):
         settings.CLIENT_CONFIG.is_managed = True
-        self.check_empty_value(EV_KEYS_LOG_LEVEL, getters.get_log_level)
+        self.check_empty_value(ENV_KEYS_LOG_LEVEL, getters.get_log_level)
 
     def test_run_info_checks_is_managed(self):
         settings.CLIENT_CONFIG.is_managed = False
@@ -85,19 +85,19 @@ class TestRunTracking(TestEnvVarsCase):
 
     def test_empty_run_info(self):
         self.check_raise_for_invalid_value(
-            EV_KEYS_RUN_INSTANCE, getters.get_run_info, None, PolyaxonClientException
+            ENV_KEYS_RUN_INSTANCE, getters.get_run_info, None, PolyaxonClientException
         )
 
     def test_non_valid_run_info(self):
         self.check_raise_for_invalid_value(
-            EV_KEYS_RUN_INSTANCE,
+            ENV_KEYS_RUN_INSTANCE,
             getters.get_run_info,
             "something random",
             PolyaxonClientException,
         )
 
         self.check_raise_for_invalid_value(
-            EV_KEYS_RUN_INSTANCE,
+            ENV_KEYS_RUN_INSTANCE,
             getters.get_run_info,
             "foo.bar",
             PolyaxonClientException,
@@ -107,7 +107,7 @@ class TestRunTracking(TestEnvVarsCase):
         uid = uuid.uuid4().hex
         run_info = "user.project_bar.runs.{}".format(uid)
         self.check_valid_value(
-            EV_KEYS_RUN_INSTANCE,
+            ENV_KEYS_RUN_INSTANCE,
             getters.get_run_info,
             run_info,
             ("user", "project_bar", uid),
@@ -167,7 +167,7 @@ class TestRunTracking(TestEnvVarsCase):
 
         # FQN non CE
         settings.CLI_CONFIG.installation = {"dist": dist.EE}
-        os.environ[EV_KEYS_RUN_INSTANCE] = "user.project_bar.runs.{}".format(uid)
+        os.environ[ENV_KEYS_RUN_INSTANCE] = "user.project_bar.runs.{}".format(uid)
         run = Run()
         assert run.owner == "user"
         assert run.project == "project_bar"
@@ -175,7 +175,7 @@ class TestRunTracking(TestEnvVarsCase):
 
         # FQN CE
         settings.CLI_CONFIG.installation = {"dist": dist.CE}
-        os.environ[EV_KEYS_RUN_INSTANCE] = "user.project_bar.runs.{}".format(uid)
+        os.environ[ENV_KEYS_RUN_INSTANCE] = "user.project_bar.runs.{}".format(uid)
         run = Run()
         assert run.owner == "user"
         assert run.project == "project_bar"
@@ -240,8 +240,8 @@ class TestRunTracking(TestEnvVarsCase):
         assert mock_call.call_count == 1
 
         # Set collect flag
-        os.environ[EV_KEYS_COLLECT_ARTIFACTS] = "true"
-        os.environ[EV_KEYS_COLLECT_RESOURCES] = "true"
+        os.environ[ENV_KEYS_COLLECT_ARTIFACTS] = "true"
+        os.environ[ENV_KEYS_COLLECT_RESOURCES] = "true"
         settings.CLIENT_CONFIG.is_managed = True
         with patch("traceml.tracking.run.EventFileWriter") as event_call:
             with patch("traceml.tracking.run.ResourceFileWriter") as resource_call:
@@ -269,9 +269,9 @@ class TestRunTracking(TestEnvVarsCase):
         # Set managed flag
         settings.CLIENT_CONFIG.is_managed = True
         settings.CLIENT_CONFIG.is_offline = False
-        os.environ[EV_KEYS_RUN_INSTANCE] = "user.project_bar.runs.{}".format(uid)
-        os.environ[EV_KEYS_COLLECT_ARTIFACTS] = "false"
-        os.environ[EV_KEYS_COLLECT_RESOURCES] = "false"
+        os.environ[ENV_KEYS_RUN_INSTANCE] = "user.project_bar.runs.{}".format(uid)
+        os.environ[ENV_KEYS_COLLECT_ARTIFACTS] = "false"
+        os.environ[ENV_KEYS_COLLECT_RESOURCES] = "false"
 
         with patch("traceml.tracking.run.Run.refresh_data") as refresh_call:
             run = Run()
@@ -287,8 +287,8 @@ class TestRunTracking(TestEnvVarsCase):
         assert run._event_logger is None
 
         # Set collect flag
-        os.environ[EV_KEYS_COLLECT_ARTIFACTS] = "true"
-        os.environ[EV_KEYS_COLLECT_RESOURCES] = "true"
+        os.environ[ENV_KEYS_COLLECT_ARTIFACTS] = "true"
+        os.environ[ENV_KEYS_COLLECT_RESOURCES] = "true"
 
         # Add run id
         uid2 = uuid.uuid4().hex
@@ -307,7 +307,7 @@ class TestRunTracking(TestEnvVarsCase):
         assert exit_call.call_count == 1
 
         # Set run info
-        os.environ[EV_KEYS_RUN_INSTANCE] = "user.project_bar.runs.{}".format(uid2)
+        os.environ[ENV_KEYS_RUN_INSTANCE] = "user.project_bar.runs.{}".format(uid2)
         # Add run id
         with patch("traceml.tracking.run.Run.set_run_event_logger") as event_call:
             with patch(
@@ -324,8 +324,8 @@ class TestRunTracking(TestEnvVarsCase):
         # Set managed flag
         settings.CLIENT_CONFIG.is_managed = False
         settings.CLIENT_CONFIG.is_offline = True
-        os.environ[EV_KEYS_COLLECT_ARTIFACTS] = "false"
-        os.environ[EV_KEYS_COLLECT_RESOURCES] = "false"
+        os.environ[ENV_KEYS_COLLECT_ARTIFACTS] = "false"
+        os.environ[ENV_KEYS_COLLECT_RESOURCES] = "false"
 
         with patch("traceml.tracking.run.Run._set_exit_handler") as exit_mock:
             run = Run(project="test.test", run_uuid=uid)
@@ -341,8 +341,8 @@ class TestRunTracking(TestEnvVarsCase):
         assert run._event_logger is None
 
         # Set collect flag
-        os.environ[EV_KEYS_COLLECT_ARTIFACTS] = "true"
-        os.environ[EV_KEYS_COLLECT_RESOURCES] = "true"
+        os.environ[ENV_KEYS_COLLECT_ARTIFACTS] = "true"
+        os.environ[ENV_KEYS_COLLECT_RESOURCES] = "true"
 
         # Add run id
         with patch("traceml.tracking.run.Run.set_run_event_logger") as event_call:
@@ -363,8 +363,8 @@ class TestRunLogging(TestEnvVarsCase):
         self.run_path = tempfile.mkdtemp()
         self.run_outputs_path = tempfile.mkdtemp()
         settings.CLIENT_CONFIG.is_managed = False
-        os.environ[EV_KEYS_COLLECT_ARTIFACTS] = "false"
-        os.environ[EV_KEYS_COLLECT_RESOURCES] = "false"
+        os.environ[ENV_KEYS_COLLECT_ARTIFACTS] = "false"
+        os.environ[ENV_KEYS_COLLECT_RESOURCES] = "false"
         with patch("traceml.tracking.run.Run._set_exit_handler") as exit_mock:
             self.run = Run(
                 project="owner.project",
