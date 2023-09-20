@@ -3,7 +3,7 @@ from typing import Optional
 from clipped.utils.np import to_np
 from clipped.utils.paths import check_or_create_path, copy_file_path
 
-from polyaxon.constants.globals import UNKNOWN
+from polyaxon._constants.globals import UNKNOWN
 from traceml.events import V1EventAudio
 from traceml.logger import logger
 from traceml.processors.errors import NUMPY_ERROR_MESSAGE

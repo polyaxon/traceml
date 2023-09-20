@@ -5,11 +5,11 @@ import uuid
 from mock import patch
 
 from polyaxon import settings
-from polyaxon.env_vars.keys import (
+from polyaxon._env_vars.keys import (
     ENV_KEYS_COLLECT_ARTIFACTS,
     ENV_KEYS_COLLECT_RESOURCES,
 )
-from polyaxon.utils.test_utils import BaseTestCase
+from polyaxon._utils.test_utils import BaseTestCase
 from traceml.artifacts import V1RunArtifact
 from traceml.events import V1Events
 from traceml.tracking.run import Run

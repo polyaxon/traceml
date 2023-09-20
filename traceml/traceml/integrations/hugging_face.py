@@ -1,4 +1,4 @@
-from polyaxon.client.decorators import client_handler
+from polyaxon._client.decorators import client_handler
 from traceml import tracking
 from traceml.exceptions import TracemlException
 from traceml.logger import logger

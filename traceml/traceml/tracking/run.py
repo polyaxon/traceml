@@ -18,21 +18,21 @@ from clipped.utils.paths import (
 )
 
 from polyaxon import settings
-from polyaxon.client import PolyaxonClient, RunClient
-from polyaxon.client.decorators import client_handler
-from polyaxon.connections import CONNECTION_CONFIG
-from polyaxon.constants.globals import UNKNOWN
-from polyaxon.contexts import paths as ctx_paths
-from polyaxon.env_vars.getters import (
+from polyaxon._client.decorators import client_handler
+from polyaxon._connections import CONNECTION_CONFIG, V1Connection
+from polyaxon._constants.globals import UNKNOWN
+from polyaxon._contexts import paths as ctx_paths
+from polyaxon._env_vars.getters import (
     get_artifacts_store_name,
     get_collect_artifacts,
     get_collect_resources,
     get_log_level,
 )
-from polyaxon.env_vars.keys import ENV_KEYS_HAS_PROCESS_SIDECAR
-from polyaxon.lifecycle import LifeCycle, V1ProjectFeature, V1Statuses
-from polyaxon.sidecar.processor import SidecarThread
-from polyaxon.utils.fqn_utils import to_fqn_name
+from polyaxon._env_vars.keys import ENV_KEYS_HAS_PROCESS_SIDECAR
+from polyaxon._sidecar.processor import SidecarThread
+from polyaxon._utils.fqn_utils import to_fqn_name
+from polyaxon.client import PolyaxonClient, RunClient
+from polyaxon.schemas import LifeCycle, V1ProjectFeature, V1Statuses
 from traceml.artifacts import V1ArtifactKind
 from traceml.events import LoggedEventSpec, V1Event, get_asset_path
 from traceml.logger import logger
@@ -260,10 +260,20 @@ class Run(RunClient):
             "`create` method manually, please create a new instance of `Run` with `is_new=True`"
         )
 
+    def get_connections_catalog(self) -> Optional[List[V1Connection]]:
+        """Returns the current connections catalog requested by this run."""
+        catalog = CONNECTION_CONFIG.catalog
+        if catalog:
+            return catalog.connections
+
+    def get_artifacts_store_connection(self) -> Optional[V1Connection]:
+        """Returns the current artifacts store connection used by this run."""
+        return CONNECTION_CONFIG.get_connection_for(get_artifacts_store_name())
+
     def _get_store_path(self):
         if self._store_path:
             return self._store_path
-        connection = CONNECTION_CONFIG.get_connection_for(get_artifacts_store_name())
+        connection = self.get_artifacts_store_connection()
         if not connection:
             logger.warning("Artifacts store connection not detected.")
             return None

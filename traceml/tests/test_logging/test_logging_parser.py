@@ -2,7 +2,7 @@ import pytest
 
 from clipped.utils.dates import parse_datetime
 
-from polyaxon.utils.test_utils import BaseTestCase
+from polyaxon._utils.test_utils import BaseTestCase
 from traceml.logging.parser import (
     DATETIME_REGEX,
     ISO_DATETIME_REGEX,

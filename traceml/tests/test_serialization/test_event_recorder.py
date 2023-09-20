@@ -2,7 +2,7 @@ import os
 import pytest
 import tempfile
 
-from polyaxon.utils.test_utils import BaseTestCase
+from polyaxon._utils.test_utils import BaseTestCase
 from traceml.events.schemas import (
     LoggedEventListSpec,
     LoggedEventSpec,

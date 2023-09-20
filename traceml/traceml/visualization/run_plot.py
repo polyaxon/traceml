@@ -2,8 +2,8 @@ import pandas as pd
 
 from typing import Dict, List, Optional, Set, Union
 
+from polyaxon._client.decorators import client_handler
 from polyaxon.client import RunClient
-from polyaxon.client.decorators import client_handler
 from traceml.artifacts import V1ArtifactKind
 from traceml.events import V1Events
 

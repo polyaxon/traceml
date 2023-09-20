@@ -6,8 +6,8 @@ from typing import Any, Dict, List, Optional, Union
 
 import packaging
 
+from polyaxon._env_vars.keys import ENV_KEYS_RUN_INSTANCE
 from polyaxon.client import RunClient
-from polyaxon.env_vars.keys import ENV_KEYS_RUN_INSTANCE
 from traceml import tracking
 from traceml.exceptions import TracemlException
 

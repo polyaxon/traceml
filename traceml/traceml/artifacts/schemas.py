@@ -5,7 +5,7 @@ from typing import Dict, List, Optional
 from clipped.compact.pydantic import StrictStr
 from clipped.types.uuids import UUIDStr
 
-from polyaxon.schemas.base import BaseSchemaModel
+from polyaxon._schemas.base import BaseSchemaModel
 from traceml.artifacts.enums import V1ArtifactKind
 
 

@@ -3,7 +3,7 @@ from typing import Optional
 from clipped.utils.np import calculate_scale_factor, to_np
 from clipped.utils.paths import check_or_create_path, copy_file_path
 
-from polyaxon.constants.globals import UNKNOWN
+from polyaxon._constants.globals import UNKNOWN
 from traceml.events import V1EventVideo
 from traceml.logger import logger
 from traceml.processors.errors import MOVIEPY_ERROR_MESSAGE, NUMPY_ERROR_MESSAGE

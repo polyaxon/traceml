@@ -8,7 +8,7 @@ from clipped.utils.dates import parse_datetime
 from clipped.utils.json import orjson_dumps, orjson_loads
 from clipped.utils.tz import now
 
-from polyaxon.schemas.base import BaseSchemaModel
+from polyaxon._schemas.base import BaseSchemaModel
 from traceml.logging.parser import (
     DATETIME_REGEX,
     ISO_DATETIME_REGEX,

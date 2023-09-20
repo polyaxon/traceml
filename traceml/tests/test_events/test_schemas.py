@@ -4,7 +4,7 @@ import pytest
 from clipped.utils.dates import parse_datetime
 from clipped.utils.tz import now
 
-from polyaxon.utils.test_utils import BaseTestCase
+from polyaxon._utils.test_utils import BaseTestCase
 from traceml.events.schemas import (
     LoggedEventListSpec,
     V1Event,

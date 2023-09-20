@@ -1,8 +1,7 @@
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Sequence, Union
 
-from polyaxon.client import RunClient
-from polyaxon.schemas.responses.v1_run import V1Run
+from polyaxon.client import *
 from traceml.artifacts import V1ArtifactKind, V1RunArtifact
 from traceml.tracking.run import Run
 
@@ -136,6 +135,22 @@ def update(data: Union[Dict, V1Run], async_req: bool = False):
 
 
 update.__doc__ = Run.update.__doc__
+
+
+def get_connections_catalog():
+    global TRACKING_RUN
+    return TRACKING_RUN.get_connections_catalog()
+
+
+get_connections_catalog.__doc__ = Run.get_connections_catalog.__doc__
+
+
+def get_artifacts_store_connection():
+    global TRACKING_RUN
+    return TRACKING_RUN.get_artifacts_store_connection()
+
+
+get_artifacts_store_connection.__doc__ = Run.get_artifacts_store_connection.__doc__
 
 
 def get_artifacts_path(

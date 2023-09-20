@@ -14,19 +14,19 @@ from bokeh.plotting import figure
 from clipped.utils.paths import create_path
 from plotly import figure_factory
 
-from polyaxon import dist, settings
-from polyaxon.constants.globals import DEFAULT
-from polyaxon.contexts import paths as ctx_paths
-from polyaxon.env_vars import getters
-from polyaxon.env_vars.keys import (
+from polyaxon import _dist, settings
+from polyaxon._constants.globals import DEFAULT
+from polyaxon._contexts import paths as ctx_paths
+from polyaxon._env_vars import getters
+from polyaxon._env_vars.keys import (
     ENV_KEYS_COLLECT_ARTIFACTS,
     ENV_KEYS_COLLECT_RESOURCES,
     ENV_KEYS_LOG_LEVEL,
     ENV_KEYS_RUN_INSTANCE,
 )
+from polyaxon._utils.test_utils import TestEnvVarsCase, tensor_np
 from polyaxon.exceptions import PolyaxonClientException
-from polyaxon.lifecycle import V1ProjectFeature
-from polyaxon.utils.test_utils import TestEnvVarsCase, tensor_np
+from polyaxon.schemas import V1ProjectFeature
 from traceml.artifacts import V1ArtifactKind
 from traceml.events import V1Events, get_asset_path, get_event_path
 from traceml.serialization.writer import EventFileWriter, ResourceFileWriter
@@ -123,13 +123,13 @@ class TestRunTracking(TestEnvVarsCase):
             Run()
 
         # Uses default as owner in non CE
-        settings.CLI_CONFIG.installation = {"dist": dist.EE}
+        settings.CLI_CONFIG.installation = {"dist": _dist.EE}
         with self.assertRaises(PolyaxonClientException):
             Run(project="test")
 
         # Uses default as owner in CE
         settings.CLIENT_CONFIG.is_offline = True
-        settings.CLI_CONFIG.installation = {"dist": dist.CE}
+        settings.CLI_CONFIG.installation = {"dist": _dist.CE}
         with patch("traceml.tracking.run.Run._set_exit_handler") as exit_mock:
             run = Run(project="test", track_code=False, track_env=False)
         assert exit_mock.call_count == 1
@@ -154,19 +154,19 @@ class TestRunTracking(TestEnvVarsCase):
         with self.assertRaises(PolyaxonClientException):
             Run()
 
-        settings.CLI_CONFIG.installation = {"dist": dist.EE}
+        settings.CLI_CONFIG.installation = {"dist": _dist.EE}
         # Uses default as owner in non CE
         with self.assertRaises(PolyaxonClientException):
             Run(project="test")
 
         # Uses default as owner in CE
         settings.CLIENT_CONFIG.is_offline = True
-        settings.CLI_CONFIG.installation = {"dist": dist.CE}
+        settings.CLI_CONFIG.installation = {"dist": _dist.CE}
         run = Run(project="test")
         assert run.owner == DEFAULT
 
         # FQN non CE
-        settings.CLI_CONFIG.installation = {"dist": dist.EE}
+        settings.CLI_CONFIG.installation = {"dist": _dist.EE}
         os.environ[ENV_KEYS_RUN_INSTANCE] = "user.project_bar.runs.{}".format(uid)
         run = Run()
         assert run.owner == "user"
@@ -174,7 +174,7 @@ class TestRunTracking(TestEnvVarsCase):
         assert run.run_uuid == uid
 
         # FQN CE
-        settings.CLI_CONFIG.installation = {"dist": dist.CE}
+        settings.CLI_CONFIG.installation = {"dist": _dist.CE}
         os.environ[ENV_KEYS_RUN_INSTANCE] = "user.project_bar.runs.{}".format(uid)
         run = Run()
         assert run.owner == "user"

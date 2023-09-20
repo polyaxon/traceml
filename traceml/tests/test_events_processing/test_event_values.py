@@ -8,7 +8,7 @@ from bokeh.plotting import figure
 from PIL import Image
 from plotly import figure_factory
 
-from polyaxon.utils.test_utils import BaseTestCase, tensor_np
+from polyaxon._utils.test_utils import BaseTestCase, tensor_np
 from traceml.processors.events_processors import (
     audio,
     bokeh_chart,

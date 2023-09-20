@@ -1,6 +1,6 @@
 from clipped.utils.paths import module_type
 
-from polyaxon.constants.globals import UNKNOWN
+from polyaxon._constants.globals import UNKNOWN
 from traceml.events import V1EventChart, V1EventChartKind
 from traceml.logger import logger
 from traceml.processors.errors import (

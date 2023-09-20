@@ -1,6 +1,6 @@
 import pytest
 
-from polyaxon.utils.test_utils import BaseTestCase
+from polyaxon._utils.test_utils import BaseTestCase
 from traceml.processors.events_processors import metrics_dict_to_list
 
 
