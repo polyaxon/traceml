@@ -1,5 +1,5 @@
 NAME = "traceml"
-VERSION = "2.0.0-rc41"
+VERSION = "2.0.0-rc44"
 DESC = (
     "Engine for ML/Data tracking, visualization, dashboards, and model UI for Polyaxon."
 )
