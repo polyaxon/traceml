@@ -417,6 +417,8 @@ class V1Events:
             # Pyarrow automatically converts timestamp fields
             if "timestamp" in df.columns:
                 df["timestamp"] = df["timestamp"].astype(str)
+        if not hasattr(df, 'step'):
+            df['step'] = None
         return df
 
     @classmethod
