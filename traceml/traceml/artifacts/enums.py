@@ -37,6 +37,14 @@ class V1ArtifactKind(str, PEnum):
     ARTIFACT = "artifact"
 
     @classmethod
+    def is_jsonl_file_event(cls, kind: Optional[Union["V1ArtifactKind", str]]) -> bool:
+        return kind in {
+            V1ArtifactKind.HTML,
+            V1ArtifactKind.TEXT,
+            V1ArtifactKind.CHART,
+        }
+
+    @classmethod
     def is_single_file_event(cls, kind: Optional[Union["V1ArtifactKind", str]]) -> bool:
         return kind in {
             V1ArtifactKind.HTML,

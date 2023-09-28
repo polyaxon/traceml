@@ -5,8 +5,13 @@ from typing import Dict, List
 from clipped.utils.enums import get_enum_value
 from clipped.utils.paths import check_or_create_path
 
-from traceml.events import LoggedEventSpec
-from traceml.events.schemas import LoggedEventListSpec
+from traceml.artifacts import V1ArtifactKind
+from traceml.events import (
+    LoggedEventListSpec,
+    LoggedEventSpec,
+    get_event_path,
+    get_resource_path,
+)
 
 
 class EventWriter:
@@ -21,18 +26,16 @@ class EventWriter:
 
     def _get_event_path(self, kind: str, name: str) -> str:
         if self._events_backend == self.EVENTS_BACKEND:
-            return os.path.join(
-                self._run_path,
-                get_enum_value(self._events_backend),
-                kind,
-                "{}.plx".format(name),
+            return get_event_path(
+                run_path=self._run_path,
+                kind=kind,
+                name=name,
             )
         if self._events_backend == self.RESOURCES_BACKEND:
-            return os.path.join(
-                self._run_path,
-                get_enum_value(self._events_backend),
-                kind,
-                "{}.plx".format(name),
+            return get_resource_path(
+                run_path=self._run_path,
+                kind=kind,
+                name=name,
             )
         raise ValueError(
             "Unrecognized backend {}".format(get_enum_value(self._events_backend))
@@ -44,12 +47,18 @@ class EventWriter:
         if not os.path.exists(event_path):
             check_or_create_path(event_path, is_dir=False)
             with open(event_path, "w") as event_file:
-                event_file.write(events_spec.get_csv_header())
+                if V1ArtifactKind.is_jsonl_file_event(events_spec.kind):
+                    event_file.write("")
+                else:
+                    event_file.write(events_spec.get_csv_header())
 
     def _append_events(self, events_spec: LoggedEventListSpec):
         event_path = self._get_event_path(kind=events_spec.kind, name=events_spec.name)
         with open(event_path, "a") as event_file:
-            event_file.write(events_spec.get_csv_events())
+            if V1ArtifactKind.is_jsonl_file_event(events_spec.kind):
+                event_file.write(events_spec.get_jsonl_events())
+            else:
+                event_file.write(events_spec.get_csv_events())
 
     def _events_to_files(self, events: List[LoggedEventSpec]):
         for event in events:

@@ -367,6 +367,58 @@ class V1Events:
         self.name = name
         self.df = df
 
+    @staticmethod
+    def _read_csv(
+        data: str,
+        parse_dates: Optional[bool] = True,
+        engine: Optional[str] = None,
+    ) -> "pandas.DataFrame":
+        import pandas as pd
+
+        if parse_dates:
+            return pd.read_csv(
+                data,
+                sep=V1Event._SEPARATOR,
+                parse_dates=["timestamp"],
+                engine=engine,
+            )
+        else:
+            df = pd.read_csv(
+                data,
+                sep=V1Event._SEPARATOR,
+                engine=engine,
+            )
+            # Pyarrow automatically converts timestamp fields
+            if "timestamp" in df.columns:
+                df["timestamp"] = df["timestamp"].astype(str)
+            return df
+
+    @staticmethod
+    def _read_jsonl(
+        data: str,
+        parse_dates: Optional[bool] = True,
+        engine: Optional[str] = None,
+    ) -> "pandas.DataFrame":
+        import pandas as pd
+
+        engine = engine or "ujson"
+        if parse_dates:
+            return pd.read_json(
+                data,
+                lines=True,
+                engine=engine,
+            )
+        else:
+            df = pd.read_json(
+                data,
+                lines=True,
+                engine=engine,
+            )
+            # Pyarrow automatically converts timestamp fields
+            if "timestamp" in df.columns:
+                df["timestamp"] = df["timestamp"].astype(str)
+            return df
+
     @classmethod
     def read(
         cls,
@@ -379,23 +431,17 @@ class V1Events:
         import pandas as pd
 
         if isinstance(data, str):
-            csv = validate_csv(data)
-            if parse_dates:
-                df = pd.read_csv(
-                    csv,
-                    sep=V1Event._SEPARATOR,
-                    parse_dates=["timestamp"],
-                    engine=engine,
-                )
-            else:
-                df = pd.read_csv(
-                    csv,
-                    sep=V1Event._SEPARATOR,
-                    engine=engine,
-                )
-                # Pyarrow automatically converts timestamp fields
-                if "timestamp" in df.columns:
-                    df["timestamp"] = df["timestamp"].astype(str)
+            data = validate_csv(data)
+            error = None
+            if V1ArtifactKind.is_jsonl_file_event(kind):
+                try:
+                    df = cls._read_jsonl(
+                        data=data, parse_dates=parse_dates, engine=engine
+                    )
+                except Exception as e:
+                    error = e
+            if not V1ArtifactKind.is_jsonl_file_event(kind) or error:
+                df = cls._read_csv(data=data, parse_dates=parse_dates, engine=engine)
         elif isinstance(data, dict):
             df = pd.DataFrame.from_dict(data)
         else:
@@ -467,6 +513,10 @@ class LoggedEventListSpec(namedtuple("LoggedEventListSpec", "name kind events"))
 
     def get_csv_events(self) -> str:
         events = ["\n{}".format(e.to_csv()) for e in self.events]
+        return "".join(events)
+
+    def get_jsonl_events(self) -> str:
+        events = ["\n{}".format(e.to_json()) for e in self.events]
         return "".join(events)
 
     def empty_events(self):

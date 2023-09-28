@@ -821,7 +821,9 @@ class TestRunLogging(TestEnvVarsCase):
             self.run_path, kind=V1ArtifactKind.CHART, name="figure"
         )
         assert os.path.exists(events_file) is True
-        results = V1Events.read(kind="image", name="figure", data=events_file)
+        results = V1Events.read(
+            kind=V1ArtifactKind.CHART, name="figure", data=events_file
+        )
         assert len(results.df.values) == 1
 
         with patch("traceml.tracking.run.Run._log_has_events") as log_mpl_plotly_chart:
@@ -842,7 +844,9 @@ class TestRunLogging(TestEnvVarsCase):
             self.run_path, kind=V1ArtifactKind.CHART, name="figure"
         )
         assert os.path.exists(events_file) is True
-        results = V1Events.read(kind="image", name="figure", data=events_file)
+        results = V1Events.read(
+            kind=V1ArtifactKind.CHART, name="figure", data=events_file
+        )
         assert len(results.df.values) == 2
 
     def test_log_video_from_path(self):
