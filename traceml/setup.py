@@ -91,7 +91,7 @@ setup(
     ],
     install_requires=[],
     extras_require=extra,
-    python_requires=">=3.7",
+    python_requires=">=3.8",
     classifiers=[
         "Intended Audience :: Information Technology",
         "Intended Audience :: System Administrators",
