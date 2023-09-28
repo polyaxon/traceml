@@ -3,9 +3,9 @@ import datetime
 from typing import List, Optional, Text
 
 from clipped.compact.pydantic import StrictStr
-from clipped.utils.csv import validate_csv
 from clipped.utils.dates import parse_datetime
 from clipped.utils.json import orjson_dumps, orjson_loads
+from clipped.utils.strings import validate_file_or_buffer
 from clipped.utils.tz import now
 
 from polyaxon._schemas.base import BaseSchemaModel
@@ -105,7 +105,7 @@ class V1Logs(BaseSchemaModel):
         import numpy as np
         import pandas as pd
 
-        csv = validate_csv(data)
+        csv = validate_file_or_buffer(data)
         if parse_dates:
             df = pd.read_csv(
                 csv,

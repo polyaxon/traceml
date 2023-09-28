@@ -7,10 +7,10 @@ from typing import Dict, List, Mapping, Optional, Union
 from clipped.compact.pydantic import StrictStr, root_validator
 from clipped.config.parser import ConfigParser
 from clipped.config.schema import skip_partial
-from clipped.utils.csv import validate_csv
 from clipped.utils.dates import parse_datetime
 from clipped.utils.enums import PEnum
 from clipped.utils.np import sanitize_np_types
+from clipped.utils.strings import validate_file_or_buffer
 from clipped.utils.tz import now
 
 from polyaxon._schemas.base import BaseSchemaModel
@@ -431,7 +431,7 @@ class V1Events:
         import pandas as pd
 
         if isinstance(data, str):
-            data = validate_csv(data)
+            data = validate_file_or_buffer(data)
             error = None
             if V1ArtifactKind.is_jsonl_file_event(kind):
                 try:
