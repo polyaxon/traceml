@@ -375,6 +375,7 @@ class V1Events:
     ) -> "pandas.DataFrame":
         import pandas as pd
 
+        data = validate_file_or_buffer(data)
         if parse_dates:
             return pd.read_csv(
                 data,
@@ -397,27 +398,26 @@ class V1Events:
     def _read_jsonl(
         data: str,
         parse_dates: Optional[bool] = True,
-        engine: Optional[str] = None,
     ) -> "pandas.DataFrame":
         import pandas as pd
 
-        engine = engine or "ujson"
+        data = validate_file_or_buffer(data)
         if parse_dates:
-            return pd.read_json(
+            df = pd.read_json(
                 data,
                 lines=True,
-                engine=engine,
+                engine="ujson",
             )
         else:
             df = pd.read_json(
                 data,
                 lines=True,
-                engine=engine,
+                engine="ujson",
             )
             # Pyarrow automatically converts timestamp fields
             if "timestamp" in df.columns:
                 df["timestamp"] = df["timestamp"].astype(str)
-            return df
+        return df
 
     @classmethod
     def read(
@@ -431,13 +431,10 @@ class V1Events:
         import pandas as pd
 
         if isinstance(data, str):
-            data = validate_file_or_buffer(data)
             error = None
             if V1ArtifactKind.is_jsonl_file_event(kind):
                 try:
-                    df = cls._read_jsonl(
-                        data=data, parse_dates=parse_dates, engine=engine
-                    )
+                    df = cls._read_jsonl(data=data, parse_dates=parse_dates)
                 except Exception as e:
                     error = e
             if not V1ArtifactKind.is_jsonl_file_event(kind) or error:
