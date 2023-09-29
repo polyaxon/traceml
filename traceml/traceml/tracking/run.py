@@ -1225,9 +1225,7 @@ class Run(RunClient):
         logged_event = LoggedEventSpec(
             name=name,
             kind=V1ArtifactKind.HTML,
-            event=V1Event.make(
-                timestamp=timestamp, step=step, html=html.replace("\n", "")
-            ),
+            event=V1Event.make(timestamp=timestamp, step=step, html=html),
         )
         self._add_event(logged_event)
 

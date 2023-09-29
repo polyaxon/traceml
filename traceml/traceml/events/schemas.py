@@ -348,6 +348,23 @@ class V1Event(BaseSchemaModel):
         if self.dataframe is not None:
             return self.dataframe.to_json() if dump else self.dataframe
 
+    def to_json(
+        self,
+        humanize_values: bool = False,
+        include_kind: bool = False,
+        include_version: bool = False,
+        kind: Optional[str] = None,
+    ) -> str:
+        if not kind:
+            kind = self._IDENTIFIER
+        values = {
+            "timestamp": str(self.timestamp),
+            "step": self.step,
+            kind: self.get_value(dump=True),
+        }
+
+        return json.dumps(values)
+
     def to_csv(self) -> str:
         values = [
             str(self.step) if self.step is not None else "",
@@ -417,8 +434,8 @@ class V1Events:
             # Pyarrow automatically converts timestamp fields
             if "timestamp" in df.columns:
                 df["timestamp"] = df["timestamp"].astype(str)
-        if not hasattr(df, 'step'):
-            df['step'] = None
+        if not hasattr(df, "step"):
+            df["step"] = None
         return df
 
     @classmethod
@@ -515,7 +532,7 @@ class LoggedEventListSpec(namedtuple("LoggedEventListSpec", "name kind events"))
         return "".join(events)
 
     def get_jsonl_events(self) -> str:
-        events = ["\n{}".format(e.to_json()) for e in self.events]
+        events = ["\n{}".format(e.to_json(kind=self.kind)) for e in self.events]
         return "".join(events)
 
     def empty_events(self):
