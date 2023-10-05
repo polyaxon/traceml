@@ -2,7 +2,6 @@ import os
 
 from typing import TYPE_CHECKING, Any, Optional
 
-from polyaxon.exceptions import PolyaxonClientException
 from traceml import tracking
 from traceml.exceptions import TracemlException
 from traceml.logger import logger
@@ -64,9 +63,7 @@ class Logger:
                     log_histo=log_histo,
                     log_tensor=log_tensor,
                 )
-            except PolyaxonClientException(
-                "Polyaxon failed processing tensorboard summary."
-            ):
+            except TracemlException("Polyaxon failed processing tensorboard summary."):
                 pass
 
     @classmethod
