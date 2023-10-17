@@ -1035,17 +1035,19 @@ def log_env(rel_path: Optional[str] = None, content: Optional[Dict] = None):
 log_env.__doc__ = Run.log_env.__doc__
 
 
-def sync_events_summaries():
+def sync_events_summaries(last_check: Optional[datetime], events_path: str):
     global TRACKING_RUN
-    TRACKING_RUN.sync_events_summaries()
+    TRACKING_RUN.sync_events_summaries(last_check=last_check, events_path=events_path)
 
 
 sync_events_summaries.__doc__ = Run.sync_events_summaries.__doc__
 
 
-def sync_system_events_summaries():
+def sync_system_events_summaries(last_check: Optional[datetime], events_path: str):
     global TRACKING_RUN
-    TRACKING_RUN.sync_system_events_summaries()
+    TRACKING_RUN.sync_system_events_summaries(
+        last_check=last_check, events_path=events_path
+    )
 
 
 sync_system_events_summaries.__doc__ = Run.sync_system_events_summaries.__doc__

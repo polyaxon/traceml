@@ -323,3 +323,45 @@ class TestEventsSummaries(BaseTestCase):
             )
         ]
         assert last_values == {}
+
+    def test_spans_summaries(self):
+        summaries, last_values = self.run._collect_events_summaries(
+            events_path="tests/fixtures/events",
+            events_kind="span",
+            last_check=None,
+        )
+        summaries = {s.name: s for s in summaries}
+        abspath = os.path.abspath("tests/fixtures/events/span/span_events.plx")
+        events = V1Events.read(
+            name="span_events",
+            kind="span",
+            data=abspath,
+        )
+        assert events.name == "span_events"
+        assert summaries["span_events"] == V1RunArtifact(
+            name="span_events",
+            kind="span",
+            connection=None,
+            summary=events.get_summary(),
+            path=abspath,
+            is_input=False,
+        )
+
+        abspath = os.path.abspath(
+            "tests/fixtures/events/span/span_events_without_step.plx"
+        )
+        events_without_step = V1Events.read(
+            name="span_events_without_step",
+            kind="span",
+            data=abspath,
+        )
+        assert events_without_step.name == "span_events_without_step"
+        assert summaries["span_events_without_step"] == V1RunArtifact(
+            name="span_events_without_step",
+            kind="span",
+            connection=None,
+            summary=events_without_step.get_summary(),
+            path=abspath,
+            is_input=False,
+        )
+        assert last_values == {}

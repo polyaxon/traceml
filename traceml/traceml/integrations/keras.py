@@ -157,6 +157,7 @@ class Callback(keras.callbacks.Callback):
 
         self._log_model()
 
+    @client_handler(check_no_op=True)
     def _log_model(self):
         try:
             if self.save_weights_only:

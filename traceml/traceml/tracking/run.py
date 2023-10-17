@@ -34,7 +34,7 @@ from polyaxon._utils.fqn_utils import to_fqn_name
 from polyaxon.client import PolyaxonClient, RunClient
 from polyaxon.schemas import LifeCycle, V1ProjectFeature, V1Statuses
 from traceml.artifacts import V1ArtifactKind
-from traceml.events import LoggedEventSpec, V1Event, get_asset_path
+from traceml.events import LoggedEventSpec, V1Event, V1EventSpan, get_asset_path
 from traceml.logger import logger
 from traceml.logging import V1Log, V1Logs
 from traceml.processors import events_processors
@@ -1658,6 +1658,30 @@ class Run(RunClient):
                 )
             else:
                 raise e
+
+    @client_handler(check_no_op=True, can_log_events=True)
+    def log_trace(
+        self,
+        span: V1EventSpan,
+        step: Optional[int] = None,
+        timestamp: Optional[datetime] = None,
+    ):
+        if not span:
+            return
+        name = span.name or "trace"
+        name = self._sanitize_filename(name)
+        self._log_has_traces()
+
+        logged_event = LoggedEventSpec(
+            name=name,
+            kind=V1ArtifactKind.SPAN,
+            event=V1Event.make(timestamp=timestamp, step=step, span=span),
+        )
+        self._add_event(logged_event)
+        if span.inputs:
+            self.log_inputs(**span.inputs)
+        if span.outputs:
+            self.log_outputs(**span.outputs)
 
     @client_handler(check_no_op=True)
     def get_log_level(self):

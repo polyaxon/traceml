@@ -18,6 +18,7 @@ from traceml.events.schemas import (
     V1EventImage,
     V1EventModel,
     V1Events,
+    V1EventSpan,
     V1EventVideo,
 )
 
@@ -801,6 +802,75 @@ class TestEventsV1(BaseTestCase):
             data=os.path.abspath(
                 "tests/fixtures/events/dataframe/dataframe_events.plx"
             ),
+        )
+        assert events.name == "foo"
+        assert len(events.df.values) == 3
+        for i in range(3):
+            assert events.get_event_at(i).to_dict() == values[i].to_dict()
+
+    def test_span(self):
+        uuid_hex = "ceb21ee781254719b18664ad1fde57a2"
+        events = LoggedEventListSpec(
+            name="foo",
+            kind="span",
+            events=[
+                V1Event(
+                    timestamp=parse_datetime("2018-12-11 10:24:57"),
+                    span=V1EventSpan(
+                        uuid=uuid_hex, name="span1", tags=["tag1", "tag2"]
+                    ),
+                    step=12,
+                ),
+                V1Event(
+                    timestamp=parse_datetime("2018-12-11 11:24:57"),
+                    span=V1EventSpan(
+                        uuid=uuid_hex,
+                        name="span2",
+                        tags=["tag1", "tag2"],
+                        inputs={"key": "value"},
+                    ),
+                    step=13,
+                ),
+                V1Event(
+                    timestamp=parse_datetime("2018-12-11 12:24:57"),
+                    span=V1EventSpan(
+                        uuid=uuid_hex, name="span3", tags=["tag1", "tag2"]
+                    ),
+                    step=14,
+                ),
+            ],
+        )
+        events_dict = events.to_dict()
+        assert events_dict == events.from_dict(events_dict).to_dict()
+
+    def test_spans_read_yaml(self):
+        uuid_hex = "ceb21ee781254719b18664ad1fde57a2"
+        values = [
+            V1Event(
+                timestamp=parse_datetime("2018-12-11 10:24:57"),
+                span=V1EventSpan(uuid=uuid_hex, name="span1", tags=["tag1", "tag2"]),
+                step=12,
+            ),
+            V1Event(
+                timestamp=parse_datetime("2018-12-11 10:25:57"),
+                span=V1EventSpan(
+                    uuid=uuid_hex,
+                    name="span2",
+                    tags=["tag1", "tag2"],
+                    inputs={"key": "value"},
+                ),
+                step=13,
+            ),
+            V1Event(
+                timestamp=parse_datetime("2018-12-11 10:26:57"),
+                span=V1EventSpan(uuid=uuid_hex, name="span3", tags=["tag1", "tag2"]),
+                step=14,
+            ),
+        ]
+        events = V1Events.read(
+            name="foo",
+            kind="span",
+            data=os.path.abspath("tests/fixtures/events/span/span_events.plx"),
         )
         assert events.name == "foo"
         assert len(events.df.values) == 3

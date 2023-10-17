@@ -35,6 +35,7 @@ class V1ArtifactKind(str, PEnum):
     MARKDOWN = "markdown"
     SYSTEM = "system"
     ARTIFACT = "artifact"
+    SPAN = "span"
 
     @classmethod
     def is_jsonl_file_event(cls, kind: Optional[Union["V1ArtifactKind", str]]) -> bool:
@@ -42,6 +43,7 @@ class V1ArtifactKind(str, PEnum):
             V1ArtifactKind.HTML,
             V1ArtifactKind.TEXT,
             V1ArtifactKind.CHART,
+            V1ArtifactKind.SPAN,
         }
 
     @classmethod
@@ -55,6 +57,7 @@ class V1ArtifactKind(str, PEnum):
             V1ArtifactKind.CURVE,
             V1ArtifactKind.METRIC,
             V1ArtifactKind.SYSTEM,
+            V1ArtifactKind.SPAN,
         }
 
     @classmethod

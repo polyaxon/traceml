@@ -2,11 +2,12 @@ import datetime
 import json
 
 from collections import namedtuple
-from typing import Dict, List, Mapping, Optional, Union
+from typing import Any, Dict, List, Mapping, Optional, Union
 
 from clipped.compact.pydantic import StrictStr, root_validator
 from clipped.config.parser import ConfigParser
 from clipped.config.schema import skip_partial
+from clipped.types.uuids import UUIDStr
 from clipped.utils.dates import parse_datetime
 from clipped.utils.enums import PEnum
 from clipped.utils.np import sanitize_np_types
@@ -14,6 +15,7 @@ from clipped.utils.strings import validate_file_or_buffer
 from clipped.utils.tz import now
 
 from polyaxon._schemas.base import BaseSchemaModel
+from polyaxon._schemas.lifecycle import V1StatusCondition, V1Statuses
 from traceml.artifacts.enums import V1ArtifactKind
 
 
@@ -26,6 +28,44 @@ class SearchView(str, PEnum):
     MODELS = "models"
     ARTIFACTS = "artifacts"
     PROJECTS = "projects"
+
+
+class V1EventSpanKind(str, PEnum):
+    LLM = "llm"
+    CHAIN = "chain"
+    AGENT = "agent"
+    TOOL = "tool"
+    EMBEDDING = "embedding"
+    RETRIEVER = "retriever"
+
+
+class V1EventSpan(BaseSchemaModel):
+    uuid: Optional[UUIDStr]
+    name: Optional[StrictStr]
+    tags: Optional[List[StrictStr]]
+    started_at: Optional[datetime.datetime]
+    finished_at: Optional[datetime.datetime]
+    status: Optional[V1Statuses]
+    status_conditions: Optional[List[V1StatusCondition]]
+    metadata: Optional[Dict[str, Any]]
+    inputs: Optional[Dict[str, Any]]
+    outputs: Optional[Dict[str, Any]]
+    children: Optional[List["V1EventSpan"]]
+    kind: Optional[V1EventSpanKind]
+
+    def add_metadata(self, key: str, value: Any) -> None:
+        if self.metadata is None:
+            self.metadata = {}
+        self.metadata[key] = value
+
+    def add_named_result(self, inputs: Dict[str, Any], outputs: Dict[str, Any]) -> None:
+        self.inputs = inputs
+        self.outputs = outputs
+
+    def add_child_span(self, span: "V1EventSpan") -> None:
+        if self.children is None:
+            self.children = []
+        self.children.append(span)
 
 
 class V1EventImage(BaseSchemaModel):
@@ -158,6 +198,7 @@ class V1Event(BaseSchemaModel):
     artifact: Optional[V1EventArtifact]
     model: Optional[V1EventModel]
     dataframe: Optional[V1EventDataframe]
+    span: Optional[V1EventSpan]
 
     @root_validator(pre=True)
     @skip_partial
@@ -223,6 +264,12 @@ class V1Event(BaseSchemaModel):
                 key=V1ArtifactKind.DATAFRAME,
                 value=v,
             )
+        v = values.get(V1ArtifactKind.SPAN)
+        if v is not None and not isinstance(v, BaseSchemaModel):
+            values[V1ArtifactKind.SPAN] = get_dict(
+                key=V1ArtifactKind.SPAN,
+                value=v,
+            )
 
         return values
 
@@ -267,6 +314,8 @@ class V1Event(BaseSchemaModel):
             count = increment(count)
         if values.get(V1ArtifactKind.DATAFRAME) is not None:
             count = increment(count)
+        if values.get(V1ArtifactKind.SPAN) is not None:
+            count = increment(count)
 
         if count != 1:
             raise ValueError(
@@ -295,6 +344,7 @@ class V1Event(BaseSchemaModel):
         artifact: V1EventArtifact = None,
         model: V1EventModel = None,
         dataframe: V1EventDataframe = None,
+        span: V1EventSpan = None,
     ) -> "V1Event":
         if isinstance(timestamp, str):
             try:
@@ -318,6 +368,7 @@ class V1Event(BaseSchemaModel):
             artifact=artifact,
             model=model,
             dataframe=dataframe,
+            span=span,
         )
 
     def get_value(self, dump=True):
@@ -347,6 +398,8 @@ class V1Event(BaseSchemaModel):
             return self.model.to_json() if dump else self.model
         if self.dataframe is not None:
             return self.dataframe.to_json() if dump else self.dataframe
+        if self.span is not None:
+            return self.span.to_json() if dump else self.span
 
     def to_json(
         self,
@@ -423,13 +476,11 @@ class V1Events:
             df = pd.read_json(
                 data,
                 lines=True,
-                engine="ujson",
             )
         else:
             df = pd.read_json(
                 data,
                 lines=True,
-                engine="ujson",
             )
             # Pyarrow automatically converts timestamp fields
             if "timestamp" in df.columns:

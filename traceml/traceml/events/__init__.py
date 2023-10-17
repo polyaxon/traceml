@@ -20,5 +20,6 @@ from traceml.events.schemas import (
     V1EventImage,
     V1EventModel,
     V1Events,
+    V1EventSpan,
     V1EventVideo,
 )
