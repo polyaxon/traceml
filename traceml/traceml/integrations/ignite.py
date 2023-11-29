@@ -9,4 +9,6 @@ except ImportError:
 
 class Logger(PolyaxonLogger):
     def __init__(self, *args, **kwargs):
-        self.experiment = kwargs.get("run", Run(*args, **kwargs))
+        self.experiment = kwargs.get("run")
+        if not self.experiment:
+            self.experiment = Run(*args, **kwargs)
