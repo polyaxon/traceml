@@ -1,16 +1,16 @@
-black<23.11.0
-coverage<7.3
-faker<20.0.0
-flake8<6.1.0
+black<23.13.0
+coverage<7.5
+faker<23.0.0
+flake8<6.2.0
 flaky<3.8.0
-isort<5.13.0
+isort<5.15.0
 mock<5.2.0
-pyflakes<3.1.0
+pyflakes<3.2.0
 pytest<7.5.0
 pytest-asyncio<0.22.0
-pylint<2.18.0
+pylint<3.1.0
 
-mypy<1.7
+mypy<1.9
 types-aiofiles
 types-certifi
 types-protobuf
