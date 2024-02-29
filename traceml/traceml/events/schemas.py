@@ -17,6 +17,7 @@ from clipped.utils.tz import now
 from polyaxon._schemas.base import BaseSchemaModel
 from polyaxon._schemas.lifecycle import V1StatusCondition, V1Statuses
 from traceml.artifacts.enums import V1ArtifactKind
+from traceml.logger import logger
 
 
 class SearchView(str, PEnum):
@@ -545,10 +546,14 @@ class V1Events:
         if _count == 0:
             return None
 
-        return {
-            "min": self.df.timestamp.iloc[0].isoformat(),
-            "max": self.df.timestamp.iloc[-1].isoformat(),
-        }
+        try:
+            return {
+                "min": self.df.timestamp.iloc[0].isoformat(),
+                "max": self.df.timestamp.iloc[-1].isoformat(),
+            }
+        except Exception as e:
+            logger.debug("Received an error while parsing timestamps: %s", e)
+            return None
 
     def get_summary(self) -> Dict:
         summary = {"is_event": True}
