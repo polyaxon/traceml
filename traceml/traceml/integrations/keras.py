@@ -30,12 +30,13 @@ class Callback(keras.callbacks.Callback):
         mode: str = "auto",
         monitor: str = "val_loss",
         use_store_path: bool = False,
+        model_ext: str = "",
     ):
         self.run = tracking.get_or_create_run(run)
         self.metrics = metrics
         self.log_model = log_model
         self.filepath = self.run.get_outputs_path(
-            "model", use_store_path=use_store_path
+            "model{}".format(model_ext), use_store_path=use_store_path
         )
         self.log_best_prefix = log_best_prefix
         self.best = None
