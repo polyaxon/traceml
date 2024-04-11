@@ -960,6 +960,7 @@ class Run(RunClient):
             kind=V1ArtifactKind.IMAGE,
             name=name,
             step=step,
+            ext="png",
         )
         asset_rel_path = os.path.relpath(asset_path, self._artifacts_path)
         event_value = events_processors.image_boxes(

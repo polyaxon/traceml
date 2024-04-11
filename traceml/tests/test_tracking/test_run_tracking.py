@@ -643,7 +643,7 @@ class TestRunLogging(TestEnvVarsCase):
         assert len(results.df.values) == 1
 
         asset_file = get_asset_path(
-            self.run_path, kind=V1ArtifactKind.IMAGE, name="my_image"
+            self.run_path, kind=V1ArtifactKind.IMAGE, name="my_image", ext="png"
         )
         assert os.path.exists(asset_file) is True
 
