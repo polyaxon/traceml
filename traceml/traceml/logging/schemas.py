@@ -74,7 +74,7 @@ class V1Log(BaseSchemaModel):
 
 
 class V1Logs(BaseSchemaModel):
-    _CHUNK_SIZE = 2000
+    _CHUNK_SIZE = 6000
     _IDENTIFIER = "logs"
 
     logs: Optional[List[V1Log]]
@@ -89,6 +89,10 @@ class V1Logs(BaseSchemaModel):
     def to_csv(self):
         _logs = ["\n{}".format(e.to_csv()) for e in self.logs if e.value]
         return "".join(_logs)
+
+    def get_jsonl_events(self) -> str:
+        events = ["\n{}".format(e.to_json()) for e in self.logs if e.value]
+        return "".join(events)
 
     @classmethod
     def should_chunk(cls, logs: List[V1Log]):
@@ -131,5 +135,34 @@ class V1Logs(BaseSchemaModel):
                     value=orjson_loads(i.get("value")).get("_"),
                 )
                 for i in df.replace({np.nan: None}).to_dict(orient="records")
+            ]
+        )
+
+    @classmethod
+    def read_jsonl(cls, data: str, to_structured: bool = False) -> "pandas.DataFrame":
+        import numpy as np
+        import pandas as pd
+
+        data = validate_file_or_buffer(data)
+        df = pd.read_json(
+            data,
+            lines=True,
+        )
+        if "timestamp" in df.columns:
+            df["timestamp"] = df["timestamp"].astype(str)
+
+        df = df.replace({np.nan: None}).to_dict(orient="records")
+        if not to_structured:
+            return df
+        return cls.construct(
+            logs=[
+                V1Log.construct(
+                    timestamp=parse_datetime(i.get("timestamp")),
+                    node=i.get("node"),
+                    pod=i.get("pod"),
+                    container=i.get("container"),
+                    value=i.get("value"),
+                )
+                for i in df
             ]
         )
