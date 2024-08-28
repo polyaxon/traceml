@@ -15,6 +15,7 @@ from clipped.utils.paths import (
     copy_file_or_dir_path,
     get_base_filename,
     get_path_extension,
+    set_permissions,
 )
 
 from polyaxon import settings
@@ -244,6 +245,7 @@ class Run(RunClient):
             check_or_create_path(logs_path, is_dir=False)
             with open(logs_path, "w") as logs_file:
                 logs_file.write(self._logs_history.to_json())
+            set_permissions(logs_path)
 
     def _add_logs(self, log: V1Log):
         if not log:
@@ -1785,6 +1787,7 @@ class Run(RunClient):
 
         with open(os.path.join(path), "w") as env_file:
             env_file.write(orjson_dumps(content))
+        set_permissions(path)
 
         self.log_artifact_ref(
             path=path,
