@@ -2,9 +2,14 @@ import datetime
 import json
 
 from collections import namedtuple
-from typing import Any, Dict, List, Mapping, Optional, Union
+from typing import Any, ClassVar, Dict, List, Mapping, Optional, Union
 
-from clipped.compact.pydantic import StrictStr, root_validator
+from clipped.compact.pydantic import (
+    StrictStr,
+    model_validator,
+    validation_after,
+    validation_before,
+)
 from clipped.config.parser import ConfigParser
 from clipped.config.schema import skip_partial
 from clipped.types.uuids import UUIDStr
@@ -41,18 +46,18 @@ class V1EventSpanKind(str, PEnum):
 
 
 class V1EventSpan(BaseSchemaModel):
-    uuid: Optional[UUIDStr]
-    name: Optional[StrictStr]
-    tags: Optional[List[StrictStr]]
-    started_at: Optional[datetime.datetime]
-    finished_at: Optional[datetime.datetime]
-    status: Optional[V1Statuses]
-    status_conditions: Optional[List[V1StatusCondition]]
-    metadata: Optional[Dict[str, Any]]
-    inputs: Optional[Dict[str, Any]]
-    outputs: Optional[Dict[str, Any]]
-    children: Optional[List["V1EventSpan"]]
-    kind: Optional[V1EventSpanKind]
+    uuid: Optional[UUIDStr] = None
+    name: Optional[StrictStr] = None
+    tags: Optional[List[StrictStr]] = None
+    started_at: Optional[datetime.datetime] = None
+    finished_at: Optional[datetime.datetime] = None
+    status: Optional[V1Statuses] = None
+    status_conditions: Optional[List[V1StatusCondition]] = None
+    metadata: Optional[Dict[str, Any]] = None
+    inputs: Optional[Dict[str, Any]] = None
+    outputs: Optional[Dict[str, Any]] = None
+    children: Optional[List["V1EventSpan"]] = None
+    kind: Optional[V1EventSpanKind] = None
 
     def add_metadata(self, key: str, value: Any) -> None:
         if self.metadata is None:
@@ -72,44 +77,44 @@ class V1EventSpan(BaseSchemaModel):
 class V1EventImage(BaseSchemaModel):
     _IDENTIFIER = V1ArtifactKind.IMAGE
 
-    height: Optional[int]
-    width: Optional[int]
-    colorspace: Optional[int]
-    path: Optional[StrictStr]
+    height: Optional[int] = None
+    width: Optional[int] = None
+    colorspace: Optional[int] = None
+    path: Optional[StrictStr] = None
 
 
 class V1EventVideo(BaseSchemaModel):
     _IDENTIFIER = V1ArtifactKind.VIDEO
 
-    height: Optional[int]
-    width: Optional[int]
-    colorspace: Optional[int]
-    path: Optional[StrictStr]
-    content_type: Optional[StrictStr]
+    height: Optional[int] = None
+    width: Optional[int] = None
+    colorspace: Optional[int] = None
+    path: Optional[StrictStr] = None
+    content_type: Optional[StrictStr] = None
 
 
 class V1EventDataframe(BaseSchemaModel):
     _IDENTIFIER = V1ArtifactKind.DATAFRAME
 
-    path: Optional[StrictStr]
-    content_type: Optional[StrictStr]
+    path: Optional[StrictStr] = None
+    content_type: Optional[StrictStr] = None
 
 
 class V1EventHistogram(BaseSchemaModel):
     _IDENTIFIER = V1ArtifactKind.HISTOGRAM
 
-    values: Optional[List[float]]
-    counts: Optional[List[float]]
+    values: Optional[List[float]] = None
+    counts: Optional[List[float]] = None
 
 
 class V1EventAudio(BaseSchemaModel):
     _IDENTIFIER = V1ArtifactKind.AUDIO
 
-    sample_rate: Optional[float]
-    num_channels: Optional[int]
-    length_frames: Optional[int]
-    path: Optional[StrictStr]
-    content_type: Optional[StrictStr]
+    sample_rate: Optional[float] = None
+    num_channels: Optional[int] = None
+    length_frames: Optional[int] = None
+    path: Optional[StrictStr] = None
+    content_type: Optional[StrictStr] = None
 
 
 class V1EventChartKind(str, PEnum):
@@ -121,8 +126,8 @@ class V1EventChartKind(str, PEnum):
 class V1EventChart(BaseSchemaModel):
     _IDENTIFIER = V1ArtifactKind.CHART
 
-    kind: Optional[V1EventChartKind]
-    figure: Optional[Dict]
+    kind: Optional[V1EventChartKind] = None
+    figure: Optional[Dict] = None
 
     def to_json(self, humanize_values=False, include_kind=False, include_version=False):
         if self.kind == V1EventChartKind.PLOTLY:
@@ -151,57 +156,57 @@ class V1EventCurveKind(str, PEnum):
 class V1EventCurve(BaseSchemaModel):
     _IDENTIFIER = V1ArtifactKind.CURVE
 
-    kind: Optional[V1EventCurveKind]
-    x: Optional[List[float]]
-    y: Optional[List[float]]
-    annotation: Optional[StrictStr]
+    kind: Optional[V1EventCurveKind] = None
+    x: Optional[List[float]] = None
+    y: Optional[List[float]] = None
+    annotation: Optional[StrictStr] = None
 
 
 class V1EventConfusionMatrix(BaseSchemaModel):
     _IDENTIFIER = V1ArtifactKind.CONFUSION
 
-    x: Optional[List]
-    y: Optional[List]
-    z: Optional[List]
+    x: Optional[List] = None
+    y: Optional[List] = None
+    z: Optional[List] = None
 
 
 class V1EventArtifact(BaseSchemaModel):
     _IDENTIFIER = "artifact"
 
-    kind: Optional[V1ArtifactKind]
-    path: Optional[StrictStr]
+    kind: Optional[V1ArtifactKind] = None
+    path: Optional[StrictStr] = None
 
 
 class V1EventModel(BaseSchemaModel):
     _IDENTIFIER = V1ArtifactKind.MODEL
 
-    framework: Optional[StrictStr]
-    path: Optional[StrictStr]
-    spec: Optional[Dict]
+    framework: Optional[StrictStr] = None
+    path: Optional[StrictStr] = None
+    spec: Optional[Dict] = None
 
 
 class V1Event(BaseSchemaModel):
-    _SEPARATOR = "|"
+    _SEPARATOR: ClassVar = "|"
     _IDENTIFIER = "event"
 
-    timestamp: Optional[datetime.datetime]
-    step: Optional[int]
-    metric: Optional[float]
-    image: Optional[V1EventImage]
-    histogram: Optional[V1EventHistogram]
-    audio: Optional[V1EventAudio]
-    video: Optional[V1EventVideo]
-    html: Optional[str]
-    text: Optional[str]
-    chart: Optional[V1EventChart]
-    curve: Optional[V1EventCurve]
-    confusion: Optional[V1EventConfusionMatrix]
-    artifact: Optional[V1EventArtifact]
-    model: Optional[V1EventModel]
-    dataframe: Optional[V1EventDataframe]
-    span: Optional[V1EventSpan]
+    timestamp: Optional[datetime.datetime] = None
+    step: Optional[int] = None
+    metric: Optional[float] = None
+    image: Optional[V1EventImage] = None
+    histogram: Optional[V1EventHistogram] = None
+    audio: Optional[V1EventAudio] = None
+    video: Optional[V1EventVideo] = None
+    html: Optional[str] = None
+    text: Optional[str] = None
+    chart: Optional[V1EventChart] = None
+    curve: Optional[V1EventCurve] = None
+    confusion: Optional[V1EventConfusionMatrix] = None
+    artifact: Optional[V1EventArtifact] = None
+    model: Optional[V1EventModel] = None
+    dataframe: Optional[V1EventDataframe] = None
+    span: Optional[V1EventSpan] = None
 
-    @root_validator(pre=True)
+    @model_validator(**validation_before)
     @skip_partial
     def pre_validate(cls, values):
         v = values.get(V1ArtifactKind.IMAGE)
@@ -274,7 +279,7 @@ class V1Event(BaseSchemaModel):
 
         return values
 
-    @root_validator
+    @model_validator(**validation_after)
     @skip_partial
     def validate_event(cls, values):
         count = 0
@@ -289,33 +294,33 @@ class V1Event(BaseSchemaModel):
                 )
             return c
 
-        if values.get(V1ArtifactKind.METRIC) is not None:
+        if cls.get_value_for_key(V1ArtifactKind.METRIC, values) is not None:
             count = increment(count)
-        if values.get(V1ArtifactKind.IMAGE) is not None:
+        if cls.get_value_for_key(V1ArtifactKind.IMAGE, values) is not None:
             count = increment(count)
-        if values.get(V1ArtifactKind.HISTOGRAM) is not None:
+        if cls.get_value_for_key(V1ArtifactKind.HISTOGRAM, values) is not None:
             count = increment(count)
-        if values.get(V1ArtifactKind.AUDIO) is not None:
+        if cls.get_value_for_key(V1ArtifactKind.AUDIO, values) is not None:
             count = increment(count)
-        if values.get(V1ArtifactKind.VIDEO) is not None:
+        if cls.get_value_for_key(V1ArtifactKind.VIDEO, values) is not None:
             count = increment(count)
-        if values.get(V1ArtifactKind.HTML) is not None:
+        if cls.get_value_for_key(V1ArtifactKind.HTML, values) is not None:
             count = increment(count)
-        if values.get(V1ArtifactKind.TEXT) is not None:
+        if cls.get_value_for_key(V1ArtifactKind.TEXT, values) is not None:
             count = increment(count)
-        if values.get(V1ArtifactKind.CHART) is not None:
+        if cls.get_value_for_key(V1ArtifactKind.CHART, values) is not None:
             count = increment(count)
-        if values.get(V1ArtifactKind.CURVE) is not None:
+        if cls.get_value_for_key(V1ArtifactKind.CURVE, values) is not None:
             count = increment(count)
-        if values.get(V1ArtifactKind.CONFUSION) is not None:
+        if cls.get_value_for_key(V1ArtifactKind.CONFUSION, values) is not None:
             count = increment(count)
-        if values.get("artifact") is not None:
+        if cls.get_value_for_key(V1ArtifactKind.ARTIFACT, values) is not None:
             count = increment(count)
-        if values.get(V1ArtifactKind.MODEL) is not None:
+        if cls.get_value_for_key(V1ArtifactKind.MODEL, values) is not None:
             count = increment(count)
-        if values.get(V1ArtifactKind.DATAFRAME) is not None:
+        if cls.get_value_for_key(V1ArtifactKind.DATAFRAME, values) is not None:
             count = increment(count)
-        if values.get(V1ArtifactKind.SPAN) is not None:
+        if cls.get_value_for_key(V1ArtifactKind.SPAN, values) is not None:
             count = increment(count)
 
         if count != 1:

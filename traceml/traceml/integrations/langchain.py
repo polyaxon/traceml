@@ -25,7 +25,7 @@ def _serialize_io(run_inputs: dict) -> dict:
     for key, value in run_inputs.items():
         if key == "input_documents":
             serialized_inputs.update(
-                {f"input_document_{i}": doc.json() for i, doc in enumerate(value)}
+                {f"input_document_{i}": doc.to_json() for i, doc in enumerate(value)}
             )
         else:
             serialized_inputs[key] = value

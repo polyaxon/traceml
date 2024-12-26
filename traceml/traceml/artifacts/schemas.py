@@ -12,15 +12,15 @@ from traceml.artifacts.enums import V1ArtifactKind
 class V1RunArtifact(BaseSchemaModel):
     _IDENTIFIER = "artifact"
 
-    name: Optional[StrictStr]
-    kind: Optional[V1ArtifactKind]
-    path: Optional[StrictStr]
-    state: Optional[UUIDStr]
-    summary: Optional[Dict]
-    meta_info: Optional[Dict]
-    run: Optional[UUIDStr]
-    connection: Optional[StrictStr]
-    is_input: Optional[bool]
+    name: Optional[StrictStr] = None
+    kind: Optional[V1ArtifactKind] = None
+    path: Optional[StrictStr] = None
+    state: Optional[UUIDStr] = None
+    summary: Optional[Dict] = None
+    meta_info: Optional[Dict] = None
+    run: Optional[UUIDStr] = None
+    connection: Optional[StrictStr] = None
+    is_input: Optional[bool] = None
 
     @classmethod
     def from_model(cls, model):

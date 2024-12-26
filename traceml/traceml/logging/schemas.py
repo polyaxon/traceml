@@ -1,6 +1,6 @@
 import datetime
 
-from typing import List, Optional, Text
+from typing import ClassVar, List, Optional, Text
 
 from clipped.compact.pydantic import StrictStr
 from clipped.utils.dates import parse_datetime
@@ -17,14 +17,14 @@ from traceml.logging.parser import (
 
 
 class V1Log(BaseSchemaModel):
-    _SEPARATOR = "|"
-    _IDENTIFIER = "log"
+    _SEPARATOR: ClassVar = "|"
+    _IDENTIFIER: ClassVar = "log"
 
-    timestamp: Optional[datetime.datetime]
-    node: Optional[StrictStr]
-    pod: Optional[StrictStr]
-    container: Optional[StrictStr]
-    value: Optional[StrictStr]
+    timestamp: Optional[datetime.datetime] = None
+    node: Optional[StrictStr] = None
+    pod: Optional[StrictStr] = None
+    container: Optional[StrictStr] = None
+    value: Optional[StrictStr] = None
 
     @classmethod
     def process_log_line(
@@ -74,13 +74,13 @@ class V1Log(BaseSchemaModel):
 
 
 class V1Logs(BaseSchemaModel):
-    _CHUNK_SIZE = 6000
+    _CHUNK_SIZE: ClassVar = 6000
     _IDENTIFIER = "logs"
 
-    logs: Optional[List[V1Log]]
-    last_time: Optional[datetime.datetime]
-    last_file: Optional[StrictStr]
-    files: Optional[List[StrictStr]]
+    logs: Optional[List[V1Log]] = None
+    last_time: Optional[datetime.datetime] = None
+    last_file: Optional[StrictStr] = None
+    files: Optional[List[StrictStr]] = None
 
     @classmethod
     def get_csv_header(cls) -> str:
