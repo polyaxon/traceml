@@ -84,7 +84,7 @@ class V1Logs(BaseSchemaModel):
 
     @classmethod
     def get_csv_header(cls) -> str:
-        return V1Log._SEPARATOR.join(V1Log.__fields__.keys())
+        return V1Log._SEPARATOR.join(V1Log.model_fields.keys())
 
     def to_csv(self):
         _logs = ["\n{}".format(e.to_csv()) for e in self.logs if e.value]
