@@ -50,11 +50,7 @@ class DataFrameSummaryTest(TestCase):
                 dbool2=np.random.choice(["a", "b"], size=self.size),
                 duniques=["x{}".format(i) for i in range(self.size)],
                 dcategoricals=[
-                    "a".format(i)
-                    if i % 2 == 0
-                    else "b".format(i)
-                    if i % 3 == 0
-                    else "c".format(i)
+                    "a" if i % 2 == 0 else "b" if i % 3 == 0 else "c"
                     for i in range(self.size)
                 ],
                 dnumerics1=range(self.size),

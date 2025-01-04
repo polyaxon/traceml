@@ -1,6 +1,6 @@
 import os
 
-from typing import Dict, List
+from typing import List
 
 from clipped.utils.enums import get_enum_value
 from clipped.utils.paths import check_or_create_path
@@ -21,7 +21,7 @@ class EventWriter:
     def __init__(self, run_path: str, backend: str):
         self._events_backend = backend
         self._run_path = run_path
-        self._files = {}  # type: Dict[str, LoggedEventListSpec]
+        self._files = {}  # type: dict[str, LoggedEventListSpec]
         self._closed = False
 
     def _get_event_path(self, kind: str, name: str) -> str:

@@ -311,15 +311,11 @@ def convert_to_HWC(tensor, input_format):  # noqa
     assert len(set(input_format)) == len(
         input_format
     ), "You can not use the same dimension shorthand twice. \
-        input_format: {}".format(
-        input_format
-    )
+        input_format: {}".format(input_format)
     assert len(tensor.shape) == len(
         input_format
     ), "size of input tensor and input format are different. \
-        tensor shape: {}, input_format: {}".format(
-        tensor.shape, input_format
-    )
+        tensor shape: {}, input_format: {}".format(tensor.shape, input_format)
     input_format = input_format.upper()
 
     if len(input_format) == 4:
