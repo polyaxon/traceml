@@ -8,9 +8,8 @@ extra-standard-library = ["typing", "typing_extensions", "mock", "pytest", "fact
 force-single-line = false
 force-sort-within-sections = true
 combine-as-imports = true
-lines-between-types = 1
 lines-after-imports = 2
-section-order = ["FUTURE", "STDLIB", "DJANGO", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
+section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
 
 [lint.per-file-ignores]
 # Do not enforce usage and import order rules in init files

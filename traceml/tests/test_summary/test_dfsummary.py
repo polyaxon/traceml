@@ -155,7 +155,7 @@ class DataFrameSummaryTest(TestCase):
         expected[["duniques"]] = DataFrameSummary.TYPE_UNIQUE
         expected[
             ["dnumerics1", "dnumerics2", "dnumerics3", "dmissing"]
-        ] = DataFrameSummary.TYPE_NUMERIC
+        ] = DataFrameSummary.TYPE_NUMERIC  # fmt: skip
         assert_series_equal(
             column_stats[self.columns].loc["types"], expected[self.columns]
         )

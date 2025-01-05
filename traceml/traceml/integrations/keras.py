@@ -137,10 +137,8 @@ class Callback(keras.callbacks.Callback):
         self.current = logs.get(self.monitor)
         if self.current and self.monitor_op(self.current, self.best):
             if self.log_best_prefix:
-                metrics[
-                    "{}_{}".format(self.log_best_prefix, self.monitor)
-                ] = self.current
-                metrics["{}_{}".format(self.log_best_prefix, "epoch")] = epoch
+                metrics[f"{self.log_best_prefix}_{self.monitor}"] = self.current
+                metrics[f"{self.log_best_prefix}_epoch"] = epoch
             if self.log_model:
                 self._log_model()
             self.best = self.current
