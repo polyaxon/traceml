@@ -3,7 +3,7 @@ import os
 from typing import List
 
 from clipped.utils.enums import get_enum_value
-from clipped.utils.paths import check_or_create_path
+from clipped.utils.paths import check_or_create_path, set_permissions
 
 from traceml.artifacts import V1ArtifactKind
 from traceml.events import (
@@ -51,6 +51,7 @@ class EventWriter:
                     event_file.write("")
                 else:
                     event_file.write(events_spec.get_csv_header())
+            set_permissions(event_path)
 
     def _append_events(self, events_spec: LoggedEventListSpec):
         event_path = self._get_event_path(kind=events_spec.kind, name=events_spec.name)
