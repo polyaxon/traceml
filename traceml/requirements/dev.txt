@@ -5,7 +5,7 @@ scikit-learn
 altair
 matplotlib
 moviepy==1.0.3
-plotly==4.6.0
+plotly>=4.6.0
 Pillow
 bokeh
 aiofiles==24.1.0
