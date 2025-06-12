@@ -3,6 +3,18 @@ from typing import Optional
 from clipped.utils.enums import get_enum_value
 
 
+def get_logs_path(
+    run_path: str,
+    filename: Optional[str] = None,
+    full_path: bool = True,
+) -> str:
+    _path = "{}/plxlogs".format(run_path)
+    if full_path:
+        filename = filename or "logs"
+        _path = "{}/{}.jsonl".format(_path, filename)
+    return _path
+
+
 def get_resource_path(
     run_path: str, kind: Optional[str] = None, name: Optional[str] = None
 ) -> str:

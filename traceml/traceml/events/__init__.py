@@ -3,6 +3,7 @@ from traceml.events.paths import (
     get_event_assets_path,
     get_event_path,
     get_resource_path,
+    get_logs_path,
 )
 from traceml.events.schemas import (
     LoggedEventListSpec,

@@ -7,13 +7,13 @@ from typing import List, Union
 from clipped.utils.paths import check_or_create_path
 
 from traceml.events import LoggedEventSpec, get_asset_path, get_event_path
-from traceml.events.paths import get_resource_path
+from traceml.events.paths import get_resource_path, get_logs_path
 from traceml.processors.gpu_processor import can_log_gpu_resources, get_gpu_metrics
 from traceml.processors.psutil_processor import (
     can_log_psutil_resources,
     get_psutils_metrics,
 )
-from traceml.serialization.base import BaseFileWriter, EventWriter
+from traceml.serialization.base import BaseFileWriter, EventWriter, LogWriter
 
 
 class EventFileWriter(BaseFileWriter):
@@ -59,10 +59,33 @@ class ResourceFileWriter(BaseFileWriter):
         )
 
 
+class LogsFileWriter(BaseFileWriter):
+    def __init__(self, run_path: str, max_queue_size: int = 20, flush_secs: int = 10):
+        """Creates a `LogsFileWriter`.
+
+        Args:
+          run_path: A string. Directory where events files will be written.
+          max_queue_size: Integer. Size of the queue for pending logs.
+          flush_secs: Number. How often, in seconds, to flush the
+            pending logs to disk.
+        """
+        super().__init__(run_path=run_path)
+
+        check_or_create_path(get_logs_path(run_path, False), is_dir=True)
+
+        self._async_writer = LogAsyncManager(
+            LogWriter(self._run_path),
+            max_queue_size,
+            flush_secs,
+        )
+
+
 class BaseAsyncManager:
     """Base manager for writing events to files by name by event kind."""
 
-    def __init__(self, event_writer: EventWriter, max_queue_size: int = 20):
+    def __init__(
+        self, event_writer: Union[EventWriter, LogWriter], max_queue_size: int = 20
+    ):
         """Writes events json spec to files asynchronously. An instance of this class
         holds a queue to keep the incoming data temporarily. Data passed to the
         `write` function will be put to the queue and the function returns
@@ -248,3 +271,18 @@ class ResourceWriterThread(EventWriterThread):
                     self._event_writer.write(data)
                     self._event_writer.flush()
                 self._next_flush_time = now + self._flush_secs
+
+
+class LogAsyncManager(BaseAsyncManager):
+    """Writes logs to local file."""
+
+    def __init__(
+        self, event_writer: LogWriter, max_queue_size: int = 20, flush_secs: int = 10
+    ):
+        super().__init__(event_writer=event_writer, max_queue_size=max_queue_size)
+        self._worker = EventWriterThread(
+            self._event_queue,
+            self._event_writer,
+            flush_secs,
+        )
+        self._worker.start()

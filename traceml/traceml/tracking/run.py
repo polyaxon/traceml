@@ -37,10 +37,13 @@ from polyaxon.schemas import LifeCycle, V1ProjectFeature, V1Statuses
 from traceml.artifacts import V1ArtifactKind
 from traceml.events import LoggedEventSpec, V1Event, V1EventSpan, get_asset_path
 from traceml.logger import logger
-from traceml.logging import V1Log, V1Logs
 from traceml.processors import events_processors
 from traceml.processors.logs_processor import end_log_processor, start_log_processor
-from traceml.serialization.writer import EventFileWriter, ResourceFileWriter
+from traceml.serialization.writer import (
+    EventFileWriter,
+    ResourceFileWriter,
+    LogsFileWriter,
+)
 
 
 class Run(RunClient):
@@ -139,11 +142,11 @@ class Run(RunClient):
             no_op=no_op,
         )
         track_logs = track_logs if track_logs is not None else self._is_offline
-        self._logs_history = V1Logs.construct(logs=[])
         self._artifacts_path = None
         self._outputs_path = None
         self._event_logger = None
         self._resource_logger = None
+        self._logs_logger = None
         self._sidecar = None
         self._exit_handler = None
         self._store_path = None
@@ -180,7 +183,8 @@ class Run(RunClient):
             self.log_code_ref()
 
         if (is_new or has_process_sidecar) and self._artifacts_path and track_logs:
-            start_log_processor(add_logs=self._add_logs)
+            self.set_run_logs_logger()
+            start_log_processor(add_logs=self._logs_logger.add_event)
 
         self._set_exit_handler(force=is_new or has_process_sidecar)
 
@@ -234,27 +238,6 @@ class Run(RunClient):
                 "Could not log events {}, "
                 "the event logger was not configured properly".format(len(events))
             )
-
-    def _persist_logs_history(self):
-        if self._logs_history.logs and len(self._logs_history.logs) > 0:
-            logs_path = os.path.join(
-                self._artifacts_path,
-                "plxlogs",
-                "{}".format(datetime.timestamp(self._logs_history.logs[-1].timestamp)),
-            )
-            check_or_create_path(logs_path, is_dir=False)
-            with open(logs_path, "w") as logs_file:
-                logs_file.write(self._logs_history.to_json())
-            set_permissions(logs_path)
-
-    def _add_logs(self, log: V1Log):
-        if not log:
-            return
-        self._logs_history.logs.append(log)
-        if V1Logs.should_chunk(self._logs_history.logs):
-            self._persist_logs_history()
-            # Reset
-            self._logs_history = V1Logs.construct(logs=[])
 
     def create(self, **kwargs):
         raise NotImplementedError(
@@ -458,6 +441,15 @@ class Run(RunClient):
         > to automatically sync your run's artifacts and outputs.
         """
         self._resource_logger = ResourceFileWriter(run_path=self._artifacts_path)
+
+    @client_handler(check_no_op=True)
+    def set_run_logs_logger(self):
+        """Sets a logs logger.
+
+        > **Note**: This is only used during manual tracking, and it's not used by the `
+        > in-cluster` runs.
+        """
+        self._logs_logger = LogsFileWriter(run_path=self._artifacts_path)
 
     @client_handler(check_no_op=True)
     def set_run_process_sidecar(self):
@@ -1730,7 +1722,6 @@ class Run(RunClient):
     def _end(self):
         self.log_succeeded()
         end_log_processor()
-        self._persist_logs_history()
         self._wait(sync_artifacts=True)
         if self._is_offline:
             self.persist_run(path=self._artifacts_path)
@@ -1754,6 +1745,8 @@ class Run(RunClient):
             self._event_logger.close()
         if self._resource_logger:
             self._resource_logger.close()
+        if self._logs_logger:
+            self._logs_logger.close()
         if self._sidecar:
             self._sidecar.close()
         if self._results:
