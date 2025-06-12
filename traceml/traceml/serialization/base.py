@@ -116,9 +116,7 @@ class LogWriter(BaseWriter):
         self._file = None  # type: V1Logs | None
 
     def _get_event_path(self) -> str:
-        return get_logs_path(
-            run_path=self._run_path,
-        )
+        return get_logs_path(run_path=self._run_path)
 
     def _init_events(self, events_spec: V1Logs):
         event_path = self._get_event_path()

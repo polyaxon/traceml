@@ -71,7 +71,7 @@ class LogsFileWriter(BaseFileWriter):
         """
         super().__init__(run_path=run_path)
 
-        check_or_create_path(get_logs_path(run_path, False), is_dir=True)
+        check_or_create_path(get_logs_path(run_path, full_path=False), is_dir=True)
 
         self._async_writer = LogAsyncManager(
             LogWriter(self._run_path),
