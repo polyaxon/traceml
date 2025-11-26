@@ -67,7 +67,7 @@ class RunProcessor:
 
         status_conditions = (
             [
-                V1StatusCondition.construct(
+                V1StatusCondition.model_construct(
                     type=V1Statuses.FAILED,
                     status=True,
                     reason="SpanFailed",

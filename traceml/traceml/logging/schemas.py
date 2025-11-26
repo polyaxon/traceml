@@ -53,7 +53,7 @@ class V1Log(BaseSchemaModel):
             except Exception as e:
                 raise ValueError("Received an invalid timestamp") from e
 
-        return cls.construct(
+        return cls.model_construct(
             timestamp=timestamp if timestamp else now(tzinfo=True),
             node=node,
             pod=pod,
@@ -125,9 +125,9 @@ class V1Logs(BaseSchemaModel):
                 engine="pyarrow",
             )
 
-        return cls.construct(
+        return cls.model_construct(
             logs=[
-                V1Log.construct(
+                V1Log.model_construct(
                     timestamp=i.get("timestamp"),
                     node=i.get("node"),
                     pod=i.get("pod"),
@@ -154,9 +154,9 @@ class V1Logs(BaseSchemaModel):
         df = df.replace({np.nan: None}).to_dict(orient="records")
         if not to_structured:
             return df
-        return cls.construct(
+        return cls.model_construct(
             logs=[
-                V1Log.construct(
+                V1Log.model_construct(
                     timestamp=parse_datetime(i.get("timestamp")),
                     node=i.get("node"),
                     pod=i.get("pod"),
