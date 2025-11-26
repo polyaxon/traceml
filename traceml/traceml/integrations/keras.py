@@ -46,9 +46,7 @@ class Callback(keras.callbacks.Callback):
 
         # From Keras
         if mode not in ["auto", "min", "max"]:
-            print(
-                "PolyaxonCallback mode %s is unknown, " "fallback to auto mode." % mode
-            )
+            print("PolyaxonCallback mode %s is unknown, fallback to auto mode." % mode)
             mode = "auto"
 
         if mode == "min":

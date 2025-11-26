@@ -170,13 +170,13 @@ class BaseFileWriter:
 
     def add_event(self, event: Union[LoggedEventSpec, V1Log]):
         if not isinstance(event, LoggedEventSpec) and not isinstance(event, V1Log):
-            raise TypeError("Expected an LoggedEventSpec, " " but got %s" % type(event))
+            raise TypeError("Expected an LoggedEventSpec,  but got %s" % type(event))
         self._async_writer.write(event)
 
     def add_events(self, events: List[Union[LoggedEventSpec, V1Log]]):
         for e in events:
             if not isinstance(e, LoggedEventSpec) and not isinstance(e, V1Log):
-                raise TypeError("Expected an LoggedEventSpec, " " but got %s" % type(e))
+                raise TypeError("Expected an LoggedEventSpec,  but got %s" % type(e))
         self._async_writer.write(events)
 
     def flush(self):
