@@ -2,8 +2,8 @@ coverage<7.5
 faker<24.0.0
 pytest-rerunfailures<16.2
 mock<5.2.0
-pytest<8.1.0
-pytest-asyncio<0.23.0
+pytest<9.1.0
+pytest-asyncio<9.1.0
 ruff
 
 mypy<1.9
