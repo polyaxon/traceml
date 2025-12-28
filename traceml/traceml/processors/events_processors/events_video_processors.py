@@ -123,6 +123,6 @@ def prepare_video(data):
     n_rows = 2 ** ((b.bit_length() - 1) // 2)
     n_cols = data.shape[0] // n_rows
 
-    data = np.reshape(data, newshape=(n_rows, n_cols, t, c, h, w))
+    data = np.reshape(data, (n_rows, n_cols, t, c, h, w))
     data = np.transpose(data, axes=(2, 0, 4, 1, 5, 3))
-    return np.reshape(data, newshape=(t, n_rows * h, n_cols * w, c))
+    return np.reshape(data, (t, n_rows * h, n_cols * w, c))

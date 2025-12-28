@@ -185,8 +185,8 @@ class TestEventValues(BaseTestCase):
         video_before = np.random.random((4, 10, 3, 20, 20))
         video_after = prepare_video(np.copy(video_before))
         video_before = np.swapaxes(video_before, 0, 1)
-        video_before = np.reshape(video_before, newshape=(10, -1))
-        video_after = np.reshape(video_after, newshape=(10, -1))
+        video_before = np.reshape(video_before, (10, -1))
+        video_after = np.reshape(video_after, (10, -1))
         np.testing.assert_array_almost_equal(
             np.sum(video_before, axis=1), np.sum(video_after, axis=1)
         )
