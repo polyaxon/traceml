@@ -10,6 +10,10 @@ from clipped.utils.units import to_percentage
 
 from traceml.processors import df_processors
 
+# pandas >= 2.2 deprecated 'M' in favor of 'ME'
+_PD_VERSION = tuple(int(x) for x in pd.__version__.split(".")[:2])
+_MONTH_FREQ = "1ME" if _PD_VERSION >= (2, 2) else "1M"
+
 
 @pytest.mark.processors_mark
 class DataFrameSummaryTest(TestCase):
@@ -60,7 +64,7 @@ class DataFrameSummaryTest(TestCase):
                 + list(range(-self.size // 10, 0)),
                 dmissing=missing,
                 dconstant=["a"] * self.size,
-                ddates=pd.date_range("2010-01-01", periods=self.size, freq="1M"),
+                ddates=pd.date_range("2010-01-01", periods=self.size, freq=_MONTH_FREQ),
             )
         )
         self.column_stats = df_processors.get_df_column_stats(self.df)
