@@ -34,6 +34,7 @@ class DataFrameSummaryTest(TestCase):
                 df_processors.DFTypes.DATE,
             ],
             name="types",
+            dtype=object,
         )
 
         self.columns = [

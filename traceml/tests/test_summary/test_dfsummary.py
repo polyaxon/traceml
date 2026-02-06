@@ -33,6 +33,7 @@ class DataFrameSummaryTest(TestCase):
                 DataFrameSummary.TYPE_DATE,
             ],
             name="types",
+            dtype=object,
         )
 
         self.columns = [
