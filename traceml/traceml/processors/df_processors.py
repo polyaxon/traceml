@@ -148,7 +148,7 @@ def get_df_column_stats(
 
 
 def get_df_columns_types(columns_stats: pd.DataFrame):
-    return pd.value_counts(columns_stats.loc["types"])
+    return columns_stats.loc["types"].value_counts()
 
 
 def get_deviation_of_mean(
@@ -166,7 +166,7 @@ def get_deviation_of_mean(
     if df_length is None:
         df_length = len(series)
     capped_series = np.minimum(series, series.mean() + multiplier * series.std())
-    count = pd.value_counts(series != capped_series)
+    count = (series != capped_series).value_counts()
     count = count[True] if True in count else 0
     return count, to_percentage(count / df_length)
 
@@ -196,7 +196,7 @@ def get_median_absolute_deviation(
     if df_length is None:
         df_length = len(series)
     capped_series = np.minimum(series, series.median() + multiplier * mad(series))
-    count = pd.value_counts(series != capped_series)
+    count = (series != capped_series).value_counts()
     count = count[True] if True in count else 0
     return count, to_percentage(count / df_length)
 
