@@ -52,7 +52,7 @@ def init(
                  the organization name owning this project.
             project: str, optional, project name owning the run(s).
             run_uuid: str, optional, run uuid.
-            client: [PolyaxonClient](/docs/python-library/polyaxon-client/), optional,
+            client: [PolyaxonClient](/docs/references/python-library/polyaxon-client/), optional,
                  an instance of a configured client, if not passed,
                  a new instance will be created based on the available environment.
             track_code: bool, optional, default True, to track code version.
