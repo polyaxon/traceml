@@ -1,7 +1,6 @@
 from typing import Dict, List
 
 from clipped.utils.np import to_np
-
 from polyaxon._constants.globals import UNKNOWN
 from traceml.artifacts import V1ArtifactKind
 from traceml.events import (
@@ -14,6 +13,7 @@ from traceml.events import (
 )
 from traceml.logger import logger
 from traceml.processors.errors import NUMPY_ERROR_MESSAGE, SKLEARN_ERROR_MESSAGE
+
 
 try:
     import numpy as np
@@ -31,7 +31,7 @@ def metric(value):
 
     value = to_np(value)
     assert value.squeeze().ndim == 0, "scalar should be 0D"
-    return float(value)
+    return float(value.item())
 
 
 def histogram(values, bins, max_bins=None):

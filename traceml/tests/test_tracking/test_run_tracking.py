@@ -3,17 +3,15 @@ import os
 import pandas as pd
 import pytest
 import tempfile
+from unittest.mock import patch
 import uuid
 
-from unittest.mock import patch
-
 import altair as alt
-import matplotlib.pyplot as plt
-
 from bokeh.plotting import figure
-from clipped.utils.paths import create_path
+import matplotlib.pyplot as plt
 from plotly import figure_factory
 
+from clipped.utils.paths import create_path
 from polyaxon import _dist, settings
 from polyaxon._constants.globals import DEFAULT
 from polyaxon._contexts import paths as ctx_paths
@@ -419,7 +417,7 @@ class TestRunLogging(TestEnvVarsCase):
             is False
         )
         with patch("traceml.tracking.run.Run._log_has_metrics") as log_metrics:
-            self.run.log_metrics(step=1, metric1=1.1)
+            self.run.log_metrics(step=1, metric1=1)
         assert log_metrics.call_count == 1
         self.event_logger.flush()
         assert (
