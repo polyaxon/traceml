@@ -1,7 +1,6 @@
+from collections import namedtuple
 import datetime
 import json
-
-from collections import namedtuple
 from typing import Any, ClassVar, Dict, List, Mapping, Optional, Union
 
 from clipped.compact.pydantic import (
@@ -18,7 +17,6 @@ from clipped.utils.enums import PEnum
 from clipped.utils.np import sanitize_np_types
 from clipped.utils.strings import validate_file_or_buffer
 from clipped.utils.tz import now
-
 from polyaxon._schemas.base import BaseSchemaModel
 from polyaxon._schemas.lifecycle import V1StatusCondition, V1Statuses
 from traceml.artifacts.enums import V1ArtifactKind

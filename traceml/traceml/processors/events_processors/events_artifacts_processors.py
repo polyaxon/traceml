@@ -1,8 +1,8 @@
 from typing import Optional
 
 from clipped.utils.paths import copy_file_or_dir_path
-
 from traceml.events import V1EventArtifact
+
 
 try:
     import numpy as np

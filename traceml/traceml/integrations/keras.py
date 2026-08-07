@@ -1,13 +1,12 @@
 import operator
-
 from typing import List, Optional
 
 from clipped.utils.np import sanitize_np_types
-
 from polyaxon._client.decorators import client_handler
 from traceml import tracking
 from traceml.exceptions import TracemlException
 from traceml.logger import logger
+
 
 try:
     from tensorflow import keras

@@ -2,8 +2,8 @@ from typing import Dict, List, Optional, Tuple, Union
 
 from clipped.utils.enums import PEnum
 from clipped.utils.units import to_percentage
-
 from traceml.processors.errors import NUMPY_ERROR_MESSAGE, PANDAS_ERROR_MESSAGE
+
 
 try:
     import numpy as np
@@ -12,7 +12,6 @@ except ImportError as e:
 
 try:
     import pandas as pd
-
     from pandas.api import types as pd_types
 except ImportError as e:
     raise ImportError(PANDAS_ERROR_MESSAGE) from e

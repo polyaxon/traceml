@@ -1,5 +1,4 @@
 import datetime
-
 from typing import ClassVar, List, Optional, Text
 
 from clipped.compact.pydantic import StrictStr
@@ -7,7 +6,6 @@ from clipped.utils.dates import parse_datetime
 from clipped.utils.json import orjson_dumps, orjson_loads
 from clipped.utils.strings import validate_file_or_buffer
 from clipped.utils.tz import now
-
 from polyaxon._schemas.base import BaseSchemaModel
 from traceml.logging.parser import (
     DATETIME_REGEX,

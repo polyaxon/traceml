@@ -1,10 +1,8 @@
-import uuid
-
 from typing import Dict, List, Optional
+import uuid
 
 from clipped.compact.pydantic import StrictStr
 from clipped.types.uuids import UUIDStr
-
 from polyaxon._schemas.base import BaseSchemaModel
 from traceml.artifacts.enums import V1ArtifactKind
 

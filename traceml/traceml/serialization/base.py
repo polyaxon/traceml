@@ -1,12 +1,9 @@
 import os
-
 from typing import List, Union
 
 from clipped.utils.enums import get_enum_value
 from clipped.utils.paths import check_or_create_path, set_permissions
-
 from traceml.artifacts import V1ArtifactKind
-from traceml.logging import V1Log, V1Logs
 from traceml.events import (
     LoggedEventListSpec,
     LoggedEventSpec,
@@ -14,6 +11,7 @@ from traceml.events import (
     get_logs_path,
     get_resource_path,
 )
+from traceml.logging import V1Log, V1Logs
 
 
 class BaseWriter:

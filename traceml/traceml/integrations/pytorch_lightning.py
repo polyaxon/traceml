@@ -1,8 +1,7 @@
-import os
-import uuid
-
 from argparse import Namespace
+import os
 from typing import Any, Dict, List, Optional, Union
+import uuid
 
 import packaging
 
@@ -11,14 +10,17 @@ from polyaxon.client import RunClient
 from traceml import tracking
 from traceml.exceptions import TracemlException
 
+
 try:
     import pytorch_lightning as pl
 
     NEW_PL_VERSION = packaging.version.parse(pl.__version__)
 
     if NEW_PL_VERSION < packaging.version.parse("1.7"):
-        from pytorch_lightning.loggers.base import LightningLoggerBase as Logger
-        from pytorch_lightning.loggers.base import rank_zero_experiment
+        from pytorch_lightning.loggers.base import (
+            LightningLoggerBase as Logger,
+            rank_zero_experiment,
+        )
     else:
         from pytorch_lightning.loggers.logger import Logger, rank_zero_experiment
 

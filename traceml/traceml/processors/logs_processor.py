@@ -3,6 +3,7 @@ import sys
 
 from traceml.logging.handler import LogStreamHandler, LogStreamWriter
 
+
 EXCLUDE_DEFAULT_LOGGERS = ("polyaxon.client", "polyaxon.cli", "traceml")
 
 

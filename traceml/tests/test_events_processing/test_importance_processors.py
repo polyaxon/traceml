@@ -1,6 +1,5 @@
 import numpy as np
 import pytest
-
 from unittest import TestCase
 
 from traceml.processors.importance_processors import calculate_importance_correlation

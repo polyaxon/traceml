@@ -1,10 +1,10 @@
 import os
-
 from typing import TYPE_CHECKING, Any, Optional
 
 from traceml import tracking
 from traceml.exceptions import TracemlException
 from traceml.logger import logger
+
 
 summary_pb2 = None
 

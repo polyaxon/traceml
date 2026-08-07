@@ -1,9 +1,9 @@
 from typing import Dict, Optional
 
 from clipped.utils.paths import copy_file_or_dir_path
-
 from traceml.events import V1EventModel
 from traceml.logger import logger
+
 
 try:
     import numpy as np

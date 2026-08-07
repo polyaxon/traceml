@@ -1,10 +1,8 @@
 import io
-
 from typing import Optional
 
 from clipped.utils.np import calculate_scale_factor, to_np
 from clipped.utils.paths import check_or_create_path, copy_file_path
-
 from polyaxon._constants.globals import UNKNOWN
 from traceml.events import V1EventImage
 from traceml.logger import logger
@@ -13,6 +11,7 @@ from traceml.processors.errors import (
     NUMPY_ERROR_MESSAGE,
     PIL_ERROR_MESSAGE,
 )
+
 
 try:
     import numpy as np
@@ -254,7 +253,6 @@ def ensure_matplotlib_figure(figure):
     """
     try:
         import matplotlib
-
         from matplotlib.figure import Figure
     except ImportError:
         logger.warning(MATPLOTLIB_ERROR_MESSAGE)

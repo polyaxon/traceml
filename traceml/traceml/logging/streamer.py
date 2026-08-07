@@ -1,12 +1,10 @@
-import os
-
 from collections import deque
+import os
 from typing import Callable
 
 from clipped.formatting import Printer
 from clipped.utils.json import orjson_loads
 from clipped.utils.tz import local_datetime
-
 from polyaxon import settings
 from polyaxon._containers.names import MAIN_CONTAINER_NAMES
 from traceml.logging.schemas import V1Log, V1Logs

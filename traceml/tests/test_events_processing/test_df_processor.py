@@ -1,14 +1,13 @@
 import numpy as np
 import pandas as pd
-import pytest
-
 from pandas.testing import assert_series_equal
+import pytest
 from random import shuffle
 from unittest import TestCase
 
 from clipped.utils.units import to_percentage
-
 from traceml.processors import df_processors
+
 
 # pandas >= 2.2 deprecated 'M' in favor of 'ME'
 _PD_VERSION = tuple(int(x) for x in pd.__version__.split(".")[:2])

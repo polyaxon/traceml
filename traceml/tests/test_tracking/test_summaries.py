@@ -1,8 +1,7 @@
+from mock import patch
 import os
 import pytest
 import uuid
-
-from mock import patch
 
 from polyaxon import settings
 from polyaxon._env_vars.keys import (

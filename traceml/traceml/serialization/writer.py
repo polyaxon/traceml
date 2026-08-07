@@ -1,13 +1,11 @@
 import queue
 import threading
 import time
-
 from typing import List, Union
 
 from clipped.utils.paths import check_or_create_path
-
 from traceml.events import LoggedEventSpec, get_asset_path, get_event_path
-from traceml.events.paths import get_resource_path, get_logs_path
+from traceml.events.paths import get_logs_path, get_resource_path
 from traceml.processors.gpu_processor import can_log_gpu_resources, get_gpu_metrics
 from traceml.processors.psutil_processor import (
     can_log_psutil_resources,

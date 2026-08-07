@@ -2,7 +2,6 @@ import pytest
 
 from clipped.utils.dates import parse_datetime
 from clipped.utils.tz import now
-
 from polyaxon._utils.test_utils import BaseTestCase
 from traceml.logging.schemas import V1Log, V1Logs
 

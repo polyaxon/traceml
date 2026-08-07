@@ -2,6 +2,7 @@ from typing import Dict, List
 
 from traceml.processors.events_processors import metrics_dict_to_list
 
+
 try:
     import psutil
 except ImportError:

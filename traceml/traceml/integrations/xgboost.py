@@ -1,14 +1,13 @@
 from typing import TYPE_CHECKING, Optional
 
 from clipped.utils.json import orjson_loads
-
 from traceml import tracking
 from traceml.exceptions import TracemlException
 from traceml.logger import logger
 
+
 try:
     import xgboost as xgb
-
     from xgboost import Booster
 except ImportError:
     raise TracemlException("xgboost is required to use the tracking callback")

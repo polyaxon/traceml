@@ -4,7 +4,6 @@ import socket
 
 from clipped.utils.dates import to_datetime
 from clipped.utils.env import get_user
-
 from polyaxon import settings
 from polyaxon._env_vars.keys import ENV_KEYS_K8S_NODE_NAME, ENV_KEYS_K8S_POD_ID
 from traceml.logging.schemas import V1Log

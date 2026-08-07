@@ -4,6 +4,7 @@ from traceml import tracking
 from traceml.exceptions import TracemlException
 from traceml.integrations.tensorboard import Logger
 
+
 try:
     import tensorflow as tf
 except ImportError:

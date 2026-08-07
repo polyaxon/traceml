@@ -2,6 +2,7 @@ import re
 
 from clipped.utils.dates import parse_datetime
 
+
 # pylint:disable=anomalous-backslash-in-string
 
 DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S %Z"  # noqa

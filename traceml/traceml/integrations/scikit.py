@@ -1,7 +1,7 @@
 from clipped.utils.np import sanitize_dict
-
 from traceml import tracking
 from traceml.exceptions import TracemlException
+
 
 try:
     from sklearn.base import is_classifier, is_regressor

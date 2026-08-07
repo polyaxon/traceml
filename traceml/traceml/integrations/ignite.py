@@ -1,6 +1,7 @@
 from traceml.exceptions import TracemlException
 from traceml.run import Run
 
+
 try:
     from ignite.contrib.handlers.polyaxon_logger import PolyaxonLogger
 except ImportError:

@@ -1,5 +1,4 @@
 from clipped.utils.paths import module_type
-
 from polyaxon._constants.globals import UNKNOWN
 from traceml.events import V1EventChart, V1EventChartKind
 from traceml.logger import logger
@@ -8,6 +7,7 @@ from traceml.processors.errors import (
     MATPLOTLIB_ERROR_MESSAGE,
     PLOTLY_ERROR_MESSAGE,
 )
+
 
 try:
     import numpy as np
@@ -53,18 +53,16 @@ def plotly_chart(figure) -> V1EventChart:
 
 def mpl_plotly_chart(figure, close: bool = True) -> V1EventChart:
     try:
-        import plotly.tools
-
         from plotly import optional_imports
+        import plotly.tools
     except ImportError:
         logger.warning(PLOTLY_ERROR_MESSAGE)
         return UNKNOWN
 
     try:
         import matplotlib
-        import matplotlib.pyplot as plt
-
         from matplotlib.figure import Figure
+        import matplotlib.pyplot as plt
     except ImportError:
         logger.warning(MATPLOTLIB_ERROR_MESSAGE)
 

@@ -1,10 +1,9 @@
 import atexit
+from datetime import datetime
 import os
 import sys
 import tempfile
 import time
-
-from datetime import datetime
 from typing import Dict, List, Optional
 
 from clipped.utils.env import get_run_env
@@ -17,7 +16,6 @@ from clipped.utils.paths import (
     get_path_extension,
     set_permissions,
 )
-
 from polyaxon import settings
 from polyaxon._client.decorators import client_handler
 from polyaxon._connections import CONNECTION_CONFIG, V1Connection
@@ -41,8 +39,8 @@ from traceml.processors import events_processors
 from traceml.processors.logs_processor import end_log_processor, start_log_processor
 from traceml.serialization.writer import (
     EventFileWriter,
-    ResourceFileWriter,
     LogsFileWriter,
+    ResourceFileWriter,
 )
 
 

@@ -1,5 +1,4 @@
 import logging
-
 from typing import Any, Optional
 
 from polyaxon._client.decorators import client_handler
@@ -7,6 +6,7 @@ from polyaxon._schemas.lifecycle import V1StatusCondition, V1Statuses
 from traceml import tracking
 from traceml.events.schemas import V1EventSpan, V1EventSpanKind
 from traceml.exceptions import TracemlException
+
 
 try:
     from langchain.callbacks.tracers.base import BaseTracer
