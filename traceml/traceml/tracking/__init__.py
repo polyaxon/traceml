@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional, Sequence, Union
 
 from polyaxon._client.run import RunClient
-from polyaxon._sdk.schemas import V1Run
+from polyaxon._sdk.schemas.v1_run import V1Run
 from traceml.artifacts import V1ArtifactKind, V1RunArtifact
 from traceml.tracking.run import Run
 
