@@ -9,7 +9,7 @@ import uuid
 import altair as alt
 from bokeh.plotting import figure
 import matplotlib.pyplot as plt
-from plotly import figure_factory
+from plotly import graph_objects
 
 from clipped.utils.paths import create_path
 from polyaxon import _dist, settings
@@ -1552,14 +1552,7 @@ class TestRunLogging(TestEnvVarsCase):
         )
         bokeh_test.line(x, y, line_width=2)
 
-        x1 = np.random.randn(200) - 2
-        x2 = np.random.randn(200)
-        x3 = np.random.randn(200) + 2
-        hist_data = [x1, x2, x3]
-        group_labels = ["Group 1", "Group 2", "Group 3"]
-        plotly_test = figure_factory.create_distplot(
-            hist_data, group_labels, bin_size=[0.1, 0.25, 0.5]
-        )
+        plotly_test = graph_objects.Figure(data=graph_objects.Bar(x=x, y=y))
 
         df1 = pd.DataFrame([["A", "B", "C", "D"], [28, 55, 43, 91]], index=["a", "b"]).T
         alt_test = alt.Chart(df1).mark_bar().encode(x="a", y="b")
