@@ -111,6 +111,20 @@ class TestRunTracking(TestEnvVarsCase):
             ("user", "project_bar", uid),
         )
 
+    @patch("traceml.tracking.run.time.sleep")
+    def test_wait_uses_tracking_flush_delay(self, sleep):
+        settings.CLIENT_CONFIG.tracking_flush_delay = 0.25
+        run = Run.__new__(Run)
+        run._event_logger = None
+        run._resource_logger = None
+        run._logs_logger = None
+        run._sidecar = None
+        run._results = None
+
+        run._wait()
+
+        sleep.assert_called_once_with(0.25)
+
     @patch("clipped.config.manager.os.path.expanduser")
     def test_run_init(self, expanduser):
         uid = uuid.uuid4().hex

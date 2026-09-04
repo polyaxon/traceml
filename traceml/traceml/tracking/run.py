@@ -1752,7 +1752,7 @@ class Run(RunClient):
         if sync_artifacts:
             self.sync_artifacts_and_summaries()
 
-        time.sleep(settings.CLIENT_CONFIG.tracking_timeout)
+        time.sleep(settings.CLIENT_CONFIG.tracking_flush_delay)
 
     @client_handler(check_no_op=True, can_log_outputs=True)
     def log_env(self, rel_path: Optional[str] = None, content: Optional[Dict] = None):

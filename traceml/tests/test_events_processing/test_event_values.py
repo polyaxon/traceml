@@ -207,9 +207,7 @@ class TestEventValues(BaseTestCase):
         assert isinstance(event.figure, dict)
 
     def test_plotly_chart(self):
-        p = graph_objects.Figure(
-            data=graph_objects.Bar(x=["a", "b", "c"], y=[1, 3, 2])
-        )
+        p = graph_objects.Figure(data=graph_objects.Bar(x=["a", "b", "c"], y=[1, 3, 2]))
 
         # show the results
         event = plotly_chart(p)
