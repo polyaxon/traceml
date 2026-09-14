@@ -55,6 +55,16 @@ class Run(RunClient):
      * If you use this client in the context of a job or a service managed by Polyaxon,
        a configuration will be available to resolve the values based on that run.
 
+    Context logging is disabled by default. Set `log_context=True` to log cached
+    owner and project values with their cache paths at construction. The cached
+    run UUID is logged once on its first validated access, which can happen during
+    tracking initialization. Notices use INFO through the `polyaxon.cli` logger,
+    or WARNING when cached run ownership metadata is incomplete. An explicit
+    `run_uuid` produces no run-cache notice. Logging uses your existing configuration.
+    Set `run.log_context=False` to suppress later notices; cached-run validation
+    remains active. See [RunClient](/docs/references/python-library/run-client/)
+    for cache validation and source details.
+
     You can always access the `self.client` to execute more APIs.
 
     Properties:
@@ -103,6 +113,8 @@ class Run(RunClient):
         tags: str or List[str], optional,
              When `is_new` or `is_offline` is set to true, a new instance is created and
              you can initialize that new run with tags.
+        log_context: bool, optional, default: False,
+             Log cached context through the Python logger, as in RunClient.
 
     Raises:
         PolyaxonClientException: If no owner and/or project are passed and Polyaxon cannot
@@ -130,6 +142,8 @@ class Run(RunClient):
         description: Optional[str] = None,
         tags: Optional[List[str]] = None,
         auto_create: bool = True,
+        *,
+        log_context: bool = False,
     ):
         super().__init__(
             owner=owner,
@@ -138,6 +152,7 @@ class Run(RunClient):
             client=client,
             is_offline=is_offline,
             no_op=no_op,
+            log_context=log_context,
         )
         track_logs = track_logs if track_logs is not None else self._is_offline
         self._artifacts_path = None

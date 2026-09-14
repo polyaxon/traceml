@@ -26,6 +26,8 @@ def init(
     name: Optional[str] = None,
     description: Optional[str] = None,
     tags: Optional[List[str]] = None,
+    *,
+    log_context: bool = False,
 ) -> Optional[Run]:
     """Tracking module is similar to the tracking client without the need to create a run instance.
 
@@ -45,6 +47,10 @@ def init(
     ```
 
     > A global `TRACKING_RUN` will be set on the module.
+
+    Set `log_context=True` on `tracking.init()` to enable the cached-context
+    logging provided by [Run](/docs/references/python-library/tracking/client/).
+    Logging is disabled by default and uses your existing Python logger configuration.
 
 
         Args:
@@ -84,6 +90,8 @@ def init(
             tags: str or List[str], optional,
                  When `is_new` or `is_offline` is set to true, a new instance is created and
                  you can initialize that new run with tags.
+            log_context: bool, optional, default: False,
+                 Forward cached-context logging to the underlying Run instance.
 
         Raises:
             PolyaxonClientException: If no owner and/or project are passed and Polyaxon cannot
@@ -108,6 +116,7 @@ def init(
         name=name,
         description=description,
         tags=tags,
+        log_context=log_context,
     )
     return TRACKING_RUN
 
