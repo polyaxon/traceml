@@ -552,7 +552,7 @@ def mpl_dates_to_datestrings(dates, mpl_formatter):
         try:
             dates = matplotlib.dates.epoch2num([date * 24 * 60 * 60 for date in dates])
             dates = matplotlib.dates.num2date(dates)
-        except:
+        except Exception:
             return _dates
 
     # the rest of mpl dates are in floating point days since
@@ -561,7 +561,7 @@ def mpl_dates_to_datestrings(dates, mpl_formatter):
     else:
         try:
             dates = matplotlib.dates.num2date(dates)
-        except:
+        except Exception:
             return _dates
 
     time_stings = [
