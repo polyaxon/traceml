@@ -7,6 +7,10 @@ from clipped.utils.paths import check_or_create_path
 from traceml.events import LoggedEventSpec, get_asset_path, get_event_path
 from traceml.events.paths import get_logs_path, get_resource_path
 from traceml.processors.gpu_processor import can_log_gpu_resources, get_gpu_metrics
+from traceml.processors.procfs_processor import (
+    can_log_procfs_resources,
+    get_procfs_metrics,
+)
 from traceml.processors.psutil_processor import (
     can_log_psutil_resources,
     get_psutils_metrics,
@@ -222,7 +226,7 @@ class ResourceAsyncManager(BaseAsyncManager):
 
 
 class ResourceWriterThread(EventWriterThread):
-    """Thread that processes periodic resources (cpu, gpu, memory) writes for EventWriter."""
+    """Thread that processes periodic resources (cpu, gpu, memory, procfs, cgroup) writes for EventWriter."""
 
     def __init__(self, event_queue, event_writer: EventWriter, flush_secs: int):
         super().__init__(
@@ -230,6 +234,7 @@ class ResourceWriterThread(EventWriterThread):
         )
         self._log_psutil_resources = can_log_psutil_resources()
         self._log_gpu_resources = can_log_gpu_resources()
+        self._log_procfs_resources = can_log_procfs_resources()
 
     def run(self):
         # Wait for flush time to invoke the writer.
@@ -259,6 +264,11 @@ class ResourceWriterThread(EventWriterThread):
                 if self._log_psutil_resources:
                     try:
                         data += get_psutils_metrics()
+                    except Exception:
+                        pass
+                if self._log_procfs_resources:
+                    try:
+                        data += get_procfs_metrics()
                     except Exception:
                         pass
                 try:
