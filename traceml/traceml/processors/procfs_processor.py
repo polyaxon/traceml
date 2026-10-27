@@ -1,7 +1,7 @@
 import os
 import platform
 import resource
-from typing import Dict, List, Optional, Set
+from typing import Dict, List, Optional, Set, Tuple
 
 from traceml.processors.events_processors import metrics_dict_to_list
 
@@ -223,78 +223,136 @@ def _only_if_limited(results: Dict) -> Dict:
     return {}
 
 
-def _cgroup_v2_dir(proc_root: str, cgroup_root: str) -> Optional[str]:
+def _cgroup_dirs_v2(proc_root: str, cgroup_root: str) -> List[str]:
+    """Directories of the process's cgroup v2 hierarchy, nearest first, root last.
+
+    Only directories that exist are returned. Inside a container the path in
+    /proc/self/cgroup is the host path, but the mount only shows the
+    container's own cgroup at its root, so the root is always included.
+    """
     if not os.path.exists(os.path.join(cgroup_root, "cgroup.controllers")):
-        return None
+        return []
+    dirs = []  # type: List[str]
     text = _read_text(os.path.join(proc_root, "self", "cgroup")) or ""
     for line in text.splitlines():
-        if line.startswith("0::"):
-            candidate = os.path.join(cgroup_root, line[3:].strip().lstrip("/"))
-            if os.path.exists(os.path.join(candidate, "memory.current")):
-                return candidate
-    # Inside a container the path in /proc/self/cgroup is the host path,
-    # but the mount only shows the container's own cgroup at its root.
-    if os.path.exists(os.path.join(cgroup_root, "memory.current")):
-        return cgroup_root
-    return None
+        if not line.startswith("0::"):
+            continue
+        parts = [p for p in line[3:].strip().split("/") if p]
+        # "/../x" is a cgroup outside this namespace and cannot be resolved.
+        if ".." in parts:
+            break
+        for depth in range(len(parts), 0, -1):
+            candidate = os.path.join(cgroup_root, *parts[:depth])
+            if os.path.isdir(candidate):
+                dirs.append(candidate)
+        break
+    dirs.append(cgroup_root)
+    return dirs
 
 
-def _query_cgroup_v2(cg_dir: str) -> Dict:
+def _cgroup_dirs_v1(proc_root: str, cgroup_root: str, controller: str) -> List[str]:
+    """Directories of the process's cgroup v1 `controller` hierarchy, nearest first."""
+    base = os.path.join(cgroup_root, controller)
+    if not os.path.isdir(base):
+        return []
+    dirs = []  # type: List[str]
+    text = _read_text(os.path.join(proc_root, "self", "cgroup")) or ""
+    for line in text.splitlines():
+        parts = line.split(":")
+        if len(parts) != 3 or controller not in parts[1].split(","):
+            continue
+        names = [p for p in parts[2].strip().split("/") if p]
+        if ".." in names:
+            break
+        for depth in range(len(names), 0, -1):
+            candidate = os.path.join(base, *names[:depth])
+            if os.path.isdir(candidate):
+                dirs.append(candidate)
+        break
+    dirs.append(base)
+    return dirs
+
+
+def _binding_dir(dirs: List[str], read_limit) -> Tuple[str, Optional[float]]:
+    """The directory with the smallest limit, which is the one the kernel enforces.
+
+    `read_limit(dir)` returns the limit of one level or None. Without a limit on
+    any level the nearest directory is returned with None.
+    """
+    best, best_limit = dirs[0], None  # type: str, Optional[float]
+    for cg_dir in dirs:
+        limit = read_limit(cg_dir)
+        if limit is not None and (best_limit is None or limit < best_limit):
+            best, best_limit = cg_dir, limit
+    return best, best_limit
+
+
+def _read_cpu_max(cg_dir: str) -> Optional[float]:
+    cpu_max = (_read_text(os.path.join(cg_dir, "cpu.max")) or "").split()
+    if len(cpu_max) != 2 or cpu_max[0] == "max":
+        return None
+    try:
+        return int(cpu_max[0]) / int(cpu_max[1])
+    except (ValueError, ZeroDivisionError):
+        return None
+
+
+def _read_cfs_quota(cg_dir: str) -> Optional[float]:
+    quota = _read_int(os.path.join(cg_dir, "cpu.cfs_quota_us"))
+    period = _read_int(os.path.join(cg_dir, "cpu.cfs_period_us"))
+    if quota is None or quota <= 0 or not period:
+        return None
+    return quota / period
+
+
+def _read_v1_memory_limit(cg_dir: str) -> Optional[int]:
+    limit = _read_int(os.path.join(cg_dir, "memory.limit_in_bytes"))
+    if limit is None or limit >= _V1_UNLIMITED:
+        return None
+    return limit
+
+
+def _query_cgroup_v2(dirs: List[str]) -> Dict:
     results = {}  # type: Dict[str, float]
-    current = _read_int(os.path.join(cg_dir, "memory.current"))
+    # Usage is read where the limit is enforced, so percent is what the OOM
+    # killer sees. A limit on a parent cgroup is found this way.
+    mem_dir, maximum = _binding_dir(
+        dirs, lambda d: _read_int(os.path.join(d, "memory.max"))
+    )
+    current = _read_int(os.path.join(mem_dir, "memory.current"))
     if current is not None:
         results["cgroup_memory_current"] = current
-    maximum = _read_int(os.path.join(cg_dir, "memory.max"))
     if maximum is not None:
         results["cgroup_memory_max"] = maximum
         if current is not None and maximum:
             results["cgroup_memory_percent"] = round(100.0 * current / maximum, 2)
-    stat = _read_kv(os.path.join(cg_dir, "memory.stat"))
+    stat = _read_kv(os.path.join(mem_dir, "memory.stat"))
     if "shmem" in stat:
         results["cgroup_memory_shmem"] = stat["shmem"]
-    events = _read_kv(os.path.join(cg_dir, "memory.events"))
+    events = _read_kv(os.path.join(mem_dir, "memory.events"))
     if "oom_kill" in events:
         results["cgroup_oom_kill"] = events["oom_kill"]
 
-    cpu = _read_kv(os.path.join(cg_dir, "cpu.stat"))
+    cpu_dir, quota = _binding_dir(dirs, _read_cpu_max)
+    cpu = _read_kv(os.path.join(cpu_dir, "cpu.stat"))
     if "nr_throttled" in cpu:
         results["cgroup_cpu_nr_throttled"] = cpu["nr_throttled"]
     if "throttled_usec" in cpu:
         results["cgroup_cpu_throttled_usec"] = cpu["throttled_usec"]
-    cpu_max = (_read_text(os.path.join(cg_dir, "cpu.max")) or "").split()
-    if len(cpu_max) == 2 and cpu_max[0] != "max":
-        try:
-            results["cgroup_cpu_quota_cpus"] = round(
-                int(cpu_max[0]) / int(cpu_max[1]), 3
-            )
-        except (ValueError, ZeroDivisionError):
-            pass
+    if quota is not None:
+        results["cgroup_cpu_quota_cpus"] = round(quota, 3)
     return _only_if_limited(results)
-
-
-def _cgroup_v1_dir(proc_root: str, cgroup_root: str, controller: str) -> Optional[str]:
-    base = os.path.join(cgroup_root, controller)
-    if not os.path.isdir(base):
-        return None
-    text = _read_text(os.path.join(proc_root, "self", "cgroup")) or ""
-    for line in text.splitlines():
-        parts = line.split(":")
-        if len(parts) == 3 and controller in parts[1].split(","):
-            candidate = os.path.join(base, parts[2].strip().lstrip("/"))
-            if os.path.isdir(candidate):
-                return candidate
-    return base
 
 
 def _query_cgroup_v1(proc_root: str, cgroup_root: str) -> Dict:
     results = {}  # type: Dict[str, float]
-    mem_dir = _cgroup_v1_dir(proc_root, cgroup_root, "memory")
-    if mem_dir:
+    mem_dirs = _cgroup_dirs_v1(proc_root, cgroup_root, "memory")
+    if mem_dirs:
+        mem_dir, maximum = _binding_dir(mem_dirs, _read_v1_memory_limit)
         current = _read_int(os.path.join(mem_dir, "memory.usage_in_bytes"))
         if current is not None:
             results["cgroup_memory_current"] = current
-        maximum = _read_int(os.path.join(mem_dir, "memory.limit_in_bytes"))
-        if maximum is not None and maximum < _V1_UNLIMITED:
+        if maximum is not None:
             results["cgroup_memory_max"] = maximum
             if current is not None and maximum:
                 results["cgroup_memory_percent"] = round(100.0 * current / maximum, 2)
@@ -305,28 +363,29 @@ def _query_cgroup_v1(proc_root: str, cgroup_root: str) -> Dict:
         if "oom_kill" in oom:
             results["cgroup_oom_kill"] = oom["oom_kill"]
 
-    cpu_dir = _cgroup_v1_dir(proc_root, cgroup_root, "cpu")
-    if cpu_dir:
+    cpu_dirs = _cgroup_dirs_v1(proc_root, cgroup_root, "cpu")
+    if cpu_dirs:
+        cpu_dir, quota = _binding_dir(cpu_dirs, _read_cfs_quota)
         cpu = _read_kv(os.path.join(cpu_dir, "cpu.stat"))
         if "nr_throttled" in cpu:
             results["cgroup_cpu_nr_throttled"] = cpu["nr_throttled"]
         if "throttled_time" in cpu:
             results["cgroup_cpu_throttled_usec"] = cpu["throttled_time"] // 1000
-        quota = _read_int(os.path.join(cpu_dir, "cpu.cfs_quota_us"))
-        period = _read_int(os.path.join(cpu_dir, "cpu.cfs_period_us"))
-        if quota is not None and quota > 0 and period:
-            results["cgroup_cpu_quota_cpus"] = round(quota / period, 3)
+        if quota is not None:
+            results["cgroup_cpu_quota_cpus"] = round(quota, 3)
     return _only_if_limited(results)
 
 
 def query_cgroup(proc_root: str = PROC_ROOT, cgroup_root: str = CGROUP_ROOT) -> Dict:
-    """Memory and CPU accounting of the cgroup that holds the current process.
+    """Memory and CPU accounting of the cgroup that limits the current process.
 
-    This is the pod or container limit, which `psutil.virtual_memory()` does not see.
+    The limit is the smallest one on the process's cgroup and its parents, which
+    is how the kernel enforces it. This is the pod or container limit, which
+    `psutil.virtual_memory()` does not see.
     """
-    cg_dir = _cgroup_v2_dir(proc_root, cgroup_root)
-    if cg_dir:
-        return _query_cgroup_v2(cg_dir)
+    dirs = _cgroup_dirs_v2(proc_root, cgroup_root)
+    if dirs:
+        return _query_cgroup_v2(dirs)
     return _query_cgroup_v1(proc_root, cgroup_root)
 
 

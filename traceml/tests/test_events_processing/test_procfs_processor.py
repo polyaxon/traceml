@@ -228,6 +228,43 @@ class TestProcfsProcessor(BaseTestCase):
         assert results["cgroup_cpu_throttled_usec"] == 2000
         assert results["cgroup_cpu_quota_cpus"] == 2.0
 
+    def test_cgroup_v2_limit_on_parent(self):
+        # Kubernetes sets the pod limit on the parent; the container is a child.
+        self._make_cgroup_v2(memory_max="max", cpu_max="max 100000")
+        lab = os.path.join(self.cgroup, "lab")
+        _write(os.path.join(lab, "memory.max"), "2147483648\n")
+        _write(os.path.join(lab, "memory.current"), "1610612736\n")
+        _write(os.path.join(lab, "memory.events"), "oom_kill 3\n")
+        _write(os.path.join(lab, "cpu.max"), "50000 100000\n")
+        _write(os.path.join(lab, "cpu.stat"), "nr_throttled 7\nthrottled_usec 500\n")
+        results = query_cgroup(proc_root=self.proc, cgroup_root=self.cgroup)
+        assert results["cgroup_memory_max"] == 2147483648
+        assert results["cgroup_memory_current"] == 1610612736
+        assert results["cgroup_memory_percent"] == 75.0
+        assert results["cgroup_oom_kill"] == 3
+        assert results["cgroup_cpu_quota_cpus"] == 0.5
+        assert results["cgroup_cpu_nr_throttled"] == 7
+
+    def test_cgroup_v2_smallest_limit_wins(self):
+        self._make_cgroup_v2(memory_max="1073741824")
+        _write(os.path.join(self.cgroup, "lab", "memory.max"), "2147483648\n")
+        _write(os.path.join(self.cgroup, "lab", "memory.current"), "1\n")
+        results = query_cgroup(proc_root=self.proc, cgroup_root=self.cgroup)
+        assert results["cgroup_memory_max"] == 1073741824
+        assert results["cgroup_memory_current"] == 1073741824
+
+    def test_cgroup_v1_limit_on_parent(self):
+        self._make_cgroup_v1()
+        pod = os.path.join(self.cgroup, "memory", "kubepods", "pod1")
+        parent = os.path.join(self.cgroup, "memory", "kubepods")
+        _write(os.path.join(pod, "memory.limit_in_bytes"), "9223372036854771712\n")
+        _write(os.path.join(parent, "memory.limit_in_bytes"), "1073741824\n")
+        _write(os.path.join(parent, "memory.usage_in_bytes"), "805306368\n")
+        results = query_cgroup(proc_root=self.proc, cgroup_root=self.cgroup)
+        assert results["cgroup_memory_max"] == 1073741824
+        assert results["cgroup_memory_current"] == 805306368
+        assert results["cgroup_memory_percent"] == 75.0
+
     def test_no_cgroup(self):
         assert query_cgroup(proc_root=self.proc, cgroup_root=self.cgroup) == {}
 
