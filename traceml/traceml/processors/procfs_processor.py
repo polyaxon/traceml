@@ -223,53 +223,121 @@ def _only_if_limited(results: Dict) -> Dict:
     return {}
 
 
-def _cgroup_dirs_v2(proc_root: str, cgroup_root: str) -> List[str]:
-    """Directories of the process's cgroup v2 hierarchy, nearest first, root last.
+def _path_parts(path: str) -> List[str]:
+    return [p for p in path.split("/") if p]
 
-    Only directories that exist are returned. Inside a container the path in
-    /proc/self/cgroup is the host path, but the mount only shows the
-    container's own cgroup at its root, so the root is always included.
+
+def _cgroup_membership(proc_root: str, controller: Optional[str]) -> str:
+    """The process's cgroup path from /proc/self/cgroup, relative to the hierarchy root.
+
+    `controller` is None for cgroup v2 (the `0::` entry) and the controller name
+    for cgroup v1 (the entry that lists it).
     """
-    if not os.path.exists(os.path.join(cgroup_root, "cgroup.controllers")):
-        return []
-    dirs = []  # type: List[str]
     text = _read_text(os.path.join(proc_root, "self", "cgroup")) or ""
     for line in text.splitlines():
-        if not line.startswith("0::"):
+        parts = line.strip().split(":", 2)
+        if len(parts) != 3:
             continue
-        parts = [p for p in line[3:].strip().split("/") if p]
-        # "/../x" is a cgroup outside this namespace and cannot be resolved.
-        if ".." in parts:
-            break
-        for depth in range(len(parts), 0, -1):
-            candidate = os.path.join(cgroup_root, *parts[:depth])
-            if os.path.isdir(candidate):
-                dirs.append(candidate)
-        break
-    dirs.append(cgroup_root)
+        is_v2 = controller is None and parts[0] == "0" and parts[1] == ""
+        is_v1 = controller is not None and controller in parts[1].split(",")
+        if is_v2 or is_v1:
+            return parts[2]
+    return ""
+
+
+def _cgroup_mount(
+    proc_root: str, cgroup_root: str, controller: Optional[str], membership: str
+) -> Tuple[str, str]:
+    """(mount point, mount root) of the cgroup hierarchy from /proc/self/mountinfo.
+
+    A mount can expose a subtree of the hierarchy (mount root other than "/"),
+    which is what Docker does with the host cgroup namespace, cgroup v1 can
+    co-mount controllers under a name such as "cpu,cpuacct", and several mounts
+    can match, e.g. a bind-mounted subtree next to the full hierarchy. The
+    mount whose root contains `membership` is used; among those the one with
+    the shortest root, because it exposes the most ancestors and an ancestor
+    limit still applies. Then the first match, then `cgroup_root`.
+    """
+    candidates = []  # type: List[Tuple[str, str]]
+    text = _read_text(os.path.join(proc_root, "self", "mountinfo")) or ""
+    for line in text.splitlines():
+        before, separator, after = line.partition(" - ")
+        mount_fields, fs_fields = before.split(), after.split()
+        if not separator or len(mount_fields) < 5 or len(fs_fields) < 3:
+            continue
+        fs_type, super_options = fs_fields[0], fs_fields[2].split(",")
+        is_v2 = controller is None and fs_type == "cgroup2"
+        is_v1 = (
+            controller is not None
+            and fs_type == "cgroup"
+            and controller in super_options
+        )
+        if is_v2 or is_v1:
+            # mountinfo escapes spaces as \040.
+            candidates.append(
+                (
+                    mount_fields[4].replace("\\040", " "),
+                    mount_fields[3].replace("\\040", " "),
+                )
+            )
+    member_parts = _path_parts(membership)
+    containing = [
+        (point, root)
+        for point, root in candidates
+        if member_parts[: len(_path_parts(root))] == _path_parts(root)
+    ]
+    if containing:
+        return min(containing, key=lambda mount: len(_path_parts(mount[1])))
+    if candidates:
+        return candidates[0]
+    if controller is None:
+        return cgroup_root, "/"
+    return os.path.join(cgroup_root, controller), "/"
+
+
+def _cgroup_dirs(
+    proc_root: str, cgroup_root: str, controller: Optional[str]
+) -> List[str]:
+    """Directories of the process's cgroup, nearest first, mount point last.
+
+    /proc/self/cgroup is relative to the hierarchy root while the mount starts
+    at its mount root, so the mount root is stripped from the path first.
+    Levels that do not exist in the mount are skipped; the mount point is
+    always included.
+    """
+    membership = _cgroup_membership(proc_root, controller)
+    mount_point, mount_root = _cgroup_mount(
+        proc_root, cgroup_root, controller, membership
+    )
+    parts = _path_parts(membership)
+    root_parts = _path_parts(mount_root)
+    if ".." in parts:
+        # A cgroup outside this cgroup namespace cannot be resolved from here.
+        parts = []
+    elif parts[: len(root_parts)] == root_parts:
+        parts = parts[len(root_parts) :]
+    dirs = []  # type: List[str]
+    for depth in range(len(parts), 0, -1):
+        candidate = os.path.join(mount_point, *parts[:depth])
+        if os.path.isdir(candidate):
+            dirs.append(candidate)
+    dirs.append(mount_point)
+    return dirs
+
+
+def _cgroup_dirs_v2(proc_root: str, cgroup_root: str) -> List[str]:
+    """Directories of the process's cgroup v2 hierarchy, or [] without cgroup v2."""
+    dirs = _cgroup_dirs(proc_root, cgroup_root, None)
+    if not os.path.exists(os.path.join(dirs[-1], "cgroup.controllers")):
+        return []
     return dirs
 
 
 def _cgroup_dirs_v1(proc_root: str, cgroup_root: str, controller: str) -> List[str]:
     """Directories of the process's cgroup v1 `controller` hierarchy, nearest first."""
-    base = os.path.join(cgroup_root, controller)
-    if not os.path.isdir(base):
+    dirs = _cgroup_dirs(proc_root, cgroup_root, controller)
+    if not os.path.isdir(dirs[-1]):
         return []
-    dirs = []  # type: List[str]
-    text = _read_text(os.path.join(proc_root, "self", "cgroup")) or ""
-    for line in text.splitlines():
-        parts = line.split(":")
-        if len(parts) != 3 or controller not in parts[1].split(","):
-            continue
-        names = [p for p in parts[2].strip().split("/") if p]
-        if ".." in names:
-            break
-        for depth in range(len(names), 0, -1):
-            candidate = os.path.join(base, *names[:depth])
-            if os.path.isdir(candidate):
-                dirs.append(candidate)
-        break
-    dirs.append(base)
     return dirs
 
 
@@ -285,6 +353,33 @@ def _binding_dir(dirs: List[str], read_limit) -> Tuple[str, Optional[float]]:
         if limit is not None and (best_limit is None or limit < best_limit):
             best, best_limit = cg_dir, limit
     return best, best_limit
+
+
+def _tightest_dir(
+    dirs: List[str], read_limit, read_current
+) -> Tuple[str, Optional[int], Optional[int]]:
+    """(directory, limit, current) of the limited level with the least headroom.
+
+    A parent limit also counts the usage of the process's siblings, so a parent
+    with a larger limit can be closer to it than the process's own cgroup, and
+    the OOM killer fires at that level first. Levels without a limit do not
+    count; a limited level whose usage cannot be read ranks after every level
+    whose usage can. Without a limit on any level the nearest directory is
+    returned with its usage and None.
+    """
+    best = None  # type: Optional[Tuple[str, int, Optional[int]]]
+    best_key = None  # type: Optional[Tuple[bool, int]]
+    for cg_dir in dirs:
+        limit = read_limit(cg_dir)
+        if limit is None:
+            continue
+        current = read_current(cg_dir)
+        key = (current is None, limit if current is None else limit - current)
+        if best_key is None or key < best_key:
+            best, best_key = (cg_dir, limit, current), key
+    if best is None:
+        return dirs[0], None, read_current(dirs[0])
+    return best
 
 
 def _read_cpu_max(cg_dir: str) -> Optional[float]:
@@ -314,12 +409,13 @@ def _read_v1_memory_limit(cg_dir: str) -> Optional[int]:
 
 def _query_cgroup_v2(dirs: List[str]) -> Dict:
     results = {}  # type: Dict[str, float]
-    # Usage is read where the limit is enforced, so percent is what the OOM
-    # killer sees. A limit on a parent cgroup is found this way.
-    mem_dir, maximum = _binding_dir(
-        dirs, lambda d: _read_int(os.path.join(d, "memory.max"))
+    # Usage is read on the level that is closest to its limit, so percent is
+    # what the OOM killer sees. A limit on a parent cgroup is found this way.
+    mem_dir, maximum, current = _tightest_dir(
+        dirs,
+        lambda d: _read_int(os.path.join(d, "memory.max")),
+        lambda d: _read_int(os.path.join(d, "memory.current")),
     )
-    current = _read_int(os.path.join(mem_dir, "memory.current"))
     if current is not None:
         results["cgroup_memory_current"] = current
     if maximum is not None:
@@ -348,8 +444,11 @@ def _query_cgroup_v1(proc_root: str, cgroup_root: str) -> Dict:
     results = {}  # type: Dict[str, float]
     mem_dirs = _cgroup_dirs_v1(proc_root, cgroup_root, "memory")
     if mem_dirs:
-        mem_dir, maximum = _binding_dir(mem_dirs, _read_v1_memory_limit)
-        current = _read_int(os.path.join(mem_dir, "memory.usage_in_bytes"))
+        mem_dir, maximum, current = _tightest_dir(
+            mem_dirs,
+            _read_v1_memory_limit,
+            lambda d: _read_int(os.path.join(d, "memory.usage_in_bytes")),
+        )
         if current is not None:
             results["cgroup_memory_current"] = current
         if maximum is not None:
@@ -379,13 +478,17 @@ def _query_cgroup_v1(proc_root: str, cgroup_root: str) -> Dict:
 def query_cgroup(proc_root: str = PROC_ROOT, cgroup_root: str = CGROUP_ROOT) -> Dict:
     """Memory and CPU accounting of the cgroup that limits the current process.
 
-    The limit is the smallest one on the process's cgroup and its parents, which
-    is how the kernel enforces it. This is the pod or container limit, which
-    `psutil.virtual_memory()` does not see.
+    Memory is read on the level, from the process's cgroup up to the root, that
+    is closest to its limit; the cpu quota is the smallest one. This is the pod
+    or container limit, which `psutil.virtual_memory()` does not see.
+
+    cgroup v1 is tried when cgroup v2 reports no limit: on a systemd hybrid
+    host cgroup v2 is mounted without controllers and the limits live in v1.
     """
     dirs = _cgroup_dirs_v2(proc_root, cgroup_root)
-    if dirs:
-        return _query_cgroup_v2(dirs)
+    results = _query_cgroup_v2(dirs) if dirs else {}
+    if results:
+        return results
     return _query_cgroup_v1(proc_root, cgroup_root)
 
 

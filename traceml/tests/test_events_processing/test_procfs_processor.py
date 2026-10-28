@@ -265,6 +265,141 @@ class TestProcfsProcessor(BaseTestCase):
         assert results["cgroup_memory_current"] == 805306368
         assert results["cgroup_memory_percent"] == 75.0
 
+    def _write_mountinfo(self, *mounts):
+        """Fake /proc/self/mountinfo from (root, mount point, fs type, options)."""
+        lines = [
+            "%d 25 0:%d %s %s rw,nosuid - %s %s %s\n"
+            % (30 + i, 27 + i, root, point, fs_type, fs_type, options)
+            for i, (root, point, fs_type, options) in enumerate(mounts)
+        ]
+        _write(os.path.join(self.proc, "self", "mountinfo"), "".join(lines))
+
+    def _check_subtree_alias(self, reverse):
+        # Two mounts contain the process: the full hierarchy and a bind mount
+        # of the container's own subtree. The full view must win, because the
+        # parent limit still applies.
+        ctr = os.path.join(self.root, "ctr")
+        _write(os.path.join(self.proc, "self", "cgroup"), "0::/pod/ctr\n")
+        mounts = [
+            ("/", self.cgroup, "cgroup2", "rw"),
+            ("/pod/ctr", ctr, "cgroup2", "rw"),
+        ]
+        self._write_mountinfo(*(mounts[::-1] if reverse else mounts))
+        _write(os.path.join(self.cgroup, "cgroup.controllers"), "cpu memory\n")
+        _write(os.path.join(self.cgroup, "pod", "memory.max"), str(512 << 20) + "\n")
+        _write(
+            os.path.join(self.cgroup, "pod", "memory.current"), str(256 << 20) + "\n"
+        )
+        for leaf in (os.path.join(self.cgroup, "pod", "ctr"), ctr):
+            _write(os.path.join(leaf, "cgroup.controllers"), "cpu memory\n")
+            _write(os.path.join(leaf, "memory.max"), str(1024 << 20) + "\n")
+            _write(os.path.join(leaf, "memory.current"), "0\n")
+        results = query_cgroup(proc_root=self.proc, cgroup_root=self.cgroup)
+        assert results["cgroup_memory_max"] == 512 << 20
+        assert results["cgroup_memory_current"] == 256 << 20
+        assert results["cgroup_memory_percent"] == 50.0
+
+    def test_cgroup_v2_subtree_alias_does_not_hide_parent_limit(self):
+        self._check_subtree_alias(reverse=False)
+
+    def test_cgroup_v2_subtree_alias_listed_first(self):
+        self._check_subtree_alias(reverse=True)
+
+    def test_cgroup_v2_mount_root_is_stripped(self):
+        # Docker with the host cgroup namespace: /proc/self/cgroup is the host
+        # path, the mount starts at the container's cgroup.
+        _write(os.path.join(self.proc, "self", "cgroup"), "0::/docker/abc/pod/app\n")
+        self._write_mountinfo(("/docker/abc", self.cgroup, "cgroup2", "rw"))
+        _write(os.path.join(self.cgroup, "cgroup.controllers"), "cpu memory\n")
+        _write(os.path.join(self.cgroup, "memory.max"), str(1024 << 20) + "\n")
+        _write(os.path.join(self.cgroup, "memory.current"), str(300 << 20) + "\n")
+        pod = os.path.join(self.cgroup, "pod")
+        _write(os.path.join(pod, "memory.max"), str(256 << 20) + "\n")
+        _write(os.path.join(pod, "memory.current"), str(128 << 20) + "\n")
+        _write(os.path.join(pod, "app", "memory.max"), "max\n")
+        results = query_cgroup(proc_root=self.proc, cgroup_root=self.cgroup)
+        assert results["cgroup_memory_max"] == 256 << 20
+        assert results["cgroup_memory_current"] == 128 << 20
+        assert results["cgroup_memory_percent"] == 50.0
+
+    def test_cgroup_v1_mount_root_is_stripped(self):
+        # Same with cgroup v1, where the controllers are co-mounted as in
+        # "cpu,cpuacct" and the memory mount starts at the container's cgroup.
+        _write(
+            os.path.join(self.proc, "self", "cgroup"),
+            "12:memory:/docker/abc/pod/app\n3:cpu,cpuacct:/docker/abc/pod/app\n",
+        )
+        mem = os.path.join(self.cgroup, "memory")
+        cpu = os.path.join(self.cgroup, "cpu,cpuacct")
+        self._write_mountinfo(
+            ("/docker/abc", mem, "cgroup", "rw,memory"),
+            ("/docker/abc", cpu, "cgroup", "rw,cpu,cpuacct"),
+        )
+        _write(os.path.join(mem, "memory.limit_in_bytes"), str(1024 << 20) + "\n")
+        _write(os.path.join(mem, "memory.usage_in_bytes"), str(300 << 20) + "\n")
+        _write(os.path.join(mem, "pod", "memory.limit_in_bytes"), str(256 << 20) + "\n")
+        _write(os.path.join(mem, "pod", "memory.usage_in_bytes"), str(64 << 20) + "\n")
+        _write(
+            os.path.join(mem, "pod", "app", "memory.limit_in_bytes"),
+            "9223372036854771712\n",
+        )
+        _write(os.path.join(cpu, "pod", "cpu.cfs_quota_us"), "150000\n")
+        _write(os.path.join(cpu, "pod", "cpu.cfs_period_us"), "100000\n")
+        _write(os.path.join(cpu, "pod", "app", "cpu.cfs_quota_us"), "-1\n")
+        _write(os.path.join(cpu, "pod", "app", "cpu.stat"), "nr_throttled 0\n")
+        results = query_cgroup(proc_root=self.proc, cgroup_root=self.cgroup)
+        assert results["cgroup_memory_max"] == 256 << 20
+        assert results["cgroup_memory_current"] == 64 << 20
+        assert results["cgroup_memory_percent"] == 25.0
+        assert results["cgroup_cpu_quota_cpus"] == 1.5
+
+    def test_cgroup_v2_mount_point_with_escaped_space(self):
+        # mountinfo escapes a space in a path as \040.
+        mount = os.path.join(self.root, "my cg")
+        _write(os.path.join(self.proc, "self", "cgroup"), "0::/job\n")
+        self._write_mountinfo(("/", mount.replace(" ", "\\040"), "cgroup2", "rw"))
+        _write(os.path.join(mount, "cgroup.controllers"), "cpu memory\n")
+        _write(os.path.join(mount, "job", "memory.max"), str(1024 << 20) + "\n")
+        _write(os.path.join(mount, "job", "memory.current"), str(512 << 20) + "\n")
+        results = query_cgroup(proc_root=self.proc, cgroup_root=self.cgroup)
+        assert results["cgroup_memory_max"] == 1024 << 20
+        assert results["cgroup_memory_percent"] == 50.0
+
+    def test_cgroup_v2_least_headroom_wins(self):
+        # The parent has the larger limit but, with the siblings' usage, less
+        # headroom: the OOM killer fires there first.
+        self._make_cgroup_v2(memory_max=str(1024 << 20))
+        _write(os.path.join(self.cgroup, "lab", "box", "memory.current"), "0\n")
+        lab = os.path.join(self.cgroup, "lab")
+        _write(os.path.join(lab, "memory.max"), str(2048 << 20) + "\n")
+        _write(os.path.join(lab, "memory.current"), str(1920 << 20) + "\n")
+        _write(os.path.join(lab, "memory.events"), "oom_kill 4\n")
+        results = query_cgroup(proc_root=self.proc, cgroup_root=self.cgroup)
+        assert results["cgroup_memory_max"] == 2048 << 20
+        assert results["cgroup_memory_current"] == 1920 << 20
+        assert results["cgroup_memory_percent"] == 93.75
+        assert results["cgroup_oom_kill"] == 4
+
+    def test_cgroup_hybrid_host_reads_v1(self):
+        # systemd hybrid layout: cgroup v2 mounted without controllers, the
+        # limits live in cgroup v1.
+        self._make_cgroup_v1()
+        unified = os.path.join(self.root, "unified")
+        _write(os.path.join(unified, "cgroup.controllers"), "\n")
+        _write(
+            os.path.join(self.proc, "self", "cgroup"),
+            "12:memory:/kubepods/pod1\n3:cpu,cpuacct:/kubepods/pod1\n"
+            "0::/kubepods/pod1\n",
+        )
+        self._write_mountinfo(
+            ("/", unified, "cgroup2", "rw"),
+            ("/", os.path.join(self.cgroup, "memory"), "cgroup", "rw,memory"),
+            ("/", os.path.join(self.cgroup, "cpu"), "cgroup", "rw,cpu,cpuacct"),
+        )
+        results = query_cgroup(proc_root=self.proc, cgroup_root=self.cgroup)
+        assert results["cgroup_memory_max"] == 1073741824
+        assert results["cgroup_cpu_quota_cpus"] == 2.0
+
     def test_no_cgroup(self):
         assert query_cgroup(proc_root=self.proc, cgroup_root=self.cgroup) == {}
 
